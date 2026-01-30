@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, COLORS, CURSOR_JUMP_STEP } from '../config';
 import { Building, BuildingType } from '../types';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
+import { getRecipesForBuilding } from '../data/recipes';
 import { Simulation } from '../Simulation';
 import { getBufferTotal } from '../utils';
 
@@ -26,6 +27,11 @@ export class GameScene extends Phaser.Scene {
   // Simulation
   private simulation!: Simulation;
 
+  // UI state
+  private showAllBuffers = false;
+  private menuOpen = false;
+  private inventoryOpen = false;
+
   // Keys
   private keys!: {
     W: Phaser.Input.Keyboard.Key;
@@ -35,6 +41,10 @@ export class GameScene extends Phaser.Scene {
     SPACE: Phaser.Input.Keyboard.Key;
     BACKSPACE: Phaser.Input.Keyboard.Key;
     R: Phaser.Input.Keyboard.Key;
+    P: Phaser.Input.Keyboard.Key;
+    I: Phaser.Input.Keyboard.Key;
+    H: Phaser.Input.Keyboard.Key;
+    C: Phaser.Input.Keyboard.Key;
     ONE: Phaser.Input.Keyboard.Key;
     TWO: Phaser.Input.Keyboard.Key;
     THREE: Phaser.Input.Keyboard.Key;
@@ -68,8 +78,8 @@ export class GameScene extends Phaser.Scene {
     // Draw grid
     this.drawGrid();
 
-    // Place some ore patches for testing
-    this.placeTestOrePatches();
+    // Place crystal veins for testing
+    this.placeCrystalVeins();
 
     // Setup input
     this.setupInput();
@@ -78,6 +88,10 @@ export class GameScene extends Phaser.Scene {
     this.cursor.x = Math.floor(GRID_WIDTH / 2);
     this.cursor.y = Math.floor(GRID_HEIGHT / 2);
     this.updateCursor();
+
+    // Start simulation immediately
+    this.simulation.setBuildings(this.buildings);
+    this.simulation.start();
 
     // Initial UI update
     this.emitUIUpdate();
@@ -94,12 +108,12 @@ export class GameScene extends Phaser.Scene {
     };
   }
 
-  private placeTestOrePatches(): void {
-    // Iron ore patch on the left side
-    this.simulation.placeOrePatch(5, 8, 6, 6, 'iron_ore');
+  private placeCrystalVeins(): void {
+    // Arcstone vein on the left side (blue-purple crystals)
+    this.simulation.placeCrystalVein(5, 8, 6, 6, 'arcstone');
 
-    // Copper ore patch on the right side
-    this.simulation.placeOrePatch(30, 8, 6, 6, 'copper_ore');
+    // Sunite vein on the right side (amber-gold crystals)
+    this.simulation.placeCrystalVein(30, 8, 6, 6, 'sunite');
 
     this.drawTerrain();
   }
@@ -111,13 +125,13 @@ export class GameScene extends Phaser.Scene {
       for (let x = 0; x < GRID_WIDTH; x++) {
         const terrain = this.simulation.getTerrain(x, y);
 
-        if (terrain === 'iron_ore') {
-          // Blue-gray for iron
-          this.terrainGraphics.fillStyle(0x4a5462, 1);
+        if (terrain === 'arcstone') {
+          // Blue-purple for arcstone crystals
+          this.terrainGraphics.fillStyle(COLORS.arcstoneBase, 1);
           this.terrainGraphics.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
 
-          // Pattern overlay (diagonal lines for iron)
-          this.terrainGraphics.lineStyle(1, 0x6c7a89, 0.5);
+          // Crystal pattern overlay (diagonal facets)
+          this.terrainGraphics.lineStyle(1, COLORS.arcstoneHighlight, 0.5);
           for (let i = 0; i < TILE_SIZE; i += 4) {
             this.terrainGraphics.lineBetween(
               x * TILE_SIZE + i,
@@ -132,13 +146,13 @@ export class GameScene extends Phaser.Scene {
               y * TILE_SIZE + TILE_SIZE
             );
           }
-        } else if (terrain === 'copper_ore') {
-          // Orange-brown for copper
-          this.terrainGraphics.fillStyle(0x8b4513, 1);
+        } else if (terrain === 'sunite') {
+          // Amber-gold for sunite crystals
+          this.terrainGraphics.fillStyle(COLORS.suniteBase, 1);
           this.terrainGraphics.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
 
-          // Pattern overlay (dots for copper)
-          this.terrainGraphics.fillStyle(0xb87333, 0.6);
+          // Glowing pattern overlay (radiant dots)
+          this.terrainGraphics.fillStyle(COLORS.suniteHighlight, 0.6);
           this.terrainGraphics.fillCircle(
             x * TILE_SIZE + TILE_SIZE / 2,
             y * TILE_SIZE + TILE_SIZE / 2,
@@ -177,6 +191,10 @@ export class GameScene extends Phaser.Scene {
       SPACE: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
       BACKSPACE: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.BACKSPACE),
       R: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R),
+      P: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P),
+      I: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.I),
+      H: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.H),
+      C: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C),
       ONE: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ONE),
       TWO: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO),
       THREE: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE),
@@ -195,19 +213,25 @@ export class GameScene extends Phaser.Scene {
     this.keys.D.on('down', () => this.moveCursor(1, 0));
 
     // Building selection
-    this.keys.ONE.on('down', () => this.selectBuilding('miner'));
-    this.keys.TWO.on('down', () => this.selectBuilding('furnace'));
-    this.keys.THREE.on('down', () => this.selectBuilding('assembler'));
-    this.keys.FOUR.on('down', () => this.selectBuilding('chest'));
+    this.keys.ONE.on('down', () => this.selectBuilding('quarry'));
+    this.keys.TWO.on('down', () => this.selectBuilding('forge'));
+    this.keys.THREE.on('down', () => this.selectBuilding('workbench'));
+    this.keys.FOUR.on('down', () => this.selectBuilding('coffer'));
 
     // Actions
+    this.keys.SPACE.on('down', () => this.placeBuilding());
     this.keys.ENTER.on('down', () => this.placeBuilding());
     this.keys.BACKSPACE.on('down', () => this.deleteBuilding());
     this.keys.R.on('down', () => this.rotate());
-    this.keys.ESC.on('down', () => this.deselect());
+    this.keys.ESC.on('down', () => this.handleEsc());
 
-    // Simulation controls
-    this.keys.SPACE.on('down', () => this.toggleSimulation());
+    // Toggle controls
+    this.keys.P.on('down', () => this.togglePause());
+    this.keys.I.on('down', () => this.toggleInventory());
+    this.keys.H.on('down', () => this.toggleBufferDisplay());
+    this.keys.C.on('down', () => this.cycleRecipe());
+
+    // Simulation speed controls
     this.keys.COMMA.on('down', () => this.changeSpeed(-1));
     this.keys.PERIOD.on('down', () => this.changeSpeed(1));
   }
@@ -217,6 +241,7 @@ export class GameScene extends Phaser.Scene {
     this.cursor.x = Phaser.Math.Clamp(this.cursor.x + dx * step, 0, GRID_WIDTH - 1);
     this.cursor.y = Phaser.Math.Clamp(this.cursor.y + dy * step, 0, GRID_HEIGHT - 1);
     this.updateCursor();
+    this.updateBufferIndicators();
     this.emitUIUpdate();
   }
 
@@ -228,28 +253,76 @@ export class GameScene extends Phaser.Scene {
     this.emitUIUpdate();
   }
 
-  private deselect(): void {
-    this.selectedBuilding = null;
-    this.ghostRotation = 0;
-    if (this.ghostSprite) {
-      this.ghostSprite.destroy();
-      this.ghostSprite = null;
+  private handleEsc(): void {
+    // If menu is open, close it
+    if (this.menuOpen) {
+      this.closeMenu();
+      return;
     }
-    this.updateCursor();
+
+    // If inventory is open, close it
+    if (this.inventoryOpen) {
+      this.toggleInventory();
+      return;
+    }
+
+    // If building is selected, deselect it
+    if (this.selectedBuilding) {
+      this.selectedBuilding = null;
+      this.ghostRotation = 0;
+      if (this.ghostSprite) {
+        this.ghostSprite.destroy();
+        this.ghostSprite = null;
+      }
+      this.updateCursor();
+      this.emitUIUpdate();
+      return;
+    }
+
+    // Otherwise, open menu
+    this.openMenu();
+  }
+
+  private openMenu(): void {
+    this.menuOpen = true;
+    this.events.emit('menuOpened');
     this.emitUIUpdate();
   }
 
-  private toggleSimulation(): void {
-    const state = this.simulation.getState();
+  private closeMenu(): void {
+    this.menuOpen = false;
+    this.events.emit('menuClosed');
+    this.emitUIUpdate();
+  }
 
-    if (!state.running) {
-      // Start simulation
-      this.simulation.setBuildings(this.buildings);
-      this.simulation.start();
-    } else {
-      // Stop simulation
-      this.simulation.stop();
-    }
+  private togglePause(): void {
+    this.simulation.togglePause();
+    this.emitUIUpdate();
+  }
+
+  private toggleInventory(): void {
+    this.inventoryOpen = !this.inventoryOpen;
+    this.events.emit('inventoryToggled', this.inventoryOpen);
+    this.emitUIUpdate();
+  }
+
+  private toggleBufferDisplay(): void {
+    this.showAllBuffers = !this.showAllBuffers;
+    this.updateBufferIndicators();
+  }
+
+  private cycleRecipe(): void {
+    // Only works when cursor is over a workbench
+    const building = this.getBuildingAtCursor();
+    if (!building || building.type !== 'workbench') return;
+
+    const recipes = getRecipesForBuilding('workbench');
+    if (recipes.length === 0) return;
+
+    const currentIndex = recipes.findIndex((r) => r.id === building.selectedRecipe);
+    const nextIndex = (currentIndex + 1) % recipes.length;
+    building.selectedRecipe = recipes[nextIndex].id;
+
     this.emitUIUpdate();
   }
 
@@ -259,6 +332,7 @@ export class GameScene extends Phaser.Scene {
     const currentIndex = speeds.indexOf(state.speed);
     const newIndex = Phaser.Math.Clamp(currentIndex + delta, 0, speeds.length - 1);
     this.simulation.setSpeed(speeds[newIndex]);
+    this.emitUIUpdate();
   }
 
   private updateGhostSprite(): void {
@@ -325,13 +399,13 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    // Miners must be on ore patches
-    if (this.selectedBuilding === 'miner') {
+    // Quarries must be on crystal veins
+    if (this.selectedBuilding === 'quarry') {
       let hasOre = false;
       for (let dy = 0; dy < def.height; dy++) {
         for (let dx = 0; dx < def.width; dx++) {
           const terrain = this.simulation.getTerrain(x + dx, y + dy);
-          if (terrain === 'iron_ore' || terrain === 'copper_ore') {
+          if (terrain === 'arcstone' || terrain === 'sunite') {
             hasOre = true;
             break;
           }
@@ -350,6 +424,17 @@ export class GameScene extends Phaser.Scene {
     const x = this.cursor.x;
     const y = this.cursor.y;
 
+    // Determine initial recipe for buildings that need one
+    // Note: Forges auto-detect recipe based on input (see Simulation.updateForge),
+    // but we set a default here for potential future UI display purposes.
+    // Workbenches require a recipe to function.
+    let selectedRecipe: string | null = null;
+    if (this.selectedBuilding === 'forge') {
+      selectedRecipe = 'purify_arcstone';
+    } else if (this.selectedBuilding === 'workbench') {
+      selectedRecipe = 'forge_cogwheel';
+    }
+
     // Create building data
     const building: Building = {
       id: this.buildingIdCounter++,
@@ -360,7 +445,7 @@ export class GameScene extends Phaser.Scene {
       inputBuffer: new Map(),
       outputBuffer: new Map(),
       craftProgress: 0,
-      selectedRecipe: this.selectedBuilding === 'furnace' ? 'smelt_iron' : null, // Auto-select for furnace
+      selectedRecipe,
       ticksStarved: 0,
       ticksBlocked: 0,
     };
@@ -436,14 +521,38 @@ export class GameScene extends Phaser.Scene {
     this.positionGhost();
   }
 
+  private getBuildingAtCursor(): Building | null {
+    const x = this.cursor.x;
+    const y = this.cursor.y;
+    for (const building of this.buildings) {
+      const def = BUILDING_DEFINITIONS[building.type];
+      if (
+        x >= building.x &&
+        x < building.x + def.width &&
+        y >= building.y &&
+        y < building.y + def.height
+      ) {
+        return building;
+      }
+    }
+    return null;
+  }
+
   private updateBufferIndicators(): void {
+    const buildingUnderCursor = this.getBuildingAtCursor();
+
     for (const building of this.buildings) {
       let indicator = this.bufferIndicators.get(building.id);
 
       const inputCount = getBufferTotal(building.inputBuffer);
       const outputCount = getBufferTotal(building.outputBuffer);
 
-      if (inputCount > 0 || outputCount > 0) {
+      // Show indicator if: showAllBuffers is on, OR cursor is over this building
+      const shouldShow =
+        (inputCount > 0 || outputCount > 0) &&
+        (this.showAllBuffers || building === buildingUnderCursor);
+
+      if (shouldShow) {
         const def = BUILDING_DEFINITIONS[building.type];
         const x = building.x * TILE_SIZE + (def.width * TILE_SIZE) / 2;
         const y = building.y * TILE_SIZE - 4;
@@ -464,10 +573,10 @@ export class GameScene extends Phaser.Scene {
         } else {
           indicator.setText(text);
           indicator.setPosition(x, y);
+          indicator.setVisible(true);
         }
       } else if (indicator) {
-        indicator.destroy();
-        this.bufferIndicators.delete(building.id);
+        indicator.setVisible(false);
       }
     }
   }
@@ -484,6 +593,8 @@ export class GameScene extends Phaser.Scene {
       simSpeed: state.speed,
       simTick: state.tickCount,
       itemsProduced: Object.fromEntries(state.itemsProduced),
+      menuOpen: this.menuOpen,
+      inventoryOpen: this.inventoryOpen,
     });
   }
 

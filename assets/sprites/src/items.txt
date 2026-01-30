@@ -1,67 +1,67 @@
-# Item sprites for Hotkey Foundry
+# Item sprites for Arcane Foundry
 # 8x8 icons (displayed in UI and on machines)
 
-@name iron_ore
+@name arcstone
 @size 8
 
 ..IiIi..
-.IiIiIi.
-IiIjjiIi
-iIjjjjIi
+.IiJjIi.
+IiJjjjIi
+iJjjjjji
 IijjjjiI
 iIIjjiIi
 .iIiIiI.
 ..IiIi..
 
-@name copper_ore
+@name sunite
 @size 8
 
 ..CcCc..
-.CcCcCc.
-CcCddcCc
-cCddddCc
+.CcDdCc.
+CcDdddCc
+cDddddCc
 CcddddcC
 cCCddcCc
 .cCcCcC.
 ..CcCc..
 
-@name iron_plate
+@name arcane_ingot
 @size 8
 
 .iiiiii.
 ijjjjjji
 ijjjjjji
-ijjjjjji
-ijjjjjji
+ijIIIIji
+ijIIIIji
 ijjjjjji
 ijjjjjji
 .iiiiii.
 
-@name copper_plate
+@name sun_ingot
 @size 8
 
 .cccccc.
 cddddddc
 cddddddc
-cddddddc
-cddddddc
+cdCCCCdc
+cdCCCCdc
 cddddddc
 cddddddc
 .cccccc.
 
-@name gear
+@name cogwheel
 @size 8
 
 .3i..i3.
 3iiiiiii
 iijjjjii
-.ijjjji.
-.ijjjji.
+.ijIIji.
+.ijIIji.
 iijjjjii
 3iiiiiii
 .3i..i3.
 
-@name wire
+@name thread
 @size 8
 
 ........
@@ -73,14 +73,14 @@ iijjjjii
 ..cccc..
 ........
 
-@name circuit
+@name rune
 @size 8
 
-.GGGGGG.
-GgccccgG
-Gcg..gcG
-Gc.cc.cG
-Gc.cc.cG
-Gcg..gcG
-GgccccgG
-.GGGGGG.
+.IIIIII.
+IijjjjiI
+Ij.IIIjI
+Ij.I..jI
+Ij.IIIjI
+Ij....jI
+IijjjjiI
+.IIIIII.

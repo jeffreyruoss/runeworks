@@ -1,7 +1,7 @@
-# Building sprites for Hotkey Foundry
+# Building sprites for Arcane Foundry
 # 32x32 for 2x2 buildings, 16x16 for 1x1
 
-@name miner
+@name quarry
 @size 32
 
 ................................
@@ -9,24 +9,23 @@
 .MnnnnnnnnnnnnnnnnnnnnnnnnnnnnM.
 .MnMMMMMMMMMMMMMMMMMMMMMMMMMMnM.
 .MnM......................MnMnM.
-.MnM.mmmmmmmmmmmmmmmmmmm..MnMnM.
-.MnM.mnnnnnnnnnnnnnnnnYm..MnMnM.
-.MnM.mn..............Ym..MnMnM.
-.MnM.mn.MMMMMMMMMM...Ym..MnMGG.
-.MnM.mn.MnnnnnnnnM...Ym..MnMGg.
-.MnM.mn.Mn......nM...Ym..MnMGg.
-.MnM.mn.Mn.yyyy.nM...Ym..MnMGg.
-.MnM.mn.Mn.yYYy.nM...Ym..MnMGg.
-.MnM.mn.Mn.yYYy.nM...Ym..MnMGg.
-.MnM.mn.Mn.yyyy.nM...Ym..MnMGg.
-.MnM.mn.Mn......nM...Ym..MnMGg.
-.MnM.mn.MnnnnnnnnM...Ym..MnMGg.
-.MnM.mn.MMMMMMMMMM...Ym..MnMGg.
-.MnM.mn..............Ym..MnMGg.
-.MnM.mnYYYYYYYYYYYYYYYm..MnMGg.
-.MnM.mnnnnnnnnnnnnnnnnm..MnMGg.
-.MnM.mmmmmmmmmmmmmmmmmm..MnMGG.
-.MnM......................MnMnM.
+.MnM.IIIIIIIIIIIIIIIIII...MnMnM.
+.MnM.IiiiiiiiiiiiiiiiII...MnMnM.
+.MnM.Iij............iI...MnMnM.
+.MnM.Iij.MMMMMMMMMM.iI...MnMGG.
+.MnM.Iij.MnnnnnnnnM.iI...MnMGg.
+.MnM.Iij.Mn......nM.iI...MnMGg.
+.MnM.Iij.Mn.IiIi.nM.iI...MnMGg.
+.MnM.Iij.Mn.iJJi.nM.iI...MnMGg.
+.MnM.Iij.Mn.iJJi.nM.iI...MnMGg.
+.MnM.Iij.Mn.IiIi.nM.iI...MnMGg.
+.MnM.Iij.Mn......nM.iI...MnMGg.
+.MnM.Iij.MnnnnnnnnM.iI...MnMGg.
+.MnM.Iij.MMMMMMMMMM.iI...MnMGg.
+.MnM.Iij............iI...MnMGg.
+.MnM.IiiiiiiiiiiiiiiII...MnMGg.
+.MnM.IIIIIIIIIIIIIIIIII...MnMGg.
+.MnM......................MnMGG.
 .MnMMMMMMMMMMMMMMMMMMMMMMMMMMnM.
 .MnnnnnnnnnnnnnnnnnnnnnnnnnnnnM.
 .MMMMMMMMMMMMMMMMMMMMMMMMMMMMMM.
@@ -37,7 +36,7 @@
 ................................
 ................................
 
-@name furnace
+@name forge
 @size 32
 
 ................................
@@ -51,10 +50,10 @@ Bb.M.Rr..............rR...MnMGg.
 Bb.M.Rr.MMMMMMMMMM...rR...MnMGg.
 Bb.M.Rr.MnnnnnnnnM...rR...MnMGg.
 Bb.M.Rr.Mn......nM...rR...MnMGg.
-Bb.M.Rr.Mn.rrrr.nM...rR...MnMGg.
-Bb.M.Rr.Mn.rRRr.nM...rR...MnMGg.
-Bb.M.Rr.Mn.rRRr.nM...rR...MnMGg.
-Bb.M.Rr.Mn.rrrr.nM...rR...MnMGg.
+Bb.M.Rr.Mn.rYYr.nM...rR...MnMGg.
+Bb.M.Rr.Mn.YyyY.nM...rR...MnMGg.
+Bb.M.Rr.Mn.YyyY.nM...rR...MnMGg.
+Bb.M.Rr.Mn.rYYr.nM...rR...MnMGg.
 Bb.M.Rr.Mn......nM...rR...MnMGg.
 Bb.M.Rr.MnnnnnnnnM...rR...MnMGg.
 Bb.M.Rr.MMMMMMMMMM...rR...MnMGg.
@@ -71,37 +70,35 @@ BB.M.RrrrrrrrrrrrrrrrrR...MnMGg.
 ................................
 ................................
 ................................
-................................
 
-@name assembler
+@name workbench
 @size 32
 
 ................................
-.MMMMMMMMMMMMMMMMMMMMMMMMMMMMMM.
-.MnnnnnnnnnnnnnnnnnnnnnnnnnnnnM.
-.MnMMMMMMMMMMMMMMMMMMMMMMMMMMnM.
-BB.M......................MnMnM.
-Bb.M.mmmmmmmmmmmmmmmmmm...MnMGG.
-Bb.M.mnnnnnnnnnnnnnnnYm...MnMGg.
-Bb.M.mn..............Ym...MnMGg.
-Bb.M.mn.MMMMMMMMMM...Ym...MnMGg.
-Bb.M.mn.MnnnnnnnnM...Ym...MnMGg.
-Bb.M.mn.Mn......nM...Ym...MnMGg.
-BB.M.mn.Mn.BBBB.nM...Ym...MnMGg.
-.MnM.mn.Mn.BbbB.nM...Ym...MnMGg.
-.MnM.mn.Mn.BbbB.nM...Ym...MnMGg.
-BB.M.mn.Mn.BBBB.nM...Ym...MnMGg.
-Bb.M.mn.Mn......nM...Ym...MnMGg.
-Bb.M.mn.MnnnnnnnnM...Ym...MnMGg.
-Bb.M.mn.MMMMMMMMMM...Ym...MnMGg.
-Bb.M.mn..............Ym...MnMGg.
-Bb.M.mnYYYYYYYYYYYYYYYm...MnMGg.
-Bb.M.mnnnnnnnnnnnnnnnnm...MnMGg.
-BB.M.mmmmmmmmmmmmmmmmmm...MnMGG.
-.MnM......................MnMnM.
-.MnMMMMMMMMMMMMMMMMMMMMMMMMMMnM.
-.MnnnnnnnnnnnnnnnnnnnnnnnnnnnnM.
-.MMMMMMMMMMMMMMMMMMMMMMMMMMMMMM.
+.WWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.
+.WxxxxxxxxxxxxxxxxxxxxxxxxxxwW.
+.WxWWWWWWWWWWWWWWWWWWWWWWWWxwW.
+.WxW....................WxWxW.
+BB.W.wwwwwwwwwwwwwwwwww..WxWGG.
+Bb.W.wxxxxxxxxxxxxxxxxw..WxWGg.
+Bb.W.wx..............xw..WxWGg.
+Bb.W.wx.WWWWWWWWWW...xw..WxWGg.
+Bb.W.wx.WxxxxxxxxW...xw..WxWGg.
+Bb.W.wx.Wx......xW...xw..WxWGg.
+BB.W.wx.Wx.GGGG.xW...xw..WxWGg.
+.WxW.wx.Wx.GppG.xW...xw..WxWGg.
+.WxW.wx.Wx.GppG.xW...xw..WxWGg.
+BB.W.wx.Wx.GGGG.xW...xw..WxWGg.
+Bb.W.wx.Wx......xW...xw..WxWGg.
+Bb.W.wx.WxxxxxxxxW...xw..WxWGg.
+Bb.W.wx.WWWWWWWWWW...xw..WxWGg.
+Bb.W.wx..............xw..WxWGg.
+Bb.W.wxxxxxxxxxxxxxxxxw..WxWGg.
+BB.W.wwwwwwwwwwwwwwwwww..WxWGg.
+.WxW....................WxWGG.
+.WxWWWWWWWWWWWWWWWWWWWWWWWWxwW.
+.WxxxxxxxxxxxxxxxxxxxxxxxxxxwW.
+.WWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.
 ................................
 ................................
 ................................
@@ -109,7 +106,7 @@ BB.M.mmmmmmmmmmmmmmmmmm...MnMGG.
 ................................
 ................................
 
-@name chest
+@name coffer
 @size 16
 
 ................
@@ -119,9 +116,9 @@ BB.M.mmmmmmmmmmmmmmmmmm...MnMGG.
 .WxwwwwwwwwwwwW.
 .WxwwwwwwwwwwwW.
 .WxwwwwwwwwwwwW.
-.WxwwwWWWwwwwwW.
-.WxwwwW1WwwwwwW.
-.WxwwwWWWwwwwwW.
+.WxwwwIIIwwwwwW.
+.WxwwwIjIwwwwwW.
+.WxwwwIIIwwwwwW.
 .WxwwwwwwwwwwwW.
 .WxwwwwwwwwwwwW.
 .WxwwwwwwwwwwwW.

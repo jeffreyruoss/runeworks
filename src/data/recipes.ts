@@ -5,47 +5,47 @@ import { Recipe, ItemType } from '../types';
  */
 export const RECIPES: Recipe[] = [
   {
-    id: 'smelt_iron',
-    name: 'Smelt Iron',
-    inputs: new Map<ItemType, number>([['iron_ore', 1]]),
-    outputs: new Map<ItemType, number>([['iron_plate', 1]]),
+    id: 'purify_arcstone',
+    name: 'Purify Arcstone',
+    inputs: new Map<ItemType, number>([['arcstone', 1]]),
+    outputs: new Map<ItemType, number>([['arcane_ingot', 1]]),
     craftTimeTicks: 40, // 2 seconds
-    building: 'furnace',
+    building: 'forge',
   },
   {
-    id: 'smelt_copper',
-    name: 'Smelt Copper',
-    inputs: new Map<ItemType, number>([['copper_ore', 1]]),
-    outputs: new Map<ItemType, number>([['copper_plate', 1]]),
+    id: 'purify_sunite',
+    name: 'Purify Sunite',
+    inputs: new Map<ItemType, number>([['sunite', 1]]),
+    outputs: new Map<ItemType, number>([['sun_ingot', 1]]),
     craftTimeTicks: 40,
-    building: 'furnace',
+    building: 'forge',
   },
   {
-    id: 'craft_gear',
-    name: 'Craft Gear',
-    inputs: new Map<ItemType, number>([['iron_plate', 2]]),
-    outputs: new Map<ItemType, number>([['gear', 1]]),
+    id: 'forge_cogwheel',
+    name: 'Forge Cogwheel',
+    inputs: new Map<ItemType, number>([['arcane_ingot', 2]]),
+    outputs: new Map<ItemType, number>([['cogwheel', 1]]),
     craftTimeTicks: 30, // 1.5 seconds
-    building: 'assembler',
+    building: 'workbench',
   },
   {
-    id: 'craft_wire',
-    name: 'Craft Wire',
-    inputs: new Map<ItemType, number>([['copper_plate', 1]]),
-    outputs: new Map<ItemType, number>([['wire', 2]]),
+    id: 'spin_thread',
+    name: 'Spin Thread',
+    inputs: new Map<ItemType, number>([['sun_ingot', 1]]),
+    outputs: new Map<ItemType, number>([['thread', 2]]),
     craftTimeTicks: 20, // 1 second
-    building: 'assembler',
+    building: 'workbench',
   },
   {
-    id: 'craft_circuit',
-    name: 'Craft Circuit',
+    id: 'inscribe_rune',
+    name: 'Inscribe Rune',
     inputs: new Map<ItemType, number>([
-      ['iron_plate', 1],
-      ['wire', 3],
+      ['arcane_ingot', 1],
+      ['thread', 3],
     ]),
-    outputs: new Map<ItemType, number>([['circuit', 1]]),
+    outputs: new Map<ItemType, number>([['rune', 1]]),
     craftTimeTicks: 60, // 3 seconds
-    building: 'assembler',
+    building: 'workbench',
   },
 ];
 
@@ -53,6 +53,6 @@ export function getRecipe(id: string): Recipe | undefined {
   return RECIPES.find((r) => r.id === id);
 }
 
-export function getRecipesForBuilding(building: 'furnace' | 'assembler'): Recipe[] {
+export function getRecipesForBuilding(building: 'forge' | 'workbench'): Recipe[] {
   return RECIPES.filter((r) => r.building === building);
 }

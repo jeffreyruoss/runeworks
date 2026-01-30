@@ -1,21 +1,21 @@
 /**
- * Core game types for Hotkey Foundry
+ * Core game types for Arcane Foundry
  */
 
 export type ItemType =
-  | 'iron_ore'
-  | 'copper_ore'
-  | 'iron_plate'
-  | 'copper_plate'
-  | 'gear'
-  | 'wire'
-  | 'circuit';
+  | 'arcstone'
+  | 'sunite'
+  | 'arcane_ingot'
+  | 'sun_ingot'
+  | 'cogwheel'
+  | 'thread'
+  | 'rune';
 
-export type BuildingType = 'miner' | 'furnace' | 'assembler' | 'chest';
+export type BuildingType = 'quarry' | 'forge' | 'workbench' | 'coffer';
 
 export type Direction = 'up' | 'down' | 'left' | 'right';
 
-export type TerrainType = 'empty' | 'iron_ore' | 'copper_ore';
+export type TerrainType = 'empty' | 'arcstone' | 'sunite';
 
 export interface Position {
   x: number;
@@ -39,7 +39,7 @@ export interface Recipe {
   inputs: Map<ItemType, number>;
   outputs: Map<ItemType, number>;
   craftTimeTicks: number;
-  building: 'furnace' | 'assembler';
+  building: 'forge' | 'workbench';
 }
 
 export interface Building {
@@ -53,7 +53,7 @@ export interface Building {
   inputBuffer: Map<ItemType, number>;
   outputBuffer: Map<ItemType, number>;
   craftProgress: number; // ticks into current craft
-  selectedRecipe: string | null; // recipe id for assemblers
+  selectedRecipe: string | null; // recipe id for workbenches
 
   // Stats for bottleneck analysis
   ticksStarved: number;
@@ -66,4 +66,21 @@ export interface SimulationState {
   tickCount: number;
   speed: number; // 1, 2, or 4
   itemsProduced: Map<ItemType, number>;
+}
+
+/**
+ * UI state passed from GameScene to UIScene for HUD updates
+ */
+export interface GameUIState {
+  buildingCount: number;
+  selectedBuilding: string | null;
+  cursorX: number;
+  cursorY: number;
+  simRunning: boolean;
+  simPaused: boolean;
+  simSpeed: number;
+  simTick: number;
+  itemsProduced: Record<string, number>;
+  menuOpen: boolean;
+  inventoryOpen: boolean;
 }

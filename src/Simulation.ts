@@ -1,17 +1,17 @@
 import { Building, ItemType, TerrainType, Direction, SimulationState } from './types';
 import { BUILDING_DEFINITIONS } from './data/buildings';
 import { getRecipe } from './data/recipes';
-import { GRID_WIDTH, GRID_HEIGHT, MS_PER_TICK, MINER_TICKS_PER_ORE } from './config';
+import { GRID_WIDTH, GRID_HEIGHT, MS_PER_TICK, QUARRY_TICKS_PER_ORE } from './config';
 import { getBufferTotal, rotateDirection, oppositeDirection } from './utils';
 
 /**
- * Core simulation engine for Hotkey Foundry
+ * Core simulation engine for Arcane Foundry
  *
  * Handles tick-based updates for all buildings:
- * - Miners extract ore from terrain
- * - Furnaces smelt ore into plates
- * - Assemblers craft items according to recipes
- * - Chests store and distribute items
+ * - Quarries extract ore from crystal veins
+ * - Forges purify ore into ingots
+ * - Workbenches craft items according to recipes
+ * - Coffers store and distribute items
  * - Adjacent transfer moves items between buildings
  */
 export class Simulation {
@@ -49,7 +49,7 @@ export class Simulation {
   }
 
   /**
-   * Set terrain type at a position (for placing ore patches)
+   * Set terrain type at a position (for placing crystal veins)
    */
   setTerrain(x: number, y: number, type: TerrainType): void {
     if (x >= 0 && x < GRID_WIDTH && y >= 0 && y < GRID_HEIGHT) {
@@ -65,14 +65,14 @@ export class Simulation {
   }
 
   /**
-   * Place ore patches in a rectangular area
+   * Place crystal veins in a rectangular area
    */
-  placeOrePatch(
+  placeCrystalVein(
     x: number,
     y: number,
     width: number,
     height: number,
-    type: 'iron_ore' | 'copper_ore'
+    type: 'arcstone' | 'sunite'
   ): void {
     for (let dy = 0; dy < height; dy++) {
       for (let dx = 0; dx < width; dx++) {
@@ -163,7 +163,7 @@ export class Simulation {
   private tick(): void {
     this.state.tickCount++;
 
-    // Phase 1: Production (miners produce ore, machines craft)
+    // Phase 1: Production (quarries extract ore, machines craft)
     for (const building of this.buildings) {
       this.updateBuilding(building);
     }
@@ -181,26 +181,26 @@ export class Simulation {
    */
   private updateBuilding(building: Building): void {
     switch (building.type) {
-      case 'miner':
-        this.updateMiner(building);
+      case 'quarry':
+        this.updateQuarry(building);
         break;
-      case 'furnace':
-        this.updateFurnace(building);
+      case 'forge':
+        this.updateForge(building);
         break;
-      case 'assembler':
-        this.updateAssembler(building);
+      case 'workbench':
+        this.updateWorkbench(building);
         break;
-      case 'chest':
-        // Chests just hold items, no production
+      case 'coffer':
+        // Coffers just hold items, no production
         break;
     }
   }
 
   /**
-   * Miner: Extract ore from terrain
+   * Quarry: Extract ore from crystal veins
    */
-  private updateMiner(building: Building): void {
-    const def = BUILDING_DEFINITIONS.miner;
+  private updateQuarry(building: Building): void {
+    const def = BUILDING_DEFINITIONS.quarry;
 
     // Check output buffer space
     const outputCount = getBufferTotal(building.outputBuffer);
@@ -209,7 +209,7 @@ export class Simulation {
       return;
     }
 
-    // Check what ore is under the miner
+    // Check what ore is under the quarry
     const oreType = this.getOreUnderBuilding(building);
     if (!oreType) {
       building.ticksStarved++;
@@ -217,26 +217,26 @@ export class Simulation {
     }
 
     building.craftProgress++;
-    if (building.craftProgress >= MINER_TICKS_PER_ORE) {
+    if (building.craftProgress >= QUARRY_TICKS_PER_ORE) {
       building.craftProgress = 0;
 
-      const itemType: ItemType = oreType === 'iron_ore' ? 'iron_ore' : 'copper_ore';
+      const itemType: ItemType = oreType === 'arcstone' ? 'arcstone' : 'sunite';
       this.addToBuffer(building.outputBuffer, itemType, 1);
     }
   }
 
   /**
-   * Furnace: Smelt ore into plates
+   * Forge: Purify ore into ingots
    */
-  private updateFurnace(building: Building): void {
-    const def = BUILDING_DEFINITIONS.furnace;
+  private updateForge(building: Building): void {
+    const def = BUILDING_DEFINITIONS.forge;
 
     // Determine recipe based on input
     let recipe = null;
-    if ((building.inputBuffer.get('iron_ore') || 0) > 0) {
-      recipe = getRecipe('smelt_iron');
-    } else if ((building.inputBuffer.get('copper_ore') || 0) > 0) {
-      recipe = getRecipe('smelt_copper');
+    if ((building.inputBuffer.get('arcstone') || 0) > 0) {
+      recipe = getRecipe('purify_arcstone');
+    } else if ((building.inputBuffer.get('sunite') || 0) > 0) {
+      recipe = getRecipe('purify_sunite');
     }
 
     if (!recipe) {
@@ -275,10 +275,10 @@ export class Simulation {
   }
 
   /**
-   * Assembler: Craft items according to selected recipe
+   * Workbench: Craft items according to selected recipe
    */
-  private updateAssembler(building: Building): void {
-    const def = BUILDING_DEFINITIONS.assembler;
+  private updateWorkbench(building: Building): void {
+    const def = BUILDING_DEFINITIONS.workbench;
 
     if (!building.selectedRecipe) {
       return; // No recipe selected
@@ -335,6 +335,8 @@ export class Simulation {
 
       // Round-robin distribution
       let rrIndex = this.roundRobinIndex.get(building.id) || 0;
+      let transferred = 0;
+      let consecutiveFullTargets = 0;
 
       for (let i = 0; i < count; i++) {
         const target = targets[rrIndex % targets.length];
@@ -346,6 +348,16 @@ export class Simulation {
           this.removeFromBuffer(building.outputBuffer, itemType, 1);
           this.addToBuffer(target.inputBuffer, itemType, 1);
           rrIndex++;
+          transferred++;
+          consecutiveFullTargets = 0;
+        } else {
+          // Target is full, try next one
+          rrIndex++;
+          consecutiveFullTargets++;
+          // If we've checked all targets and all are full, stop trying
+          if (consecutiveFullTargets >= targets.length) {
+            break;
+          }
         }
       }
 
@@ -436,13 +448,13 @@ export class Simulation {
    */
   private canAcceptItem(building: Building, itemType: ItemType): boolean {
     switch (building.type) {
-      case 'chest':
-        return true; // Chests accept anything
+      case 'coffer':
+        return true; // Coffers accept anything
 
-      case 'furnace':
-        return itemType === 'iron_ore' || itemType === 'copper_ore';
+      case 'forge':
+        return itemType === 'arcstone' || itemType === 'sunite';
 
-      case 'assembler':
+      case 'workbench':
         if (!building.selectedRecipe) return false;
         const recipe = getRecipe(building.selectedRecipe);
         if (!recipe) return false;
@@ -462,7 +474,7 @@ export class Simulation {
     for (let dy = 0; dy < def.height; dy++) {
       for (let dx = 0; dx < def.width; dx++) {
         const terrain = this.getTerrain(building.x + dx, building.y + dy);
-        if (terrain === 'iron_ore' || terrain === 'copper_ore') {
+        if (terrain === 'arcstone' || terrain === 'sunite') {
           return terrain;
         }
       }

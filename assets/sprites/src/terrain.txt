@@ -1,4 +1,4 @@
-# Terrain sprites for Hotkey Foundry
+# Terrain sprites for Arcane Foundry
 # 16x16 tiles
 
 @name ground
@@ -21,42 +21,42 @@ ttttttttTttttttt
 tTttttttttttTttt
 tttttttttttttttt
 
-@name iron_ore_patch
+@name arcstone_vein
 @size 16
 
 OoOoOoOoOoOoOoOo
 oOIiIoOoOiIiOoOo
-OoiIiOoOoIiIoOoO
+OoiJiOoOoIjIoOoO
 oOIiIoOoOiIioOoO
 OoOoOoOoOoOoOoOo
 oOoOiIioOoOoOoOo
-OoOoIiIoOoOoIiOo
-oOoOiIioOoOoiIoO
+OoOoIjIoOoOoIiOo
+oOoOiIioOoOojIoO
 OoOoOoOoOoOoIioO
 oOoOoOoIiIoOoOoO
-OoOoOoOiIioOoOoO
+OoOoOoOijioOoOoO
 oOiIioOIiIoOoOoO
-OoIiIoOoOoOoOoOo
+OoIjIoOoOoOoOoOo
 oOiIioOoOoOiIioO
-OoOoOoOoOoOIiIoO
+OoOoOoOoOoOIjIoO
 oOoOoOoOoOoiIioO
 
-@name copper_ore_patch
+@name sunite_vein
 @size 16
 
 OoOoOoOoOoOoOoOo
 oOCcCoOoOcCcoOoO
-OocCcoOoOCcCoOoO
+OocDcoOoOCdCoOoO
 oOCcCoOoOcCcoOoO
 OoOoOoOoOoOoOoOo
 oOoOcCcoOoOoOoOo
-OoOoCcCoOoOoCcoO
-oOoOcCcoOoOocCoO
+OoOoCdCoOoOoCcoO
+oOoOcCcoOoOocDoO
 OoOoOoOoOoOoCcoO
 oOoOoOoCcCoOoOoO
-OoOoOoOcCcoOoOoO
+OoOoOoOcdcoOoOoO
 oOcCcoOCcCoOoOoO
-OoCcCoOoOoOoOoOo
+OoCdCoOoOoOoOoOo
 oOcCcoOoOoOcCcoO
-OoOoOoOoOoOCcCoO
+OoOoOoOoOoOCdCoO
 oOoOoOoOoOocCcoO

@@ -19,15 +19,17 @@ export const PALETTE = {
   6: [224, 224, 224, 255], // near white
   7: [255, 255, 255, 255], // white
 
-  // Iron colors (blue-gray tones)
-  I: [74, 84, 98, 255], // iron dark
-  i: [108, 122, 137, 255], // iron medium
-  j: [148, 163, 178, 255], // iron light
+  // Arcstone colors (blue-purple tones - formerly iron)
+  I: [74, 59, 110, 255], // arcstone dark (deep purple)
+  i: [108, 99, 168, 255], // arcstone medium (medium purple)
+  j: [148, 140, 211, 255], // arcstone light (lavender)
+  J: [180, 175, 235, 255], // arcstone bright (glow)
 
-  // Copper colors (orange-brown tones)
-  C: [139, 69, 19, 255], // copper dark
-  c: [184, 115, 51, 255], // copper medium
-  d: [218, 165, 99, 255], // copper light
+  // Sunite colors (amber-gold tones - formerly copper)
+  C: [139, 105, 20, 255], // sunite dark
+  c: [218, 165, 32, 255], // sunite medium (golden)
+  d: [255, 215, 100, 255], // sunite light (bright gold)
+  D: [255, 235, 150, 255], // sunite bright (glow)
 
   // Ore patch patterns
   O: [89, 86, 82, 255], // ore rock dark
@@ -48,6 +50,14 @@ export const PALETTE = {
   b: [100, 140, 220, 255], // blue light
   Y: [180, 160, 60, 255], // yellow (energy/active)
   y: [220, 200, 100, 255], // yellow light
+
+  // Magical colors
+  P: [128, 0, 128, 255], // purple (arcane magic)
+  p: [180, 100, 200, 255], // purple light (arcane glow)
+  A: [100, 80, 160, 255], // arcane dark
+  a: [160, 140, 220, 255], // arcane light
+  S: [218, 165, 32, 255], // sun gold
+  s: [255, 223, 128, 255], // sun glow
 
   // Ground/terrain
   T: [82, 70, 58, 255], // terrain dark (dirt)

@@ -1,6 +1,6 @@
 {
   "frames": {
-    "miner": {
+    "quarry": {
       "frame": {
         "x": 0,
         "y": 0,
@@ -18,7 +18,7 @@
         "h": 32
       }
     },
-    "furnace": {
+    "forge": {
       "frame": {
         "x": 0,
         "y": 32,
@@ -36,7 +36,7 @@
         "h": 32
       }
     },
-    "assembler": {
+    "workbench": {
       "frame": {
         "x": 0,
         "y": 64,
@@ -72,7 +72,7 @@
         "h": 32
       }
     },
-    "chest": {
+    "coffer": {
       "frame": {
         "x": 0,
         "y": 128,
@@ -108,7 +108,7 @@
         "h": 16
       }
     },
-    "iron_ore_patch": {
+    "arcstone_vein": {
       "frame": {
         "x": 0,
         "y": 160,
@@ -126,7 +126,7 @@
         "h": 16
       }
     },
-    "copper_ore_patch": {
+    "sunite_vein": {
       "frame": {
         "x": 0,
         "y": 176,
@@ -198,7 +198,7 @@
         "h": 16
       }
     },
-    "iron_ore": {
+    "arcstone": {
       "frame": {
         "x": 0,
         "y": 240,
@@ -216,7 +216,7 @@
         "h": 8
       }
     },
-    "copper_ore": {
+    "sunite": {
       "frame": {
         "x": 0,
         "y": 248,
@@ -234,7 +234,7 @@
         "h": 8
       }
     },
-    "iron_plate": {
+    "arcane_ingot": {
       "frame": {
         "x": 0,
         "y": 256,
@@ -252,7 +252,7 @@
         "h": 8
       }
     },
-    "copper_plate": {
+    "sun_ingot": {
       "frame": {
         "x": 0,
         "y": 264,
@@ -270,7 +270,7 @@
         "h": 8
       }
     },
-    "gear": {
+    "cogwheel": {
       "frame": {
         "x": 0,
         "y": 272,
@@ -288,7 +288,7 @@
         "h": 8
       }
     },
-    "wire": {
+    "thread": {
       "frame": {
         "x": 0,
         "y": 280,
@@ -306,7 +306,7 @@
         "h": 8
       }
     },
-    "circuit": {
+    "rune": {
       "frame": {
         "x": 0,
         "y": 288,
