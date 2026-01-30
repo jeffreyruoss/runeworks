@@ -14,6 +14,10 @@ export const DEFAULT_ZOOM = 4;
 export const TICKS_PER_SECOND = 20;
 export const MS_PER_TICK = 1000 / TICKS_PER_SECOND; // 50ms
 export const DEFAULT_SIM_DURATION = 90; // seconds
+export const MINER_TICKS_PER_ORE = 20; // 1 ore per second
+
+// Cursor
+export const CURSOR_JUMP_STEP = 5; // tiles to move when holding Shift
 
 // Building defaults
 export const DEFAULT_INPUT_BUFFER_SIZE = 10;

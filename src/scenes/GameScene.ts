@@ -1,8 +1,9 @@
 import Phaser from 'phaser';
-import { TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, COLORS } from '../config';
-import { Building, BuildingType, ItemType, TerrainType } from '../types';
+import { TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, COLORS, CURSOR_JUMP_STEP } from '../config';
+import { Building, BuildingType } from '../types';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
 import { Simulation } from '../Simulation';
+import { getBufferTotal } from '../utils';
 
 export class GameScene extends Phaser.Scene {
   // Cursor state
@@ -212,7 +213,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private moveCursor(dx: number, dy: number): void {
-    const step = this.keys.SHIFT.isDown ? 5 : 1;
+    const step = this.keys.SHIFT.isDown ? CURSOR_JUMP_STEP : 1;
     this.cursor.x = Phaser.Math.Clamp(this.cursor.x + dx * step, 0, GRID_WIDTH - 1);
     this.cursor.y = Phaser.Math.Clamp(this.cursor.y + dy * step, 0, GRID_HEIGHT - 1);
     this.updateCursor();
@@ -424,7 +425,7 @@ export class GameScene extends Phaser.Scene {
     const h = height * TILE_SIZE;
 
     // Determine cursor color
-    let color = COLORS.cursorNeutral;
+    let color: number = COLORS.cursorNeutral;
     if (type) {
       color = this.canPlaceBuilding() ? COLORS.cursorValid : COLORS.cursorInvalid;
     }
@@ -439,8 +440,8 @@ export class GameScene extends Phaser.Scene {
     for (const building of this.buildings) {
       let indicator = this.bufferIndicators.get(building.id);
 
-      const inputCount = this.getBufferTotal(building.inputBuffer);
-      const outputCount = this.getBufferTotal(building.outputBuffer);
+      const inputCount = getBufferTotal(building.inputBuffer);
+      const outputCount = getBufferTotal(building.outputBuffer);
 
       if (inputCount > 0 || outputCount > 0) {
         const def = BUILDING_DEFINITIONS[building.type];
@@ -469,14 +470,6 @@ export class GameScene extends Phaser.Scene {
         this.bufferIndicators.delete(building.id);
       }
     }
-  }
-
-  private getBufferTotal(buffer: Map<ItemType, number>): number {
-    let total = 0;
-    for (const count of buffer.values()) {
-      total += count;
-    }
-    return total;
   }
 
   private emitUIUpdate(): void {

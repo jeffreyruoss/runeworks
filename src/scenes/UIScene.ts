@@ -14,14 +14,11 @@ interface GameState {
 }
 
 export class UIScene extends Phaser.Scene {
-  private stageText!: Phaser.GameObjects.Text;
   private buildingCountText!: Phaser.GameObjects.Text;
-  private hotbarText!: Phaser.GameObjects.Text;
   private selectedText!: Phaser.GameObjects.Text;
   private cursorPosText!: Phaser.GameObjects.Text;
   private simStatusText!: Phaser.GameObjects.Text;
   private itemsText!: Phaser.GameObjects.Text;
-  private helpText!: Phaser.GameObjects.Text;
 
   constructor() {
     super({ key: 'UIScene' });
@@ -38,7 +35,7 @@ export class UIScene extends Phaser.Scene {
     graphics.fillRect(0, CANVAS_HEIGHT - 28, CANVAS_WIDTH, 28);
 
     // Stage name + goal (top-left)
-    this.stageText = this.add.text(4, 2, 'Stage 1: Iron Plates (Goal: 50)', {
+    this.add.text(4, 2, 'Stage 1: Iron Plates (Goal: 50)', {
       fontFamily: 'monospace',
       fontSize: '10px',
       color: '#ffffff',
@@ -74,16 +71,11 @@ export class UIScene extends Phaser.Scene {
     });
 
     // Hotbar (bottom)
-    this.hotbarText = this.add.text(
-      4,
-      CANVAS_HEIGHT - 24,
-      '[1] Miner  [2] Furnace  [3] Assembler  [4] Chest',
-      {
-        fontFamily: 'monospace',
-        fontSize: '10px',
-        color: '#aaaaaa',
-      }
-    );
+    this.add.text(4, CANVAS_HEIGHT - 24, '[1] Miner  [2] Furnace  [3] Assembler  [4] Chest', {
+      fontFamily: 'monospace',
+      fontSize: '10px',
+      color: '#aaaaaa',
+    });
 
     // Selected building (bottom-right)
     this.selectedText = this.add.text(CANVAS_WIDTH - 4, CANVAS_HEIGHT - 24, 'None', {
@@ -94,7 +86,7 @@ export class UIScene extends Phaser.Scene {
     this.selectedText.setOrigin(1, 0);
 
     // Help text
-    this.helpText = this.add.text(
+    this.add.text(
       4,
       CANVAS_HEIGHT - 12,
       'WASD:Move  Enter:Place  Del:Remove  R:Rotate  Space:Run/Stop  </>:Speed',

@@ -1,7 +1,8 @@
 import { Building, ItemType, TerrainType, Direction, SimulationState } from './types';
 import { BUILDING_DEFINITIONS } from './data/buildings';
-import { getRecipe, getRecipesForBuilding } from './data/recipes';
-import { GRID_WIDTH, GRID_HEIGHT, TICKS_PER_SECOND, MS_PER_TICK } from './config';
+import { getRecipe } from './data/recipes';
+import { GRID_WIDTH, GRID_HEIGHT, MS_PER_TICK, MINER_TICKS_PER_ORE } from './config';
+import { getBufferTotal, rotateDirection, oppositeDirection } from './utils';
 
 /**
  * Core simulation engine for Hotkey Foundry
@@ -179,8 +180,6 @@ export class Simulation {
    * Update a single building's production
    */
   private updateBuilding(building: Building): void {
-    const def = BUILDING_DEFINITIONS[building.type];
-
     switch (building.type) {
       case 'miner':
         this.updateMiner(building);
@@ -204,7 +203,7 @@ export class Simulation {
     const def = BUILDING_DEFINITIONS.miner;
 
     // Check output buffer space
-    const outputCount = this.getBufferTotal(building.outputBuffer);
+    const outputCount = getBufferTotal(building.outputBuffer);
     if (outputCount >= def.outputBufferSize) {
       building.ticksBlocked++;
       return;
@@ -217,9 +216,8 @@ export class Simulation {
       return;
     }
 
-    // Miners produce 1 ore per 20 ticks (1/second)
     building.craftProgress++;
-    if (building.craftProgress >= 20) {
+    if (building.craftProgress >= MINER_TICKS_PER_ORE) {
       building.craftProgress = 0;
 
       const itemType: ItemType = oreType === 'iron_ore' ? 'iron_ore' : 'copper_ore';
@@ -247,7 +245,7 @@ export class Simulation {
     }
 
     // Check output buffer space
-    const outputCount = this.getBufferTotal(building.outputBuffer);
+    const outputCount = getBufferTotal(building.outputBuffer);
     if (outputCount >= def.outputBufferSize) {
       building.ticksBlocked++;
       return;
@@ -290,7 +288,7 @@ export class Simulation {
     if (!recipe) return;
 
     // Check output buffer space
-    const outputCount = this.getBufferTotal(building.outputBuffer);
+    const outputCount = getBufferTotal(building.outputBuffer);
     if (outputCount >= def.outputBufferSize) {
       building.ticksBlocked++;
       return;
@@ -325,7 +323,7 @@ export class Simulation {
     if (def.outputSides.length === 0) return;
 
     // Get actual output direction based on rotation
-    const outputDirs = def.outputSides.map((side) => this.rotateDirection(side, building.rotation));
+    const outputDirs = def.outputSides.map((side) => rotateDirection(side, building.rotation));
 
     // Find all items in output buffer
     for (const [itemType, count] of building.outputBuffer) {
@@ -341,7 +339,7 @@ export class Simulation {
       for (let i = 0; i < count; i++) {
         const target = targets[rrIndex % targets.length];
         const targetDef = BUILDING_DEFINITIONS[target.type];
-        const targetInputCount = this.getBufferTotal(target.inputBuffer);
+        const targetInputCount = getBufferTotal(target.inputBuffer);
 
         if (targetInputCount < targetDef.inputBufferSize) {
           // Transfer one item
@@ -364,7 +362,6 @@ export class Simulation {
     itemType: ItemType
   ): Building[] {
     const targets: Building[] = [];
-    const sourceDef = BUILDING_DEFINITIONS[source.type];
 
     for (const dir of outputDirs) {
       // Get tiles on the output side of the source building
@@ -382,11 +379,11 @@ export class Simulation {
         // Check if target accepts input from this direction
         const targetDef = BUILDING_DEFINITIONS[target.type];
         const targetInputDirs = targetDef.inputSides.map((s) =>
-          this.rotateDirection(s, target.rotation)
+          rotateDirection(s, target.rotation)
         );
 
         // The input direction is opposite of our output direction
-        const neededInputDir = this.oppositeDirection(dir);
+        const neededInputDir = oppositeDirection(dir);
         if (!targetInputDirs.includes(neededInputDir)) continue;
 
         // Check if target accepts this item type
@@ -492,30 +489,6 @@ export class Simulation {
   }
 
   // Helper functions
-
-  private rotateDirection(dir: Direction, rotation: number): Direction {
-    const dirs: Direction[] = ['right', 'down', 'left', 'up'];
-    const idx = dirs.indexOf(dir);
-    return dirs[(idx + rotation) % 4];
-  }
-
-  private oppositeDirection(dir: Direction): Direction {
-    const opposites: Record<Direction, Direction> = {
-      right: 'left',
-      left: 'right',
-      up: 'down',
-      down: 'up',
-    };
-    return opposites[dir];
-  }
-
-  private getBufferTotal(buffer: Map<ItemType, number>): number {
-    let total = 0;
-    for (const count of buffer.values()) {
-      total += count;
-    }
-    return total;
-  }
 
   private addToBuffer(buffer: Map<ItemType, number>, item: ItemType, count: number): void {
     buffer.set(item, (buffer.get(item) || 0) + count);
