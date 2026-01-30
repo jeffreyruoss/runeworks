@@ -1,0 +1,411 @@
+{
+  "frames": {
+    "miner": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 32,
+        "h": 32
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 32
+      }
+    },
+    "furnace": {
+      "frame": {
+        "x": 0,
+        "y": 32,
+        "w": 32,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 32,
+        "h": 32
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 32
+      }
+    },
+    "assembler": {
+      "frame": {
+        "x": 0,
+        "y": 64,
+        "w": 32,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 32,
+        "h": 32
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 32
+      }
+    },
+    "cursor_2x2": {
+      "frame": {
+        "x": 0,
+        "y": 96,
+        "w": 32,
+        "h": 32
+      },
+      "sourceSize": {
+        "w": 32,
+        "h": 32
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 32,
+        "h": 32
+      }
+    },
+    "chest": {
+      "frame": {
+        "x": 0,
+        "y": 128,
+        "w": 16,
+        "h": 16
+      },
+      "sourceSize": {
+        "w": 16,
+        "h": 16
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      }
+    },
+    "ground": {
+      "frame": {
+        "x": 0,
+        "y": 144,
+        "w": 16,
+        "h": 16
+      },
+      "sourceSize": {
+        "w": 16,
+        "h": 16
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      }
+    },
+    "iron_ore_patch": {
+      "frame": {
+        "x": 0,
+        "y": 160,
+        "w": 16,
+        "h": 16
+      },
+      "sourceSize": {
+        "w": 16,
+        "h": 16
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      }
+    },
+    "copper_ore_patch": {
+      "frame": {
+        "x": 0,
+        "y": 176,
+        "w": 16,
+        "h": 16
+      },
+      "sourceSize": {
+        "w": 16,
+        "h": 16
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      }
+    },
+    "cursor": {
+      "frame": {
+        "x": 0,
+        "y": 192,
+        "w": 16,
+        "h": 16
+      },
+      "sourceSize": {
+        "w": 16,
+        "h": 16
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      }
+    },
+    "cursor_valid": {
+      "frame": {
+        "x": 0,
+        "y": 208,
+        "w": 16,
+        "h": 16
+      },
+      "sourceSize": {
+        "w": 16,
+        "h": 16
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      }
+    },
+    "cursor_invalid": {
+      "frame": {
+        "x": 0,
+        "y": 224,
+        "w": 16,
+        "h": 16
+      },
+      "sourceSize": {
+        "w": 16,
+        "h": 16
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 16,
+        "h": 16
+      }
+    },
+    "iron_ore": {
+      "frame": {
+        "x": 0,
+        "y": 240,
+        "w": 8,
+        "h": 8
+      },
+      "sourceSize": {
+        "w": 8,
+        "h": 8
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 8,
+        "h": 8
+      }
+    },
+    "copper_ore": {
+      "frame": {
+        "x": 0,
+        "y": 248,
+        "w": 8,
+        "h": 8
+      },
+      "sourceSize": {
+        "w": 8,
+        "h": 8
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 8,
+        "h": 8
+      }
+    },
+    "iron_plate": {
+      "frame": {
+        "x": 0,
+        "y": 256,
+        "w": 8,
+        "h": 8
+      },
+      "sourceSize": {
+        "w": 8,
+        "h": 8
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 8,
+        "h": 8
+      }
+    },
+    "copper_plate": {
+      "frame": {
+        "x": 0,
+        "y": 264,
+        "w": 8,
+        "h": 8
+      },
+      "sourceSize": {
+        "w": 8,
+        "h": 8
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 8,
+        "h": 8
+      }
+    },
+    "gear": {
+      "frame": {
+        "x": 0,
+        "y": 272,
+        "w": 8,
+        "h": 8
+      },
+      "sourceSize": {
+        "w": 8,
+        "h": 8
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 8,
+        "h": 8
+      }
+    },
+    "wire": {
+      "frame": {
+        "x": 0,
+        "y": 280,
+        "w": 8,
+        "h": 8
+      },
+      "sourceSize": {
+        "w": 8,
+        "h": 8
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 8,
+        "h": 8
+      }
+    },
+    "circuit": {
+      "frame": {
+        "x": 0,
+        "y": 288,
+        "w": 8,
+        "h": 8
+      },
+      "sourceSize": {
+        "w": 8,
+        "h": 8
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 8,
+        "h": 8
+      }
+    },
+    "arrow_right": {
+      "frame": {
+        "x": 0,
+        "y": 296,
+        "w": 8,
+        "h": 8
+      },
+      "sourceSize": {
+        "w": 8,
+        "h": 8
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 8,
+        "h": 8
+      }
+    },
+    "arrow_left": {
+      "frame": {
+        "x": 0,
+        "y": 304,
+        "w": 8,
+        "h": 8
+      },
+      "sourceSize": {
+        "w": 8,
+        "h": 8
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 8,
+        "h": 8
+      }
+    },
+    "arrow_up": {
+      "frame": {
+        "x": 0,
+        "y": 312,
+        "w": 8,
+        "h": 8
+      },
+      "sourceSize": {
+        "w": 8,
+        "h": 8
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 8,
+        "h": 8
+      }
+    },
+    "arrow_down": {
+      "frame": {
+        "x": 0,
+        "y": 320,
+        "w": 8,
+        "h": 8
+      },
+      "sourceSize": {
+        "w": 8,
+        "h": 8
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 8,
+        "h": 8
+      }
+    }
+  },
+  "meta": {
+    "app": "spritegen",
+    "version": "1.0",
+    "image": "spritesheet.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 32,
+      "h": 512
+    },
+    "scale": "1"
+  }
+}

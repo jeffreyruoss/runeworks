@@ -1,0 +1,62 @@
+# Terrain sprites for Hotkey Foundry
+# 16x16 tiles
+
+@name ground
+@size 16
+
+tttttttttttttttt
+tTttTtttttTttTtt
+tttttttttttttttt
+tttTtttttttttttt
+ttttttttTttttttt
+tttttttttttttttt
+tTtttttttttTtttt
+ttttttTttttttttt
+tttttttttttttttt
+tttttttttttttttt
+tttttTttttttTttt
+tttttttttttttttt
+ttTttttttttttttt
+ttttttttTttttttt
+tTttttttttttTttt
+tttttttttttttttt
+
+@name iron_ore_patch
+@size 16
+
+OoOoOoOoOoOoOoOo
+oOIiIoOoOiIiOoOo
+OoiIiOoOoIiIoOoO
+oOIiIoOoOiIioOoO
+OoOoOoOoOoOoOoOo
+oOoOiIioOoOoOoOo
+OoOoIiIoOoOoIiOo
+oOoOiIioOoOoiIoO
+OoOoOoOoOoOoIioO
+oOoOoOoIiIoOoOoO
+OoOoOoOiIioOoOoO
+oOiIioOIiIoOoOoO
+OoIiIoOoOoOoOoOo
+oOiIioOoOoOiIioO
+OoOoOoOoOoOIiIoO
+oOoOoOoOoOoiIioO
+
+@name copper_ore_patch
+@size 16
+
+OoOoOoOoOoOoOoOo
+oOCcCoOoOcCcoOoO
+OocCcoOoOCcCoOoO
+oOCcCoOoOcCcoOoO
+OoOoOoOoOoOoOoOo
+oOoOcCcoOoOoOoOo
+OoOoCcCoOoOoCcoO
+oOoOcCcoOoOocCoO
+OoOoOoOoOoOoCcoO
+oOoOoOoCcCoOoOoO
+OoOoOoOcCcoOoOoO
+oOcCcoOCcCoOoOoO
+OoCcCoOoOoOoOoOo
+oOcCcoOoOoOcCcoO
+OoOoOoOoOoOCcCoO
+oOoOoOoOoOocCcoO

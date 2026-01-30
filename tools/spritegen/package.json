@@ -1,0 +1,14 @@
+{
+  "name": "spritegen",
+  "version": "1.0.0",
+  "description": "ASCII sprite to PNG generator for Hotkey Foundry",
+  "type": "module",
+  "main": "generate.js",
+  "scripts": {
+    "generate": "node generate.js",
+    "watch": "node --watch generate.js"
+  },
+  "dependencies": {
+    "pngjs": "^7.0.0"
+  }
+}

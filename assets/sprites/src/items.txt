@@ -1,0 +1,86 @@
+# Item sprites for Hotkey Foundry
+# 8x8 icons (displayed in UI and on machines)
+
+@name iron_ore
+@size 8
+
+..IiIi..
+.IiIiIi.
+IiIjjiIi
+iIjjjjIi
+IijjjjiI
+iIIjjiIi
+.iIiIiI.
+..IiIi..
+
+@name copper_ore
+@size 8
+
+..CcCc..
+.CcCcCc.
+CcCddcCc
+cCddddCc
+CcddddcC
+cCCddcCc
+.cCcCcC.
+..CcCc..
+
+@name iron_plate
+@size 8
+
+.iiiiii.
+ijjjjjji
+ijjjjjji
+ijjjjjji
+ijjjjjji
+ijjjjjji
+ijjjjjji
+.iiiiii.
+
+@name copper_plate
+@size 8
+
+.cccccc.
+cddddddc
+cddddddc
+cddddddc
+cddddddc
+cddddddc
+cddddddc
+.cccccc.
+
+@name gear
+@size 8
+
+.3i..i3.
+3iiiiiii
+iijjjjii
+.ijjjji.
+.ijjjji.
+iijjjjii
+3iiiiiii
+.3i..i3.
+
+@name wire
+@size 8
+
+........
+..cccc..
+.c....c.
+.c......
+.c......
+.c....c.
+..cccc..
+........
+
+@name circuit
+@size 8
+
+.GGGGGG.
+GgccccgG
+Gcg..gcG
+Gc.cc.cG
+Gc.cc.cG
+Gcg..gcG
+GgccccgG
+.GGGGGG.

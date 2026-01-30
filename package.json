@@ -1,0 +1,28 @@
+{
+  "name": "hotkey-foundry",
+  "version": "0.1.0",
+  "description": "A peaceful, keyboard-only, stage-based micro-factory builder",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "sprites": "cd tools/spritegen && node generate.js",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,js,json,html,css,md}": "prettier --write"
+  },
+  "dependencies": {
+    "phaser": "^3.80.1"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.8.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.4.2"
+  }
+}
