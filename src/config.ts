@@ -39,6 +39,14 @@ export const BUILDING_SIZES = {
   coffer: { width: 1, height: 1 },
 } as const;
 
+// Building costs (in stone)
+export const BUILDING_COSTS = {
+  quarry: 5,
+  forge: 3,
+  workbench: 4,
+  coffer: 1,
+} as const;
+
 // Colors for UI
 export const COLORS = {
   background: 0x1a1a1a,
@@ -53,4 +61,7 @@ export const COLORS = {
   arcstoneHighlight: 0x7b68ee,
   suniteBase: 0x8b6914,
   suniteHighlight: 0xdaa520,
+  // Stone deposit colors
+  stoneDepositBase: 0x5a5a5a,
+  stoneDepositHighlight: 0x8a8a8a,
 } as const;

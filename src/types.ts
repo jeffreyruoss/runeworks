@@ -15,11 +15,15 @@ export type BuildingType = 'quarry' | 'forge' | 'workbench' | 'coffer';
 
 export type Direction = 'up' | 'down' | 'left' | 'right';
 
-export type TerrainType = 'empty' | 'arcstone' | 'sunite';
+export type TerrainType = 'empty' | 'arcstone' | 'sunite' | 'stone_deposit';
 
 export interface Position {
   x: number;
   y: number;
+}
+
+export interface PlayerResources {
+  stone: number;
 }
 
 export interface BuildingDefinition {
@@ -76,6 +80,7 @@ export interface GameUIState {
   selectedBuilding: string | null;
   cursorX: number;
   cursorY: number;
+  cursorInfo: string | null; // What's under the cursor (terrain type or building)
   simRunning: boolean;
   simPaused: boolean;
   simSpeed: number;
@@ -83,4 +88,5 @@ export interface GameUIState {
   itemsProduced: Record<string, number>;
   menuOpen: boolean;
   inventoryOpen: boolean;
+  playerResources: PlayerResources;
 }

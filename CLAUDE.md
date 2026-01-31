@@ -43,7 +43,7 @@ ASCII art in `assets/sprites/src/*.txt` → `tools/spritegen/generate.js` → PN
 
 - **WASD**: Move cursor (+ Shift for 5-tile jumps)
 - **1-4**: Select building type (1=Quarry, 2=Forge, 3=Workbench, 4=Coffer)
-- **Space/Enter**: Construct building
+- **Space/Enter**: Gather stone / Construct building
 - **Backspace**: Demolish building
 - **R**: Rotate building
 - **P**: Pause/resume simulation
@@ -84,6 +84,161 @@ Use these skills for common tasks (invoke with `/skillname`):
 | `/debug-sim` | Debug simulation        | `/debug-sim items stuck`          |
 | `/balance`   | Analyze game balance    | `/balance forge throughput`       |
 | `/refactor`  | Refactor code           | `/refactor GameScene.ts`          |
+
+## Maintaining Agents & Skills
+
+Keep `.claude/agents/` and `.claude/skills/` in sync with the codebase:
+
+- **When adding new systems** - Update relevant agent files with new file paths, concepts, and patterns
+- **When changing APIs** - Update agent examples and code snippets to reflect current interfaces
+- **When adding features** - Consider if a new skill would streamline the workflow
+- **When refactoring** - Update line counts, file references, and architectural descriptions
+- **When changing game mechanics** - Update content.md with new balance guidelines and simulation.md with new tick behaviors
+
+**Update triggers:**
+
+| Change Type               | Update These Files                                |
+| ------------------------- | ------------------------------------------------- |
+| New building/recipe/item  | `agents/content.md`, `agents/simulation.md`       |
+| New scene or UI component | `agents/scene.md`                                 |
+| New sprite category       | `agents/sprites.md`                               |
+| New TypeScript patterns   | `agents/types.md`                                 |
+| New keyboard controls     | `CLAUDE.md` (controls section), `agents/scene.md` |
+| Simulation logic changes  | `agents/simulation.md`, `skills/debug-sim.md`     |
+
+## Quick Reference Paths
+
+Most frequently edited files:
+
+```
+src/Simulation.ts          # Tick logic, production, transfers (527 lines)
+src/scenes/GameScene.ts    # Input handling, rendering (586 lines)
+src/scenes/UIScene.ts      # HUD elements (274 lines)
+src/data/recipes.ts        # Recipe definitions
+src/data/buildings.ts      # Building specs
+src/types.ts               # Core interfaces
+src/config.ts              # Game constants
+assets/sprites/src/*.txt   # ASCII sprite definitions
+```
+
+## Event API
+
+Scene-to-scene communication events (emit from GameScene, listen in UIScene):
+
+| Event                    | Payload                             | When Fired                    |
+| ------------------------ | ----------------------------------- | ----------------------------- |
+| `gameStateChanged`       | `GameUIState` object                | Every frame with state update |
+| `simulationStateChanged` | `SimulationState` object            | When sim starts/stops/ticks   |
+| `itemProduced`           | `{ item: ItemType, count: number }` | When building produces items  |
+| `menuOpened`             | none                                | Menu panel opens              |
+| `menuClosed`             | none                                | Menu panel closes             |
+| `inventoryToggled`       | `boolean` (isOpen)                  | Inventory panel toggled       |
+
+## Phaser Patterns
+
+### Depth Layers (z-ordering)
+
+| Depth | Layer      | Usage                         |
+| ----- | ---------- | ----------------------------- |
+| 0     | Terrain    | Ground, crystal veins         |
+| 1     | Grid       | Tile grid lines               |
+| 10    | Buildings  | Placed building sprites       |
+| 50    | Ghost      | Placement preview sprite      |
+| 100   | Cursor     | Cursor highlight              |
+| 200   | Indicators | Buffer contents, status icons |
+| 1000  | UI Panels  | Menu, inventory overlays      |
+
+### Rotation Convention
+
+```
+rotation: 0 = right  (→)
+rotation: 1 = down   (↓)
+rotation: 2 = left   (←)
+rotation: 3 = up     (↑)
+```
+
+Rotation indicates the **output direction**. Input sides are defined per building in `buildings.ts`.
+
+### Coordinate System
+
+- Origin (0,0) is top-left
+- X increases rightward, Y increases downward
+- Grid coordinates are tile indices (0-39 for X, 0-24 for Y)
+- Pixel position = tile × 16
+
+## Common Pitfalls
+
+Avoid these frequent mistakes:
+
+| Pitfall                        | Solution                                                   |
+| ------------------------------ | ---------------------------------------------------------- |
+| Sprites not updating           | Run `npm run sprites` after changing ASCII definitions     |
+| Event listener not firing      | Check exact event name spelling (see Event API above)      |
+| Items disappearing             | Check buffer capacity limits in `buildings.ts`             |
+| Transfer not working           | Verify rotation: output side must face adjacent input side |
+| Placement blocked unexpectedly | Check 2×2 buildings need all 4 tiles free                  |
+| Simulation not ticking         | Verify `running: true` and `paused: false` in state        |
+| Type errors with Maps          | Use `new Map([...])` syntax, not object literals           |
+| Ghost sprite wrong rotation    | `ghostRotation` is separate from placed building rotation  |
+
+## Testing Checklist
+
+After making changes, verify:
+
+```bash
+npm run build              # TypeScript compiles without errors
+npm run dev                # Game loads without console errors
+```
+
+**Quick sanity checks:**
+
+- [ ] Place a quarry on crystal vein → extracts ore
+- [ ] Place forge adjacent to quarry → receives ore, produces ingots
+- [ ] Rotate building before placing → output faces expected direction
+- [ ] Delete building → removed cleanly, no orphan sprites
+- [ ] Toggle simulation (P) → starts/stops correctly
+- [ ] Speed controls (./,) → UI shows 1×/2×/4×
+
+**After sprite changes:**
+
+- [ ] `npm run sprites` completes without errors
+- [ ] New sprites appear in game at correct size
+- [ ] All 4 rotations render correctly (if applicable)
+
+## Current State vs Roadmap
+
+**Implemented (from spec milestones):**
+
+- ✅ Vite + Phaser + TypeScript setup
+- ✅ Grid rendering (40×25)
+- ✅ Cursor movement (WASD + Shift)
+- ✅ Basic HUD (UIScene)
+- ✅ Building selection (1-4 keys)
+- ✅ Ghost preview with placement validation
+- ✅ Place (Space/Enter) and delete (Backspace)
+- ✅ Rotation (R)
+- ✅ Tick-based simulation loop
+- ✅ Quarry extracts ore from crystal veins
+- ✅ Forge smelts ore → ingots
+- ✅ Adjacent transfer system (round-robin)
+- ✅ Workbench + recipes
+- ✅ Coffer storage
+- ✅ Sprite generation pipeline
+
+**Not yet implemented:**
+
+- ⬜ Stage system (goals, constraints, progression)
+- ⬜ Results screen with bottleneck hints
+- ⬜ Stage select / menu scene
+- ⬜ Save/load progress (localStorage)
+- ⬜ Power budget system
+- ⬜ Zoom controls (Q/E)
+- ⬜ Audio
+
+**Current items/buildings (themed as Arcane Foundry):**
+
+- Items: arcstone, sunite, arcane_ingot, sun_ingot, cogwheel, thread, rune
+- Buildings: quarry (2×2), forge (2×2), workbench (2×2), coffer (1×1)
 
 ## Code Style Guidelines (Claude Code Friendly)
 

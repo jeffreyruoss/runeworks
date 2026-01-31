@@ -1,6 +1,13 @@
 import Phaser from 'phaser';
-import { TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, COLORS, CURSOR_JUMP_STEP } from '../config';
-import { Building, BuildingType } from '../types';
+import {
+  TILE_SIZE,
+  GRID_WIDTH,
+  GRID_HEIGHT,
+  COLORS,
+  CURSOR_JUMP_STEP,
+  BUILDING_COSTS,
+} from '../config';
+import { Building, BuildingType, PlayerResources } from '../types';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
 import { getRecipesForBuilding } from '../data/recipes';
 import { Simulation } from '../Simulation';
@@ -31,6 +38,12 @@ export class GameScene extends Phaser.Scene {
   private showAllBuffers = false;
   private menuOpen = false;
   private inventoryOpen = false;
+
+  // Player resources
+  private playerResources: PlayerResources = { stone: 0 };
+
+  // Stone deposit charges (how much stone remains at each deposit)
+  private depositCharges: Map<string, number> = new Map();
 
   // Keys
   private keys!: {
@@ -115,7 +128,36 @@ export class GameScene extends Phaser.Scene {
     // Sunite vein on the right side (amber-gold crystals)
     this.simulation.placeCrystalVein(30, 8, 6, 6, 'sunite');
 
+    // Place stone deposits near crystal veins
+    this.placeStoneDeposits();
+
     this.drawTerrain();
+  }
+
+  private placeStoneDeposits(): void {
+    // Stone deposits scattered 2-4 tiles from crystal veins
+    // Each deposit has 3 stone charges
+    const depositPositions = [
+      // Near arcstone vein (left side)
+      { x: 3, y: 6 },
+      { x: 4, y: 7 },
+      { x: 2, y: 10 },
+      { x: 3, y: 12 },
+      { x: 11, y: 7 },
+      { x: 12, y: 9 },
+      // Near sunite vein (right side)
+      { x: 28, y: 6 },
+      { x: 27, y: 8 },
+      { x: 36, y: 7 },
+      { x: 37, y: 10 },
+      { x: 29, y: 14 },
+      { x: 35, y: 13 },
+    ];
+
+    for (const pos of depositPositions) {
+      this.simulation.setTerrain(pos.x, pos.y, 'stone_deposit');
+      this.depositCharges.set(`${pos.x},${pos.y}`, 3);
+    }
   }
 
   private drawTerrain(): void {
@@ -158,6 +200,16 @@ export class GameScene extends Phaser.Scene {
             y * TILE_SIZE + TILE_SIZE / 2,
             2
           );
+        } else if (terrain === 'stone_deposit') {
+          // Gray stone deposit
+          this.terrainGraphics.fillStyle(COLORS.stoneDepositBase, 1);
+          this.terrainGraphics.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+
+          // Rock pattern overlay (small angular shapes)
+          this.terrainGraphics.fillStyle(COLORS.stoneDepositHighlight, 0.7);
+          this.terrainGraphics.fillRect(x * TILE_SIZE + 2, y * TILE_SIZE + 3, 5, 4);
+          this.terrainGraphics.fillRect(x * TILE_SIZE + 8, y * TILE_SIZE + 7, 6, 5);
+          this.terrainGraphics.fillRect(x * TILE_SIZE + 4, y * TILE_SIZE + 10, 4, 3);
         }
       }
     }
@@ -219,8 +271,8 @@ export class GameScene extends Phaser.Scene {
     this.keys.FOUR.on('down', () => this.selectBuilding('coffer'));
 
     // Actions
-    this.keys.SPACE.on('down', () => this.placeBuilding());
-    this.keys.ENTER.on('down', () => this.placeBuilding());
+    this.keys.SPACE.on('down', () => this.handleAction());
+    this.keys.ENTER.on('down', () => this.handleAction());
     this.keys.BACKSPACE.on('down', () => this.deleteBuilding());
     this.keys.R.on('down', () => this.rotate());
     this.keys.ESC.on('down', () => this.handleEsc());
@@ -335,6 +387,41 @@ export class GameScene extends Phaser.Scene {
     this.emitUIUpdate();
   }
 
+  private handleAction(): void {
+    // Try gathering stone first if on a deposit
+    if (this.gatherStone()) return;
+
+    // Otherwise try placing a building
+    this.placeBuilding();
+  }
+
+  private gatherStone(): boolean {
+    const terrain = this.simulation.getTerrain(this.cursor.x, this.cursor.y);
+    if (terrain !== 'stone_deposit') return false;
+
+    const key = `${this.cursor.x},${this.cursor.y}`;
+    const charges = this.depositCharges.get(key) || 0;
+    if (charges <= 0) return false;
+
+    // Collect stone
+    this.playerResources.stone++;
+
+    // Reduce charges
+    const remaining = charges - 1;
+    if (remaining <= 0) {
+      // Deposit depleted
+      this.depositCharges.delete(key);
+      this.simulation.setTerrain(this.cursor.x, this.cursor.y, 'empty');
+    } else {
+      this.depositCharges.set(key, remaining);
+    }
+
+    // Redraw terrain
+    this.drawTerrain();
+    this.emitUIUpdate();
+    return true;
+  }
+
   private updateGhostSprite(): void {
     if (this.ghostSprite) {
       this.ghostSprite.destroy();
@@ -414,6 +501,12 @@ export class GameScene extends Phaser.Scene {
       if (!hasOre) return false;
     }
 
+    // Check stone cost
+    const cost = BUILDING_COSTS[this.selectedBuilding];
+    if (this.playerResources.stone < cost) {
+      return false;
+    }
+
     return true;
   }
 
@@ -423,6 +516,10 @@ export class GameScene extends Phaser.Scene {
     const def = BUILDING_DEFINITIONS[this.selectedBuilding];
     const x = this.cursor.x;
     const y = this.cursor.y;
+
+    // Deduct stone cost
+    const cost = BUILDING_COSTS[this.selectedBuilding];
+    this.playerResources.stone -= cost;
 
     // Determine initial recipe for buildings that need one
     // Note: Forges auto-detect recipe based on input (see Simulation.updateForge),
@@ -581,6 +678,26 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  private getCursorInfo(): string | null {
+    // Check for building first
+    const building = this.getBuildingAtCursor();
+    if (building) {
+      return building.type.charAt(0).toUpperCase() + building.type.slice(1);
+    }
+
+    // Check terrain
+    const terrain = this.simulation.getTerrain(this.cursor.x, this.cursor.y);
+    if (terrain === 'stone_deposit') {
+      const key = `${this.cursor.x},${this.cursor.y}`;
+      const charges = this.depositCharges.get(key) || 0;
+      return `Stone Deposit (${charges})`;
+    }
+    if (terrain === 'arcstone') return 'Arcstone Vein';
+    if (terrain === 'sunite') return 'Sunite Vein';
+
+    return null;
+  }
+
   private emitUIUpdate(): void {
     const state = this.simulation.getState();
     this.events.emit('gameStateChanged', {
@@ -588,6 +705,7 @@ export class GameScene extends Phaser.Scene {
       selectedBuilding: this.selectedBuilding,
       cursorX: this.cursor.x,
       cursorY: this.cursor.y,
+      cursorInfo: this.getCursorInfo(),
       simRunning: state.running,
       simPaused: state.paused,
       simSpeed: state.speed,
@@ -595,6 +713,7 @@ export class GameScene extends Phaser.Scene {
       itemsProduced: Object.fromEntries(state.itemsProduced),
       menuOpen: this.menuOpen,
       inventoryOpen: this.inventoryOpen,
+      playerResources: this.playerResources,
     });
   }
 

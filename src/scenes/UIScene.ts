@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import { CANVAS_WIDTH, CANVAS_HEIGHT, COLORS, TICKS_PER_SECOND } from '../config';
+import { CANVAS_WIDTH, CANVAS_HEIGHT, COLORS, BUILDING_COSTS } from '../config';
+import { BuildingType } from '../types';
 import { GameUIState } from '../types';
 
 export class UIScene extends Phaser.Scene {
@@ -8,6 +9,8 @@ export class UIScene extends Phaser.Scene {
   private cursorPosText!: Phaser.GameObjects.Text;
   private simStatusText!: Phaser.GameObjects.Text;
   private itemsText!: Phaser.GameObjects.Text;
+  private stoneCountText!: Phaser.GameObjects.Text;
+  private cursorInfoText!: Phaser.GameObjects.Text;
 
   // Menu panel
   private menuPanel!: Phaser.GameObjects.Container;
@@ -29,28 +32,36 @@ export class UIScene extends Phaser.Scene {
     // Bottom bar
     graphics.fillRect(0, CANVAS_HEIGHT - 28, CANVAS_WIDTH, 28);
 
-    // Quest name + quota (top-left)
-    this.add.text(4, 2, 'Quest 1: Arcane Ingots (Quota: 50)', {
+    // Cursor info (top-left, shows what's under cursor)
+    this.cursorInfoText = this.add.text(4, 2, '', {
       fontFamily: 'monospace',
       fontSize: '10px',
       color: '#ffffff',
     });
 
-    // Simulation status (top-center)
-    this.simStatusText = this.add.text(CANVAS_WIDTH / 2, 2, '0s [1x]', {
+    // Simulation status with play icon (top-center)
+    this.simStatusText = this.add.text(CANVAS_WIDTH / 2, 2, '► 1x', {
       fontFamily: 'monospace',
       fontSize: '10px',
       color: '#00ffff',
     });
     this.simStatusText.setOrigin(0.5, 0);
 
-    // Cursor position + building count (top-right)
-    this.cursorPosText = this.add.text(CANVAS_WIDTH - 80, 2, 'X:20 Y:12', {
+    // Stone count (top-right area)
+    this.stoneCountText = this.add.text(CANVAS_WIDTH - 130, 2, 'Stone:0', {
+      fontFamily: 'monospace',
+      fontSize: '10px',
+      color: '#aaaaaa',
+    });
+
+    // Cursor position (top-right)
+    this.cursorPosText = this.add.text(CANVAS_WIDTH - 60, 2, 'X:20 Y:12', {
       fontFamily: 'monospace',
       fontSize: '10px',
       color: '#888888',
     });
 
+    // Building count (top-right corner)
     this.buildingCountText = this.add.text(CANVAS_WIDTH - 4, 2, 'B:0', {
       fontFamily: 'monospace',
       fontSize: '10px',
@@ -84,7 +95,7 @@ export class UIScene extends Phaser.Scene {
     this.add.text(
       4,
       CANVAS_HEIGHT - 12,
-      'WASD:Move  Space:Build  Del:Remove  R:Rotate  P:Pause  I:Inv*  H:Stats  Esc:Menu',
+      'WASD:Move  Space:Gather/Build  Del:Remove  R:Rotate  P:Pause  H:Stats  Esc:Menu',
       {
         fontFamily: 'monospace',
         fontSize: '8px',
@@ -130,11 +141,10 @@ export class UIScene extends Phaser.Scene {
       'WASD - Move cursor',
       'Shift+WASD - Jump 5 tiles',
       '1-4 - Select building',
-      'Space/Enter - Construct',
+      'Space/Enter - Gather/Build',
       'Backspace - Demolish',
       'R - Rotate',
       'P - Pause/Resume',
-      'I - Inventory*',
       'H - Toggle stats',
       '</> - Speed down/up',
       'Esc - Menu/Back',
@@ -204,28 +214,47 @@ export class UIScene extends Phaser.Scene {
   }
 
   private onGameStateChanged(state: GameUIState): void {
+    // Cursor info (what's under cursor)
+    if (state.cursorInfo) {
+      this.cursorInfoText.setText(state.cursorInfo);
+      this.cursorInfoText.setColor('#ffffff');
+    } else {
+      this.cursorInfoText.setText('');
+    }
+
     // Building count
     this.buildingCountText.setText(`B:${state.buildingCount}`);
 
     // Cursor position
     this.cursorPosText.setText(`X:${state.cursorX} Y:${state.cursorY}`);
 
-    // Selected building
+    // Stone count
+    this.stoneCountText.setText(`Stone:${state.playerResources.stone}`);
+
+    // Selected building with cost info
     if (state.selectedBuilding) {
-      this.selectedText.setText(state.selectedBuilding.toUpperCase());
-      this.selectedText.setColor('#00ff00');
+      const buildingType = state.selectedBuilding as BuildingType;
+      const cost = BUILDING_COSTS[buildingType];
+      const hasEnough = state.playerResources.stone >= cost;
+
+      if (hasEnough) {
+        this.selectedText.setText(`${state.selectedBuilding.toUpperCase()} (${cost})`);
+        this.selectedText.setColor('#00ff00');
+      } else {
+        this.selectedText.setText(`${state.selectedBuilding.toUpperCase()} (${cost}) Need stone!`);
+        this.selectedText.setColor('#ff6666');
+      }
     } else {
       this.selectedText.setText('None');
       this.selectedText.setColor('#888888');
     }
 
-    // Simulation status
-    const seconds = Math.floor(state.simTick / TICKS_PER_SECOND);
+    // Simulation status with play/pause icon
     if (state.simPaused) {
-      this.simStatusText.setText(`PAUSED ${seconds}s [${state.simSpeed}x]`);
+      this.simStatusText.setText(`║ ${state.simSpeed}x`);
       this.simStatusText.setColor('#ffff00');
     } else {
-      this.simStatusText.setText(`${seconds}s [${state.simSpeed}x]`);
+      this.simStatusText.setText(`► ${state.simSpeed}x`);
       this.simStatusText.setColor('#00ffff');
     }
 
