@@ -1,7 +1,7 @@
 {
   "name": "spritegen",
   "version": "1.0.0",
-  "description": "ASCII sprite to PNG generator for Hotkey Foundry",
+  "description": "ASCII sprite to PNG generator for Runeworks",
   "type": "module",
   "main": "generate.js",
   "scripts": {

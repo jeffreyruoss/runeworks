@@ -1,4 +1,4 @@
-# Hotkey Foundry
+# Runeworks
 
 A keyboard-only, stage-based micro-factory builder game built with Phaser 3 and TypeScript. Place production machines on a grid and run tick-based simulations to meet stage goals.
 

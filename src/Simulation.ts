@@ -5,7 +5,7 @@ import { GRID_WIDTH, GRID_HEIGHT, MS_PER_TICK, QUARRY_TICKS_PER_ORE } from './co
 import { getBufferTotal, rotateDirection, oppositeDirection } from './utils';
 
 /**
- * Core simulation engine for Arcane Foundry
+ * Core simulation engine for Runeworks
  *
  * Handles tick-based updates for all buildings:
  * - Quarries extract ore from crystal veins

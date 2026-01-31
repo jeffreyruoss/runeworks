@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Sprite Generator for Hotkey Foundry
+ * Sprite Generator for Runeworks
  *
  * Converts ASCII sprite definitions to PNG images and packs them into a spritesheet.
  *
@@ -251,7 +251,7 @@ function nextPowerOf2(n) {
  * Main generator function
  */
 function generate() {
-  console.log('Sprite Generator for Hotkey Foundry');
+  console.log('Sprite Generator for Runeworks');
   console.log('====================================\n');
 
   // Ensure output directory exists

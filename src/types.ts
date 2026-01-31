@@ -1,5 +1,5 @@
 /**
- * Core game types for Arcane Foundry
+ * Core game types for Runeworks
  */
 
 export type ItemType =

@@ -1,4 +1,4 @@
-# Item sprites for Arcane Foundry
+# Item sprites for Runeworks
 # 8x8 icons (displayed in UI and on machines)
 
 @name arcstone

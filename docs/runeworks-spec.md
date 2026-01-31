@@ -1,4 +1,4 @@
-# Hotkey Foundry — Spec (Phaser, 16px tiles)
+# Runeworks — Spec (Phaser, 16px tiles)
 
 ## 1) Product vision
 

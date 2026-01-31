@@ -1,4 +1,4 @@
-# Building sprites for Arcane Foundry
+# Building sprites for Runeworks
 # 32x32 for 2x2 buildings, 16x16 for 1x1
 
 @name quarry

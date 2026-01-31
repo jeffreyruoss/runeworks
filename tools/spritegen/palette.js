@@ -1,5 +1,5 @@
 /**
- * Color palette for Hotkey Foundry sprites
+ * Color palette for Runeworks sprites
  * Each character maps to an RGBA color [r, g, b, a]
  *
  * Palette designed for 8-bit retro aesthetic with good contrast

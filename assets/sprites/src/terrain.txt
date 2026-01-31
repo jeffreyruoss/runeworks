@@ -1,4 +1,4 @@
-# Terrain sprites for Arcane Foundry
+# Terrain sprites for Runeworks
 # 16x16 tiles
 
 @name ground

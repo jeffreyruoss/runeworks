@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Arcane Foundry (formerly Hotkey Foundry) is a keyboard-only, stage-based micro-factory builder game built with Phaser 3 and TypeScript. Set in the realm of Eldoria, players operate a Runeforge - extracting mystical ores from crystal veins, purifying them in enchanted forges, and crafting runic artifacts. Players place production machines on a 40×25 grid and run tick-based simulations to meet quest quotas.
+Runeworks is a keyboard-only, stage-based micro-factory builder game built with Phaser 3 and TypeScript. Set in the realm of Eldoria, players operate a Runeforge - extracting mystical ores from crystal veins, purifying them in enchanted forges, and crafting runic artifacts. Players place production machines on a 40×25 grid and run tick-based simulations to meet quest quotas.
 
 ## Commands
 
@@ -54,7 +54,7 @@ ASCII art in `assets/sprites/src/*.txt` → `tools/spritegen/generate.js` → PN
 
 ## Design Reference
 
-See `docs/hotkey-foundry-spec.md` for complete game design specification including stage system, simulation rules, and milestone roadmap.
+See `docs/runeworks-spec.md` for complete game design specification including stage system, simulation rules, and milestone roadmap.
 
 ## Specialized Agents
 
@@ -235,7 +235,7 @@ npm run dev                # Game loads without console errors
 - ⬜ Zoom controls (Q/E)
 - ⬜ Audio
 
-**Current items/buildings (themed as Arcane Foundry):**
+**Current items/buildings:**
 
 - Items: arcstone, sunite, arcane_ingot, sun_ingot, cogwheel, thread, rune
 - Buildings: quarry (2×2), forge (2×2), workbench (2×2), coffer (1×1)

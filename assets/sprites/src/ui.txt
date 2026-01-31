@@ -1,4 +1,4 @@
-# UI sprites for Hotkey Foundry
+# UI sprites for Runeworks
 
 @name cursor
 @size 16
