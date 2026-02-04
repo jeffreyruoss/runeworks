@@ -1,6 +1,6 @@
 import { Simulation } from '../../src/Simulation';
 import { GRID_WIDTH, GRID_HEIGHT, MS_PER_TICK } from '../../src/config';
-import { createTestBuilding, tickSimulation, resetIdCounter } from './helpers';
+import { createTestBuilding, tickSimulation, resetIdCounter, startWithInputs } from './helpers';
 
 describe('Simulation', () => {
   let sim: Simulation;
@@ -133,6 +133,24 @@ describe('Simulation', () => {
       expect(sim.getTerrain(GRID_WIDTH - 1, GRID_HEIGHT - 1)).toBe('sunite');
       expect(sim.getTerrain(GRID_WIDTH, GRID_HEIGHT)).toBe('empty');
     });
+
+    it('sets and gets stone_deposit terrain', () => {
+      sim.setTerrain(3, 3, 'stone_deposit');
+      expect(sim.getTerrain(3, 3)).toBe('stone_deposit');
+    });
+
+    it('quarry does not extract from stone_deposit', () => {
+      const quarry = createTestBuilding('quarry', { x: 0, y: 0 });
+      sim.setBuildings([quarry]);
+      sim.setTerrain(0, 0, 'stone_deposit');
+      sim.setTerrain(1, 0, 'stone_deposit');
+      sim.setTerrain(0, 1, 'stone_deposit');
+      sim.setTerrain(1, 1, 'stone_deposit');
+      sim.start();
+
+      tickSimulation(sim, 40);
+      expect(quarry.outputBuffer.size).toBe(0);
+    });
   });
 
   describe('speed control', () => {
@@ -248,10 +266,7 @@ describe('Simulation', () => {
 
       const callback = vi.fn();
       sim.onItemProduced = callback;
-      sim.start();
-      // Set buffer after start (start resets buffers)
-      // Need 2 so forge can determine recipe during craft
-      forge.inputBuffer.set('arcstone', 2);
+      startWithInputs(sim, forge, [['arcstone', 2]]);
 
       // purify_arcstone takes 40 ticks
       tickSimulation(sim, 40);

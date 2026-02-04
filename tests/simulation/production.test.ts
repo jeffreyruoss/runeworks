@@ -1,7 +1,7 @@
 import { Simulation } from '../../src/Simulation';
 import { QUARRY_TICKS_PER_ORE } from '../../src/config';
 import { BUILDING_DEFINITIONS } from '../../src/data/buildings';
-import { createTestBuilding, tickSimulation, resetIdCounter } from './helpers';
+import { createTestBuilding, tickSimulation, resetIdCounter, startWithInputs } from './helpers';
 
 describe('Production', () => {
   let sim: Simulation;
@@ -93,11 +93,7 @@ describe('Production', () => {
     it('smelts arcstone into arcane_ingot', () => {
       const forge = createTestBuilding('forge', { x: 0, y: 0 });
       sim.setBuildings([forge]);
-      sim.start();
-      // Set buffer AFTER start (start resets buffers)
-      // Need 2 arcstone: 1 consumed for recipe, 1 remains so forge can
-      // determine its recipe on subsequent ticks during the craft
-      forge.inputBuffer.set('arcstone', 2);
+      startWithInputs(sim, forge, [['arcstone', 2]]);
 
       tickSimulation(sim, 40);
       expect(forge.outputBuffer.get('arcane_ingot')).toBe(1);
@@ -106,8 +102,7 @@ describe('Production', () => {
     it('smelts sunite into sun_ingot', () => {
       const forge = createTestBuilding('forge', { x: 0, y: 0 });
       sim.setBuildings([forge]);
-      sim.start();
-      forge.inputBuffer.set('sunite', 2);
+      startWithInputs(sim, forge, [['sunite', 2]]);
 
       tickSimulation(sim, 40);
       expect(forge.outputBuffer.get('sun_ingot')).toBe(1);
@@ -126,8 +121,7 @@ describe('Production', () => {
     it('consumes input at start of craft, not when complete', () => {
       const forge = createTestBuilding('forge', { x: 0, y: 0 });
       sim.setBuildings([forge]);
-      sim.start();
-      forge.inputBuffer.set('arcstone', 2);
+      startWithInputs(sim, forge, [['arcstone', 2]]);
 
       // After 1 tick: 1 arcstone consumed for crafting, 1 remains
       tickSimulation(sim, 1);
@@ -139,9 +133,8 @@ describe('Production', () => {
     it('blocks when output buffer is full', () => {
       const forge = createTestBuilding('forge', { x: 0, y: 0 });
       sim.setBuildings([forge]);
-      sim.start();
       // Give enough ore for many crafts
-      forge.inputBuffer.set('arcstone', 10);
+      startWithInputs(sim, forge, [['arcstone', 10]]);
 
       tickSimulation(sim, 40 * 10);
       // Output should be capped at buffer size (5)
@@ -160,8 +153,7 @@ describe('Production', () => {
         selectedRecipe: 'forge_cogwheel',
       });
       sim.setBuildings([workbench]);
-      sim.start();
-      workbench.inputBuffer.set('arcane_ingot', 2);
+      startWithInputs(sim, workbench, [['arcane_ingot', 2]]);
 
       // forge_cogwheel takes 30 ticks
       tickSimulation(sim, 30);
@@ -175,8 +167,7 @@ describe('Production', () => {
         selectedRecipe: 'spin_thread',
       });
       sim.setBuildings([workbench]);
-      sim.start();
-      workbench.inputBuffer.set('sun_ingot', 1);
+      startWithInputs(sim, workbench, [['sun_ingot', 1]]);
 
       // spin_thread takes 20 ticks
       tickSimulation(sim, 20);
@@ -190,9 +181,10 @@ describe('Production', () => {
         selectedRecipe: 'inscribe_rune',
       });
       sim.setBuildings([workbench]);
-      sim.start();
-      workbench.inputBuffer.set('arcane_ingot', 1);
-      workbench.inputBuffer.set('thread', 3);
+      startWithInputs(sim, workbench, [
+        ['arcane_ingot', 1],
+        ['thread', 3],
+      ]);
 
       // inscribe_rune takes 60 ticks
       tickSimulation(sim, 60);
@@ -206,8 +198,7 @@ describe('Production', () => {
         selectedRecipe: null,
       });
       sim.setBuildings([workbench]);
-      sim.start();
-      workbench.inputBuffer.set('arcane_ingot', 5);
+      startWithInputs(sim, workbench, [['arcane_ingot', 5]]);
 
       tickSimulation(sim, 100);
       expect(workbench.outputBuffer.size).toBe(0);
@@ -222,9 +213,8 @@ describe('Production', () => {
         selectedRecipe: 'forge_cogwheel',
       });
       sim.setBuildings([workbench]);
-      sim.start();
       // Need 2 arcane_ingot, only have 1
-      workbench.inputBuffer.set('arcane_ingot', 1);
+      startWithInputs(sim, workbench, [['arcane_ingot', 1]]);
 
       tickSimulation(sim, 60);
       expect(workbench.outputBuffer.size).toBe(0);

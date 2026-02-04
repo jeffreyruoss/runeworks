@@ -1,4 +1,5 @@
 import { RECIPES, getRecipe, getRecipesForBuilding } from '../../src/data/recipes';
+import { BUILDING_DEFINITIONS } from '../../src/data/buildings';
 
 describe('RECIPES data', () => {
   it('should contain at least one recipe', () => {
@@ -44,7 +45,7 @@ describe('RECIPES data', () => {
   });
 
   it('every recipe has a valid building type', () => {
-    const validBuildings = ['forge', 'workbench'];
+    const validBuildings = Object.keys(BUILDING_DEFINITIONS);
     for (const recipe of RECIPES) {
       expect(validBuildings).toContain(recipe.building);
     }

@@ -45,10 +45,25 @@ export function createBuffer(items?: [ItemType, number][]): Map<ItemType, number
 }
 
 /**
- * Advance the simulation by the given number of ticks.
- * At speed 1, this processes exactly `ticks` simulation ticks.
- * At higher speeds, more ticks will be processed.
+ * Advance the simulation by exactly `ticks` simulation ticks,
+ * regardless of the current simulation speed setting.
  */
 export function tickSimulation(sim: Simulation, ticks: number): void {
-  sim.update(MS_PER_TICK * ticks);
+  const speed = sim.getState().speed;
+  sim.update((MS_PER_TICK * ticks) / speed);
+}
+
+/**
+ * Start simulation and pre-fill a building's input buffer.
+ * Handles the start-then-set pattern safely since start() resets buffers.
+ */
+export function startWithInputs(
+  sim: Simulation,
+  building: Building,
+  items: [ItemType, number][]
+): void {
+  sim.start();
+  for (const [item, count] of items) {
+    building.inputBuffer.set(item, count);
+  }
 }

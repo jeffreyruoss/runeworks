@@ -79,6 +79,13 @@ describe('rotateDirection', () => {
     }
   });
 
+  it('handles negative rotations (counter-clockwise)', () => {
+    expect(rotateDirection('right', -1)).toBe('up');
+    expect(rotateDirection('down', -1)).toBe('right');
+    expect(rotateDirection('left', -1)).toBe('down');
+    expect(rotateDirection('up', -1)).toBe('left');
+  });
+
   it('handles rotations greater than 4 via modular wrapping', () => {
     expect(rotateDirection('right', 5)).toBe('down');
     expect(rotateDirection('right', 8)).toBe('right');

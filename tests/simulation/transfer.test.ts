@@ -1,7 +1,7 @@
 import { Simulation } from '../../src/Simulation';
 import { QUARRY_TICKS_PER_ORE } from '../../src/config';
 import { BUILDING_DEFINITIONS } from '../../src/data/buildings';
-import { createTestBuilding, tickSimulation, resetIdCounter } from './helpers';
+import { createTestBuilding, tickSimulation, resetIdCounter, startWithInputs } from './helpers';
 
 describe('Transfer', () => {
   let sim: Simulation;
@@ -98,10 +98,9 @@ describe('Transfer', () => {
       const c1Count = coffer1.inputBuffer.get('arcstone') ?? 0;
       const c2Count = coffer2.inputBuffer.get('arcstone') ?? 0;
 
-      // Items should be distributed between the two coffers
-      expect(c1Count + c2Count).toBe(4);
-      expect(c1Count).toBeGreaterThanOrEqual(1);
-      expect(c2Count).toBeGreaterThanOrEqual(1);
+      // Items should be evenly distributed via round-robin
+      expect(c1Count).toBe(2);
+      expect(c2Count).toBe(2);
     });
   });
 
@@ -143,8 +142,7 @@ describe('Transfer', () => {
       const forge = createTestBuilding('forge', { x: 2, y: 0, rotation: 0 });
 
       sim.setBuildings([workbench, forge]);
-      sim.start();
-      workbench.inputBuffer.set('arcane_ingot', 2);
+      startWithInputs(sim, workbench, [['arcane_ingot', 2]]);
 
       // Workbench crafts cogwheel (30 ticks), then tries to transfer
       tickSimulation(sim, 31);
@@ -165,8 +163,7 @@ describe('Transfer', () => {
       });
 
       sim.setBuildings([forge, workbench]);
-      sim.start();
-      forge.inputBuffer.set('arcstone', 2);
+      startWithInputs(sim, forge, [['arcstone', 2]]);
 
       // Forge crafts arcane_ingot (40 ticks), then transfers
       tickSimulation(sim, 41);
@@ -185,8 +182,7 @@ describe('Transfer', () => {
       });
 
       sim.setBuildings([forge, workbench]);
-      sim.start();
-      forge.inputBuffer.set('sunite', 2);
+      startWithInputs(sim, forge, [['sunite', 2]]);
 
       // Forge crafts sun_ingot (40 ticks), then tries to transfer
       tickSimulation(sim, 41);
@@ -206,8 +202,7 @@ describe('Transfer', () => {
       });
 
       sim.setBuildings([forge, workbench]);
-      sim.start();
-      forge.inputBuffer.set('arcstone', 2);
+      startWithInputs(sim, forge, [['arcstone', 2]]);
 
       tickSimulation(sim, 41);
 

@@ -17,7 +17,7 @@ export function getBufferTotal(buffer: Map<ItemType, number>): number {
 export function rotateDirection(dir: Direction, rotation: number): Direction {
   const dirs: Direction[] = ['right', 'down', 'left', 'up'];
   const idx = dirs.indexOf(dir);
-  return dirs[(idx + rotation) % 4];
+  return dirs[(((idx + rotation) % 4) + 4) % 4];
 }
 
 /**
