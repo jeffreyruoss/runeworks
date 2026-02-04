@@ -111,9 +111,9 @@ Keep `.claude/agents/` and `.claude/skills/` in sync with the codebase:
 Most frequently edited files:
 
 ```
-src/Simulation.ts          # Tick logic, production, transfers (527 lines)
-src/scenes/GameScene.ts    # Input handling, rendering (586 lines)
-src/scenes/UIScene.ts      # HUD elements (274 lines)
+src/Simulation.ts          # Tick logic, production, transfers (539 lines - NEEDS SPLIT)
+src/scenes/GameScene.ts    # Input handling, rendering (723 lines - NEEDS SPLIT)
+src/scenes/UIScene.ts      # HUD elements (284 lines)
 src/data/recipes.ts        # Recipe definitions
 src/data/buildings.ts      # Building specs
 src/types.ts               # Core interfaces
@@ -240,13 +240,87 @@ npm run dev                # Game loads without console errors
 - Items: arcstone, sunite, arcane_ingot, sun_ingot, cogwheel, thread, rune
 - Buildings: quarry (2×2), forge (2×2), workbench (2×2), coffer (1×1)
 
+## Modularity Guidelines
+
+Keep the codebase modular so Claude Code can read, understand, and modify files without needing excessive context.
+
+### File Size Limits
+
+- **Target: under 300 lines per file.** Files over 300 lines should be split.
+- **Hard limit: 500 lines.** Files approaching this need refactoring before adding more code.
+- When a file grows past 300 lines, extract a cohesive subsystem into its own module before continuing.
+
+### Current Modularity Debt
+
+These files exceed the 300-line target and should be split when working in them:
+
+| File            | Lines | Extract Into                                                            |
+| --------------- | ----- | ----------------------------------------------------------------------- |
+| `GameScene.ts`  | 723   | `InputManager`, `TerrainRenderer`, `BuildingPlacer`, `BufferIndicators` |
+| `Simulation.ts` | 539   | `TransferSystem` (item distribution ~110 lines)                         |
+
+**Rule: When modifying a file with modularity debt, extract at least one subsystem before or alongside your change.** Don't make large files larger.
+
+### Extraction Patterns
+
+When splitting a file, follow these patterns:
+
+**Manager classes** - For stateful subsystems that GameScene orchestrates:
+
+```typescript
+// src/managers/InputManager.ts
+export class InputManager {
+  constructor(private scene: Phaser.Scene) {}
+  setupKeys(): void {
+    /* ... */
+  }
+}
+
+// GameScene.ts - create in create(), delegates to manager
+this.inputManager = new InputManager(this);
+this.inputManager.setupKeys();
+```
+
+**Pure modules** - For stateless logic (preferred when possible):
+
+```typescript
+// src/simulation/transfers.ts
+export function transferItems(buildings: Building[], grid: Grid): TransferResult {
+  /* ... */
+}
+
+// Simulation.ts - call as function
+const result = transferItems(this.buildings, this.grid);
+```
+
+### Module Organization
+
+```
+src/
+├── scenes/          # Phaser scenes (thin orchestrators)
+├── managers/        # Stateful subsystems used by scenes
+├── simulation/      # Tick engine and subsystems
+├── data/            # Static definitions (buildings, recipes)
+├── types.ts         # Shared interfaces
+├── config.ts        # Constants
+└── utils.ts         # Pure helpers
+```
+
+### Principles
+
+- **One responsibility per file** - If you can't describe a file's purpose in one sentence, split it
+- **Scenes are orchestrators** - Scenes should wire together managers, not contain business logic
+- **Prefer pure functions over classes** - Extract logic as functions when no state is needed
+- **No circular imports** - Current codebase has zero; keep it that way
+- **Flat imports** - `import { X } from './module'`, avoid deep nesting
+
 ## Code Style Guidelines (Claude Code Friendly)
 
 Write code that's easy for Claude Code to read, understand, and modify:
 
 ### Structure
 
-- **Keep files focused** - One class/module per file, under 300 lines when practical
+- **Keep files focused** - One class/module per file, under 300 lines (see Modularity Guidelines)
 - **Use flat imports** - Avoid deep nesting; prefer `import { X } from './module'`
 - **Colocate related code** - Keep types, constants, and helpers near their usage
 
