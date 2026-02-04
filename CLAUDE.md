@@ -20,14 +20,22 @@ npm run sprites   # Regenerate sprite atlas from ASCII definitions
 ### Scene Structure
 
 - **BootScene** (`src/scenes/BootScene.ts`) - Asset loading, bootstraps other scenes
-- **GameScene** (`src/scenes/GameScene.ts`) - Core gameplay: grid rendering, building placement/deletion/rotation, cursor movement, keyboard input
+- **GameScene** (`src/scenes/GameScene.ts`) - Core gameplay orchestrator: wires together managers, handles cursor state, delegates input/rendering/placement
 - **UIScene** (`src/scenes/UIScene.ts`) - HUD overlay: status bars, hotbar legend, help text. Listens to GameScene events.
 
 ### Core Systems
 
-- **Simulation** (`src/Simulation.ts`) - Tick-based deterministic engine (20 ticks/sec). Handles production phase (buildings process recipes) and transfer phase (round-robin item distribution to adjacent machines).
+- **Simulation** (`src/Simulation.ts`) - Tick-based deterministic engine (20 ticks/sec). Handles production phase (buildings process recipes). Delegates transfer to TransferSystem.
+- **TransferSystem** (`src/simulation/transfers.ts`) - Round-robin item distribution between adjacent buildings
 - **Building Definitions** (`src/data/buildings.ts`) - Specs for Quarry, Forge, Workbench, Coffer
 - **Recipes** (`src/data/recipes.ts`) - Crafting recipes with input/output mappings and timing
+
+### Managers (used by GameScene)
+
+- **InputManager** (`src/managers/InputManager.ts`) - Keyboard setup and key bindings, delegates actions via callbacks
+- **TerrainRenderer** (`src/managers/TerrainRenderer.ts`) - Draws crystal veins, stone deposits, and grid lines
+- **BuildingPlacer** (`src/managers/BuildingPlacer.ts`) - Ghost preview sprite, placement validation, building creation
+- **BufferIndicators** (`src/managers/BufferIndicators.ts`) - Buffer count text overlays on buildings
 
 ### Sprite Pipeline
 
@@ -111,14 +119,20 @@ Keep `.claude/agents/` and `.claude/skills/` in sync with the codebase:
 Most frequently edited files:
 
 ```
-src/Simulation.ts          # Tick logic, production, transfers (539 lines - NEEDS SPLIT)
-src/scenes/GameScene.ts    # Input handling, rendering (723 lines - NEEDS SPLIT)
-src/scenes/UIScene.ts      # HUD elements (284 lines)
-src/data/recipes.ts        # Recipe definitions
-src/data/buildings.ts      # Building specs
-src/types.ts               # Core interfaces
-src/config.ts              # Game constants
-assets/sprites/src/*.txt   # ASCII sprite definitions
+src/scenes/GameScene.ts           # Gameplay orchestrator (370 lines)
+src/Simulation.ts                 # Tick logic, production (278 lines)
+src/scenes/UIScene.ts             # HUD elements (284 lines)
+src/managers/BuildingPlacer.ts    # Placement validation, ghost sprite (201 lines)
+src/simulation/transfers.ts       # Item distribution (166 lines)
+src/managers/InputManager.ts      # Keyboard bindings (110 lines)
+src/managers/TerrainRenderer.ts   # Terrain/grid drawing (101 lines)
+src/utils.ts                      # Pure helpers (94 lines)
+src/managers/BufferIndicators.ts  # Buffer overlays (72 lines)
+src/data/recipes.ts               # Recipe definitions
+src/data/buildings.ts             # Building specs
+src/types.ts                      # Core interfaces
+src/config.ts                     # Constants
+assets/sprites/src/*.txt          # ASCII sprite definitions
 ```
 
 ## Event API
@@ -170,16 +184,16 @@ Rotation indicates the **output direction**. Input sides are defined per buildin
 
 Avoid these frequent mistakes:
 
-| Pitfall                        | Solution                                                   |
-| ------------------------------ | ---------------------------------------------------------- |
-| Sprites not updating           | Run `npm run sprites` after changing ASCII definitions     |
-| Event listener not firing      | Check exact event name spelling (see Event API above)      |
-| Items disappearing             | Check buffer capacity limits in `buildings.ts`             |
-| Transfer not working           | Verify rotation: output side must face adjacent input side |
-| Placement blocked unexpectedly | Check 2×2 buildings need all 4 tiles free                  |
-| Simulation not ticking         | Verify `running: true` and `paused: false` in state        |
-| Type errors with Maps          | Use `new Map([...])` syntax, not object literals           |
-| Ghost sprite wrong rotation    | `ghostRotation` is separate from placed building rotation  |
+| Pitfall                        | Solution                                                                          |
+| ------------------------------ | --------------------------------------------------------------------------------- |
+| Sprites not updating           | Run `npm run sprites` after changing ASCII definitions                            |
+| Event listener not firing      | Check exact event name spelling (see Event API above)                             |
+| Items disappearing             | Check buffer capacity limits in `buildings.ts`                                    |
+| Transfer not working           | Verify rotation: output side must face adjacent input side                        |
+| Placement blocked unexpectedly | Check 2×2 buildings need all 4 tiles free                                         |
+| Simulation not ticking         | Verify `running: true` and `paused: false` in state                               |
+| Type errors with Maps          | Use `new Map([...])` syntax, not object literals                                  |
+| Ghost sprite wrong rotation    | `ghostRotation` lives in `BuildingPlacer`, separate from placed building rotation |
 
 ## Testing Checklist
 
@@ -252,45 +266,45 @@ Keep the codebase modular so Claude Code can read, understand, and modify files 
 
 ### Current Modularity Debt
 
-These files exceed the 300-line target and should be split when working in them:
+| File           | Lines | Status                                                         |
+| -------------- | ----- | -------------------------------------------------------------- |
+| `GameScene.ts` | 370   | Slightly over target; acceptable as orchestrator. Watch growth |
 
-| File            | Lines | Extract Into                                                            |
-| --------------- | ----- | ----------------------------------------------------------------------- |
-| `GameScene.ts`  | 723   | `InputManager`, `TerrainRenderer`, `BuildingPlacer`, `BufferIndicators` |
-| `Simulation.ts` | 539   | `TransferSystem` (item distribution ~110 lines)                         |
-
-**Rule: When modifying a file with modularity debt, extract at least one subsystem before or alongside your change.** Don't make large files larger.
+All other files are under 300 lines. **Rule: When a file grows past 300 lines, extract a cohesive subsystem before or alongside your change.** Don't make large files larger.
 
 ### Extraction Patterns
 
-When splitting a file, follow these patterns:
+When splitting a file, follow these established patterns:
 
-**Manager classes** - For stateful subsystems that GameScene orchestrates:
+**Manager classes** - For stateful subsystems that scenes orchestrate:
 
 ```typescript
-// src/managers/InputManager.ts
-export class InputManager {
-  constructor(private scene: Phaser.Scene) {}
-  setupKeys(): void {
-    /* ... */
-  }
-}
+// Manager receives scene ref and callbacks in constructor
+this.inputManager = new InputManager(this, {
+  moveCursor: (dx, dy) => this.moveCursor(dx, dy),
+  // ...
+});
 
-// GameScene.ts - create in create(), delegates to manager
-this.inputManager = new InputManager(this);
-this.inputManager.setupKeys();
+// Manager owns its visual artifacts (sprites, graphics, text)
+this.terrainRenderer = new TerrainRenderer(this);
+this.terrainRenderer.drawTerrain((x, y) => this.simulation.getTerrain(x, y));
 ```
 
-**Pure modules** - For stateless logic (preferred when possible):
+**Subsystem classes** - For engine subsystems with internal state:
 
 ```typescript
-// src/simulation/transfers.ts
-export function transferItems(buildings: Building[], grid: Grid): TransferResult {
-  /* ... */
-}
+// TransferSystem owns round-robin state, Simulation delegates to it
+private transferSystem = new TransferSystem();
+// In tick():
+this.transferSystem.transferAll(this.buildings);
+```
 
-// Simulation.ts - call as function
-const result = transferItems(this.buildings, this.grid);
+**Pure functions in utils.ts** - For stateless helpers used across modules:
+
+```typescript
+// Shared buffer operations, direction math, building lookups
+export function addToBuffer(buffer: Map<ItemType, number>, item: ItemType, count: number): void;
+export function getBuildingAt(x: number, y: number, buildings: Building[]): Building | null;
 ```
 
 ### Module Organization
@@ -298,12 +312,24 @@ const result = transferItems(this.buildings, this.grid);
 ```
 src/
 ├── scenes/          # Phaser scenes (thin orchestrators)
-├── managers/        # Stateful subsystems used by scenes
-├── simulation/      # Tick engine and subsystems
-├── data/            # Static definitions (buildings, recipes)
+│   ├── BootScene.ts       # Asset loading
+│   ├── GameScene.ts       # Gameplay orchestrator
+│   └── UIScene.ts         # HUD rendering
+├── managers/        # Stateful subsystems used by GameScene
+│   ├── InputManager.ts    # Keyboard setup & bindings
+│   ├── TerrainRenderer.ts # Crystal/stone/grid drawing
+│   ├── BuildingPlacer.ts  # Ghost sprite & placement logic
+│   └── BufferIndicators.ts# Buffer count overlays
+├── simulation/      # Tick engine subsystems
+│   └── transfers.ts       # Round-robin item distribution
+├── data/            # Static definitions
+│   ├── buildings.ts       # Building specs
+│   └── recipes.ts         # Crafting recipes
+├── Simulation.ts    # Core tick engine (production phase)
 ├── types.ts         # Shared interfaces
-├── config.ts        # Constants
-└── utils.ts         # Pure helpers
+├── config.ts        # Game constants
+├── utils.ts         # Pure helpers (buffers, directions, lookups)
+└── main.ts          # Phaser game config & entry point
 ```
 
 ### Principles
