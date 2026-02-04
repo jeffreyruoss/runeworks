@@ -8,6 +8,9 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "sprites": "cd tools/spritegen && node generate.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky"
@@ -19,10 +22,12 @@
     "phaser": "^3.80.1"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^4.0.18",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "prettier": "^3.8.1",
     "typescript": "^5.3.3",
-    "vite": "^5.4.2"
+    "vite": "^5.4.2",
+    "vitest": "^4.0.18"
   }
 }
