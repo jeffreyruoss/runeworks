@@ -83,20 +83,20 @@ describe('Transfer', () => {
   describe('round-robin distribution', () => {
     it('distributes items between multiple targets', () => {
       // Quarry at (0,0) outputs right
-      // Two coffers on the right side (coffer is 1x1)
+      // Two chests on the right side (chest is 1x1)
       const quarry = createTestBuilding('quarry', { x: 0, y: 0, rotation: 0 });
-      const coffer1 = createTestBuilding('coffer', { x: 2, y: 0 });
-      const coffer2 = createTestBuilding('coffer', { x: 2, y: 1 });
+      const chest1 = createTestBuilding('chest', { x: 2, y: 0 });
+      const chest2 = createTestBuilding('chest', { x: 2, y: 1 });
 
-      sim.setBuildings([quarry, coffer1, coffer2]);
+      sim.setBuildings([quarry, chest1, chest2]);
       sim.placeCrystalVein(0, 0, 2, 2, 'arcstone');
       sim.start();
 
       // Produce 4 items plus extra ticks for transfers
       tickSimulation(sim, QUARRY_TICKS_PER_ORE * 4 + 1);
 
-      const c1Count = coffer1.inputBuffer.get('arcstone') ?? 0;
-      const c2Count = coffer2.inputBuffer.get('arcstone') ?? 0;
+      const c1Count = chest1.inputBuffer.get('arcstone') ?? 0;
+      const c2Count = chest2.inputBuffer.get('arcstone') ?? 0;
 
       // Items should be evenly distributed via round-robin
       expect(c1Count).toBe(2);
@@ -105,16 +105,16 @@ describe('Transfer', () => {
   });
 
   describe('canAcceptItem behavior', () => {
-    it('coffer accepts any item type', () => {
+    it('chest accepts any item type', () => {
       const quarry = createTestBuilding('quarry', { x: 0, y: 0, rotation: 0 });
-      const coffer = createTestBuilding('coffer', { x: 2, y: 0 });
+      const chest = createTestBuilding('chest', { x: 2, y: 0 });
 
-      sim.setBuildings([quarry, coffer]);
+      sim.setBuildings([quarry, chest]);
       sim.placeCrystalVein(0, 0, 2, 2, 'arcstone');
       sim.start();
 
       tickSimulation(sim, QUARRY_TICKS_PER_ORE + 1);
-      expect(coffer.inputBuffer.get('arcstone')).toBe(1);
+      expect(chest.inputBuffer.get('arcstone')).toBe(1);
     });
 
     it('forge accepts ore types', () => {
@@ -232,21 +232,21 @@ describe('Transfer', () => {
       expect(forge.inputBuffer.get('arcstone')).toBe(BUILDING_DEFINITIONS.forge.inputBufferSize);
     });
 
-    it('coffer respects its buffer capacity', () => {
+    it('chest respects its buffer capacity', () => {
       const quarry = createTestBuilding('quarry', { x: 0, y: 0, rotation: 0 });
-      const coffer = createTestBuilding('coffer', { x: 2, y: 0 });
+      const chest = createTestBuilding('chest', { x: 2, y: 0 });
 
-      sim.setBuildings([quarry, coffer]);
+      sim.setBuildings([quarry, chest]);
       sim.placeCrystalVein(0, 0, 2, 2, 'arcstone');
       sim.start();
 
-      // Pre-fill coffer to capacity
-      coffer.inputBuffer.set('arcstone', BUILDING_DEFINITIONS.coffer.inputBufferSize);
+      // Pre-fill chest to capacity
+      chest.inputBuffer.set('arcstone', BUILDING_DEFINITIONS.chest.inputBufferSize);
 
       tickSimulation(sim, QUARRY_TICKS_PER_ORE + 1);
 
-      // Coffer should not accept more
-      expect(coffer.inputBuffer.get('arcstone')).toBe(BUILDING_DEFINITIONS.coffer.inputBufferSize);
+      // Chest should not accept more
+      expect(chest.inputBuffer.get('arcstone')).toBe(BUILDING_DEFINITIONS.chest.inputBufferSize);
       expect(quarry.outputBuffer.get('arcstone')).toBe(1);
     });
   });

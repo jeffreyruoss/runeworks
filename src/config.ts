@@ -28,7 +28,7 @@ export const POWER_COSTS = {
   quarry: 2,
   forge: 3,
   workbench: 4,
-  coffer: 0,
+  chest: 0,
 } as const;
 
 // Building sizes (in tiles)
@@ -36,7 +36,7 @@ export const BUILDING_SIZES = {
   quarry: { width: 2, height: 2 },
   forge: { width: 2, height: 2 },
   workbench: { width: 2, height: 2 },
-  coffer: { width: 1, height: 1 },
+  chest: { width: 1, height: 1 },
 } as const;
 
 // Building costs (in stone)
@@ -44,7 +44,7 @@ export const BUILDING_COSTS = {
   quarry: 5,
   forge: 3,
   workbench: 4,
-  coffer: 1,
+  chest: 1,
 } as const;
 
 // Colors for UI

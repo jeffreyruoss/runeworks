@@ -1,21 +1,20 @@
 import Phaser from 'phaser';
 
 export interface GameKeys {
-  W: Phaser.Input.Keyboard.Key;
-  A: Phaser.Input.Keyboard.Key;
+  E: Phaser.Input.Keyboard.Key;
   S: Phaser.Input.Keyboard.Key;
   D: Phaser.Input.Keyboard.Key;
+  F: Phaser.Input.Keyboard.Key;
+  B: Phaser.Input.Keyboard.Key;
+  Q: Phaser.Input.Keyboard.Key;
+  W: Phaser.Input.Keyboard.Key;
+  C: Phaser.Input.Keyboard.Key;
   SPACE: Phaser.Input.Keyboard.Key;
   BACKSPACE: Phaser.Input.Keyboard.Key;
   R: Phaser.Input.Keyboard.Key;
   P: Phaser.Input.Keyboard.Key;
   I: Phaser.Input.Keyboard.Key;
   H: Phaser.Input.Keyboard.Key;
-  C: Phaser.Input.Keyboard.Key;
-  ONE: Phaser.Input.Keyboard.Key;
-  TWO: Phaser.Input.Keyboard.Key;
-  THREE: Phaser.Input.Keyboard.Key;
-  FOUR: Phaser.Input.Keyboard.Key;
   ESC: Phaser.Input.Keyboard.Key;
   SHIFT: Phaser.Input.Keyboard.Key;
   ENTER: Phaser.Input.Keyboard.Key;
@@ -29,7 +28,7 @@ export interface GameKeys {
  */
 export interface InputCallbacks {
   moveCursor: (dx: number, dy: number) => void;
-  selectBuilding: (type: 'quarry' | 'forge' | 'workbench' | 'coffer') => void;
+  selectBuilding: (type: 'quarry' | 'forge' | 'workbench' | 'chest') => void;
   handleAction: () => void;
   deleteBuilding: () => void;
   rotate: () => void;
@@ -39,6 +38,7 @@ export interface InputCallbacks {
   toggleBufferDisplay: () => void;
   cycleRecipe: () => void;
   changeSpeed: (delta: number) => void;
+  toggleBuildMode: () => void;
 }
 
 /**
@@ -52,21 +52,20 @@ export class InputManager {
     const keyboard = scene.input.keyboard!;
 
     this.keys = {
-      W: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
-      A: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
+      E: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E),
       S: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
       D: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
+      F: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F),
+      B: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.B),
+      Q: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q),
+      W: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
+      C: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C),
       SPACE: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
       BACKSPACE: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.BACKSPACE),
       R: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R),
       P: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P),
       I: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.I),
       H: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.H),
-      C: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C),
-      ONE: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ONE),
-      TWO: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO),
-      THREE: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE),
-      FOUR: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FOUR),
       ESC: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC),
       SHIFT: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT),
       ENTER: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER),
@@ -78,17 +77,20 @@ export class InputManager {
   }
 
   private bindKeys(cb: InputCallbacks): void {
-    // Movement
-    this.keys.W.on('down', () => cb.moveCursor(0, -1));
-    this.keys.A.on('down', () => cb.moveCursor(-1, 0));
-    this.keys.S.on('down', () => cb.moveCursor(0, 1));
-    this.keys.D.on('down', () => cb.moveCursor(1, 0));
+    // Movement (ESDF)
+    this.keys.E.on('down', () => cb.moveCursor(0, -1));
+    this.keys.S.on('down', () => cb.moveCursor(-1, 0));
+    this.keys.D.on('down', () => cb.moveCursor(0, 1));
+    this.keys.F.on('down', () => cb.moveCursor(1, 0));
 
-    // Building selection
-    this.keys.ONE.on('down', () => cb.selectBuilding('quarry'));
-    this.keys.TWO.on('down', () => cb.selectBuilding('forge'));
-    this.keys.THREE.on('down', () => cb.selectBuilding('workbench'));
-    this.keys.FOUR.on('down', () => cb.selectBuilding('coffer'));
+    // Build mode
+    this.keys.B.on('down', () => cb.toggleBuildMode());
+
+    // Build mode selection keys (Q=quarry, W=workbench)
+    // F and C are handled by moveCursor/cycleRecipe above;
+    // GameScene resolves conflicts based on buildModeActive state
+    this.keys.Q.on('down', () => cb.selectBuilding('quarry'));
+    this.keys.W.on('down', () => cb.selectBuilding('workbench'));
 
     // Actions
     this.keys.SPACE.on('down', () => cb.handleAction());

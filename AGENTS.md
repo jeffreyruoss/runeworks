@@ -42,7 +42,7 @@ Scenes communicate via Phaser's event system. GameScene emits `gameStateChanged`
    - Quarries extract ore from crystal veins (1 ore per 20 ticks = 1/second)
    - Forges purify ore into ingots (40 tick craft time)
    - Workbenches craft items according to selected recipes
-   - Coffers just store items (no production)
+   - Chests just store items (no production)
 
 2. **Transfer Phase** - Round-robin item distribution to adjacent machines
    - Buildings push items from output buffer to adjacent machines' input buffers
@@ -54,7 +54,7 @@ The simulation is deterministic: same building layout + seed = same results ever
 
 ### Data-Driven Design
 
-- **Buildings** (`src/data/buildings.ts`) - Defines specs for all building types (quarry, forge, workbench, coffer) including size, power cost, input/output sides, buffer sizes
+- **Buildings** (`src/data/buildings.ts`) - Defines specs for all building types (quarry, forge, workbench, chest) including size, power cost, input/output sides, buffer sizes
 - **Recipes** (`src/data/recipes.ts`) - Crafting recipes with input/output item mappings and craft time in ticks
 - **Config** (`src/config.ts`) - Game constants: grid size (40×25), tile size (16px), simulation rate (20 tps), default zoom (4×)
 - **Types** (`src/types.ts`) - Core TypeScript interfaces for Building, Recipe, SimulationState, etc.
@@ -84,24 +84,25 @@ ASCII art → PNG atlas workflow:
 - **Simulation**: 20 ticks/second (50ms per tick)
 - **Quarry extraction**: 1 ore per 20 ticks (1/second)
 - **Forge smelting**: 40 ticks (2 seconds)
-- **Building sizes**: Quarry/Forge/Workbench = 2×2, Coffer = 1×1
+- **Building sizes**: Quarry/Forge/Workbench = 2×2, Chest = 1×1
 
 ## Keyboard Controls
 
 All game controls are keyboard-only (designed for accessibility and speed):
 
-| Key         | Action                                                          |
-| ----------- | --------------------------------------------------------------- |
-| WASD        | Move cursor (+ Shift for 5-tile jumps)                          |
-| 1-4         | Select building type (1=Quarry, 2=Forge, 3=Workbench, 4=Coffer) |
-| Space/Enter | Gather stone / Construct building                               |
-| Backspace   | Demolish building                                               |
-| R           | Rotate building                                                 |
-| P           | Pause/resume simulation                                         |
-| I           | Toggle inventory panel                                          |
-| H           | Toggle buffer stats display on all buildings                    |
-| . / ,       | Speed up / slow down simulation (1×/2×/4×)                      |
-| Esc         | Cancel/back, or open menu if nothing to cancel                  |
+| Key         | Action                                              |
+| ----------- | --------------------------------------------------- |
+| ESDF        | Move cursor (+ Shift for 5-tile jumps)              |
+| B           | Toggle build menu (shows Q/F/W/C building options)  |
+| Q/F/W/C     | Select Quarry/Forge/Workbench/Chest (in build mode) |
+| Space/Enter | Gather stone / Construct building                   |
+| Backspace   | Demolish building                                   |
+| R           | Rotate building                                     |
+| P           | Pause/resume simulation                             |
+| I           | Toggle inventory panel                              |
+| H           | Toggle buffer stats display on all buildings        |
+| . / ,       | Speed up / slow down simulation (1×/2×/4×)          |
+| Esc         | Cancel/back, or open menu if nothing to cancel      |
 
 ## Event System
 
@@ -143,7 +144,7 @@ GameScene emits events that UIScene listens to:
 - **Quarry** (2×2) - Extracts ore from crystal veins, no inputs, output: right
 - **Forge** (2×2) - Purifies ore into ingots, input: left, output: right
 - **Workbench** (2×2) - Crafts items from recipes, input: left/up, output: right
-- **Coffer** (1×1) - Storage, all sides input/output, 50 item capacity
+- **Chest** (1×1) - Storage, all sides input/output, 50 item capacity
 
 ## Common Patterns
 
@@ -191,7 +192,7 @@ npm run dev       # Verify new sprites appear at correct size and rotation
 
 - ✅ Phaser 3 + TypeScript + Vite setup
 - ✅ 40×25 grid rendering
-- ✅ Keyboard-only cursor movement with WASD + Shift
+- ✅ Keyboard-only cursor movement with ESDF + Shift
 - ✅ Building selection, ghost preview, placement validation
 - ✅ Building placement (Space/Enter) and deletion (Backspace)
 - ✅ Building rotation (R key)
@@ -199,7 +200,7 @@ npm run dev       # Verify new sprites appear at correct size and rotation
 - ✅ Quarry ore extraction from crystal veins
 - ✅ Forge smelting system
 - ✅ Workbench crafting with recipes
-- ✅ Coffer storage
+- ✅ Chest storage
 - ✅ Adjacent item transfer with round-robin distribution
 - ✅ Sprite generation pipeline from ASCII art
 - ✅ UIScene HUD overlay
@@ -212,7 +213,7 @@ npm run dev       # Verify new sprites appear at correct size and rotation
 - ⬜ Stage select / menu scene
 - ⬜ Save/load progress (localStorage)
 - ⬜ Power budget system
-- ⬜ Zoom controls (Q/E keys)
+- ⬜ Zoom controls
 - ⬜ Audio/sound effects
 
 ## Related Documentation

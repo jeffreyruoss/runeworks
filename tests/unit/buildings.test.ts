@@ -9,7 +9,7 @@ describe('BUILDING_DEFINITIONS', () => {
     expect(allBuildingTypes).toContain('quarry');
     expect(allBuildingTypes).toContain('forge');
     expect(allBuildingTypes).toContain('workbench');
-    expect(allBuildingTypes).toContain('coffer');
+    expect(allBuildingTypes).toContain('chest');
   });
 
   for (const type of allBuildingTypes) {
@@ -124,35 +124,35 @@ describe('BUILDING_DEFINITIONS', () => {
     });
   });
 
-  describe('coffer specifics', () => {
-    const coffer = BUILDING_DEFINITIONS.coffer;
+  describe('chest specifics', () => {
+    const chest = BUILDING_DEFINITIONS.chest;
 
     it('is 1x1', () => {
-      expect(coffer.width).toBe(1);
-      expect(coffer.height).toBe(1);
+      expect(chest.width).toBe(1);
+      expect(chest.height).toBe(1);
     });
 
     it('accepts items from all four directions', () => {
-      expect(coffer.inputSides).toHaveLength(4);
+      expect(chest.inputSides).toHaveLength(4);
       for (const dir of VALID_DIRECTIONS) {
-        expect(coffer.inputSides).toContain(dir);
+        expect(chest.inputSides).toContain(dir);
       }
     });
 
     it('outputs items in all four directions', () => {
-      expect(coffer.outputSides).toHaveLength(4);
+      expect(chest.outputSides).toHaveLength(4);
       for (const dir of VALID_DIRECTIONS) {
-        expect(coffer.outputSides).toContain(dir);
+        expect(chest.outputSides).toContain(dir);
       }
     });
 
     it('has zero power cost (passive storage)', () => {
-      expect(coffer.powerCost).toBe(0);
+      expect(chest.powerCost).toBe(0);
     });
 
     it('has large buffer sizes for storage role', () => {
-      expect(coffer.inputBufferSize).toBeGreaterThanOrEqual(50);
-      expect(coffer.outputBufferSize).toBeGreaterThanOrEqual(50);
+      expect(chest.inputBufferSize).toBeGreaterThanOrEqual(50);
+      expect(chest.outputBufferSize).toBeGreaterThanOrEqual(50);
     });
   });
 });

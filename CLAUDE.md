@@ -27,7 +27,7 @@ npm run sprites   # Regenerate sprite atlas from ASCII definitions
 
 - **Simulation** (`src/Simulation.ts`) - Tick-based deterministic engine (20 ticks/sec). Handles production phase (buildings process recipes). Delegates transfer to TransferSystem.
 - **TransferSystem** (`src/simulation/transfers.ts`) - Round-robin item distribution between adjacent buildings
-- **Building Definitions** (`src/data/buildings.ts`) - Specs for Quarry, Forge, Workbench, Coffer
+- **Building Definitions** (`src/data/buildings.ts`) - Specs for Quarry, Forge, Workbench, Chest
 - **Recipes** (`src/data/recipes.ts`) - Crafting recipes with input/output mappings and timing
 
 ### Managers (used by GameScene)
@@ -49,16 +49,18 @@ ASCII art in `assets/sprites/src/*.txt` → `tools/spritegen/generate.js` → PN
 
 ## Keyboard Controls (GameScene)
 
-- **WASD**: Move cursor (+ Shift for 5-tile jumps)
-- **1-4**: Select building type (1=Quarry, 2=Forge, 3=Workbench, 4=Coffer)
+- **ESDF**: Move cursor (+ Shift for 5-tile jumps)
+- **B**: Toggle build menu (shows Q/F/W/C building options)
+- **Q/F/W/C** (build mode): Select Quarry/Forge/Workbench/Chest
 - **Space/Enter**: Gather stone / Construct building
 - **Backspace**: Demolish building
 - **R**: Rotate building
 - **P**: Pause/resume simulation
 - **I**: Toggle inventory panel
 - **H**: Toggle buffer stats display on all buildings
+- **C** (normal mode): Cycle workbench recipe
 - **. / ,**: Speed up / slow down simulation
-- **Esc**: Cancel/back, or open menu if nothing to cancel
+- **Esc**: Cancel build mode / cancel selection / close menu
 
 ## Design Reference
 
@@ -225,9 +227,9 @@ npm run dev                # Game loads without console errors
 
 - ✅ Vite + Phaser + TypeScript setup
 - ✅ Grid rendering (40×25)
-- ✅ Cursor movement (WASD + Shift)
+- ✅ Cursor movement (ESDF + Shift)
 - ✅ Basic HUD (UIScene)
-- ✅ Building selection (1-4 keys)
+- ✅ Building selection (B key → build menu with Q/F/W/C)
 - ✅ Ghost preview with placement validation
 - ✅ Place (Space/Enter) and delete (Backspace)
 - ✅ Rotation (R)
@@ -236,7 +238,7 @@ npm run dev                # Game loads without console errors
 - ✅ Forge smelts ore → ingots
 - ✅ Adjacent transfer system (round-robin)
 - ✅ Workbench + recipes
-- ✅ Coffer storage
+- ✅ Chest storage
 - ✅ Sprite generation pipeline
 
 **Not yet implemented:**
@@ -246,13 +248,13 @@ npm run dev                # Game loads without console errors
 - ⬜ Stage select / menu scene
 - ⬜ Save/load progress (localStorage)
 - ⬜ Power budget system
-- ⬜ Zoom controls (Q/E)
+- ⬜ Zoom controls
 - ⬜ Audio
 
 **Current items/buildings:**
 
 - Items: arcstone, sunite, arcane_ingot, sun_ingot, cogwheel, thread, rune
-- Buildings: quarry (2×2), forge (2×2), workbench (2×2), coffer (1×1)
+- Buildings: quarry (2×2), forge (2×2), workbench (2×2), chest (1×1)
 
 ## Modularity Guidelines
 

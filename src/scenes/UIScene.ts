@@ -11,6 +11,7 @@ export class UIScene extends Phaser.Scene {
   private itemsText!: Phaser.GameObjects.Text;
   private stoneCountText!: Phaser.GameObjects.Text;
   private cursorInfoText!: Phaser.GameObjects.Text;
+  private hotbarText!: Phaser.GameObjects.Text;
 
   // Menu panel
   private menuPanel!: Phaser.GameObjects.Container;
@@ -76,8 +77,8 @@ export class UIScene extends Phaser.Scene {
       color: '#ffff00',
     });
 
-    // Hotbar (bottom)
-    this.add.text(4, CANVAS_HEIGHT - 24, '[1] Quarry  [2] Forge  [3] Workbench  [4] Coffer', {
+    // Hotbar (bottom) - dynamic based on build mode
+    this.hotbarText = this.add.text(4, CANVAS_HEIGHT - 24, '[B] Build', {
       fontFamily: 'monospace',
       fontSize: '10px',
       color: '#aaaaaa',
@@ -95,7 +96,7 @@ export class UIScene extends Phaser.Scene {
     this.add.text(
       4,
       CANVAS_HEIGHT - 12,
-      'WASD:Move  Space:Gather/Build  Del:Remove  R:Rotate  P:Pause  H:Stats  Esc:Menu',
+      'ESDF:Move  Space:Gather/Build  Del:Remove  R:Rotate  P:Pause  H:Stats  Esc:Menu',
       {
         fontFamily: 'monospace',
         fontSize: '8px',
@@ -138,14 +139,15 @@ export class UIScene extends Phaser.Scene {
 
     // Key commands list
     const keyCommands = [
-      'WASD - Move cursor',
-      'Shift+WASD - Jump 5 tiles',
-      '1-4 - Select building',
+      'ESDF - Move cursor',
+      'Shift+ESDF - Jump 5 tiles',
+      'B - Build menu',
       'Space/Enter - Gather/Build',
       'Backspace - Demolish',
       'R - Rotate',
       'P - Pause/Resume',
       'H - Toggle stats',
+      'C - Cycle recipe',
       '</> - Speed down/up',
       'Esc - Menu/Back',
     ];
@@ -247,6 +249,15 @@ export class UIScene extends Phaser.Scene {
     } else {
       this.selectedText.setText('None');
       this.selectedText.setColor('#888888');
+    }
+
+    // Hotbar - dynamic based on build mode
+    if (state.buildModeActive) {
+      this.hotbarText.setText('[Q] Quarry  [F] Forge  [W] Workbench  [C] Chest');
+      this.hotbarText.setColor('#ffffff');
+    } else {
+      this.hotbarText.setText('[B] Build');
+      this.hotbarText.setColor('#aaaaaa');
     }
 
     // Simulation status with play/pause icon

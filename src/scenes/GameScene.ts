@@ -34,6 +34,7 @@ export class GameScene extends Phaser.Scene {
   private showAllBuffers = false;
   private menuOpen = false;
   private inventoryOpen = false;
+  private buildModeActive = false;
 
   // Player resources
   private playerResources: PlayerResources = { stone: 0 };
@@ -64,8 +65,8 @@ export class GameScene extends Phaser.Scene {
 
     // Setup input (must be after other init so callbacks reference valid state)
     this.inputManager = new InputManager(this, {
-      moveCursor: (dx, dy) => this.moveCursor(dx, dy),
-      selectBuilding: (type) => this.selectBuilding(type),
+      moveCursor: (dx, dy) => this.handleMoveCursor(dx, dy),
+      selectBuilding: (type) => this.handleSelectBuilding(type),
       handleAction: () => this.handleAction(),
       deleteBuilding: () => this.deleteBuilding(),
       rotate: () => this.buildingPlacer.rotate(),
@@ -73,8 +74,9 @@ export class GameScene extends Phaser.Scene {
       togglePause: () => this.togglePause(),
       toggleInventory: () => this.toggleInventory(),
       toggleBufferDisplay: () => this.toggleBufferDisplay(),
-      cycleRecipe: () => this.cycleRecipe(),
+      cycleRecipe: () => this.handleCycleRecipe(),
       changeSpeed: (delta) => this.changeSpeed(delta),
+      toggleBuildMode: () => this.toggleBuildMode(),
     });
 
     // Center cursor
@@ -131,6 +133,21 @@ export class GameScene extends Phaser.Scene {
 
   // --- Input handlers ---
 
+  /**
+   * Movement callback - also handles F key in build mode (forge selection).
+   * In build mode, movement keys are disabled.
+   */
+  private handleMoveCursor(dx: number, dy: number): void {
+    if (this.buildModeActive) {
+      // F key fires both moveCursor(1,0) and is the forge build key
+      if (dx === 1 && dy === 0) {
+        this.selectBuildingAndCloseBuildMode('forge');
+      }
+      return;
+    }
+    this.moveCursor(dx, dy);
+  }
+
   private moveCursor(dx: number, dy: number): void {
     const step = this.inputManager.keys.SHIFT.isDown ? CURSOR_JUMP_STEP : 1;
     this.cursor.x = Phaser.Math.Clamp(this.cursor.x + dx * step, 0, GRID_WIDTH - 1);
@@ -138,6 +155,31 @@ export class GameScene extends Phaser.Scene {
     this.updateCursor();
     this.bufferIndicators.update(this.buildings, this.getBuildingAtCursor(), this.showAllBuffers);
     this.emitUIUpdate();
+  }
+
+  /**
+   * Building selection callback from Q and W keys.
+   * Q=quarry, W=workbench. Only active during build mode.
+   */
+  private handleSelectBuilding(type: BuildingType): void {
+    if (!this.buildModeActive) return;
+    this.selectBuildingAndCloseBuildMode(type);
+  }
+
+  /**
+   * Cycle recipe callback - also handles C key in build mode (chest selection).
+   */
+  private handleCycleRecipe(): void {
+    if (this.buildModeActive) {
+      this.selectBuildingAndCloseBuildMode('chest');
+      return;
+    }
+    this.cycleRecipe();
+  }
+
+  private selectBuildingAndCloseBuildMode(type: BuildingType): void {
+    this.buildModeActive = false;
+    this.selectBuilding(type);
   }
 
   private selectBuilding(type: BuildingType): void {
@@ -148,7 +190,17 @@ export class GameScene extends Phaser.Scene {
     this.emitUIUpdate();
   }
 
+  private toggleBuildMode(): void {
+    this.buildModeActive = !this.buildModeActive;
+    this.emitUIUpdate();
+  }
+
   private handleEsc(): void {
+    if (this.buildModeActive) {
+      this.buildModeActive = false;
+      this.emitUIUpdate();
+      return;
+    }
     if (this.menuOpen) {
       this.closeMenu();
       return;
@@ -371,6 +423,7 @@ export class GameScene extends Phaser.Scene {
       menuOpen: this.menuOpen,
       inventoryOpen: this.inventoryOpen,
       playerResources: this.playerResources,
+      buildModeActive: this.buildModeActive,
     });
   }
 

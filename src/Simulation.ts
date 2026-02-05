@@ -12,7 +12,7 @@ import { TransferSystem } from './simulation/transfers';
  * - Quarries extract ore from crystal veins
  * - Forges purify ore into ingots
  * - Workbenches craft items according to recipes
- * - Coffers store and distribute items
+ * - Chests store and distribute items
  * - Adjacent transfer moves items between buildings (via TransferSystem)
  */
 export class Simulation {
@@ -157,7 +157,7 @@ export class Simulation {
       case 'workbench':
         this.updateWorkbench(building);
         break;
-      case 'coffer':
+      case 'chest':
         break;
     }
   }

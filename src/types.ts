@@ -11,7 +11,7 @@ export type ItemType =
   | 'thread'
   | 'rune';
 
-export type BuildingType = 'quarry' | 'forge' | 'workbench' | 'coffer';
+export type BuildingType = 'quarry' | 'forge' | 'workbench' | 'chest';
 
 export type Direction = 'up' | 'down' | 'left' | 'right';
 
@@ -89,4 +89,5 @@ export interface GameUIState {
   menuOpen: boolean;
   inventoryOpen: boolean;
   playerResources: PlayerResources;
+  buildModeActive: boolean;
 }

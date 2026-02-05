@@ -31,14 +31,14 @@ export const BUILDING_DEFINITIONS: Record<BuildingType, BuildingDefinition> = {
     inputBufferSize: 10,
     outputBufferSize: 5,
   },
-  coffer: {
-    type: 'coffer',
+  chest: {
+    type: 'chest',
     width: 1,
     height: 1,
     powerCost: 0,
     inputSides: ['up', 'down', 'left', 'right'],
     outputSides: ['up', 'down', 'left', 'right'],
     inputBufferSize: 50,
-    outputBufferSize: 50, // Coffer input/output buffers have same size
+    outputBufferSize: 50, // Chest input/output buffers have same size
   },
 };

@@ -158,7 +158,7 @@ export class TransferSystem {
  */
 export function canAcceptItem(building: Building, itemType: ItemType): boolean {
   switch (building.type) {
-    case 'coffer':
+    case 'chest':
       return true;
     case 'forge':
       return itemType === 'arcstone' || itemType === 'sunite';
