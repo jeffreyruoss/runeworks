@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import { CANVAS_WIDTH, CANVAS_HEIGHT, COLORS, BUILDING_COSTS } from '../config';
-import { BuildingType } from '../types';
 import { GameUIState } from '../types';
 
 export class UIScene extends Phaser.Scene {
@@ -235,8 +234,7 @@ export class UIScene extends Phaser.Scene {
 
     // Selected building with cost info
     if (state.selectedBuilding) {
-      const buildingType = state.selectedBuilding as BuildingType;
-      const cost = BUILDING_COSTS[buildingType];
+      const cost = BUILDING_COSTS[state.selectedBuilding];
       const hasEnough = state.playerResources.stone >= cost;
 
       if (hasEnough) {

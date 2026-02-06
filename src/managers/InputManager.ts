@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { BuildingType } from '../types';
 
 export interface GameKeys {
   E: Phaser.Input.Keyboard.Key;
@@ -28,7 +29,7 @@ export interface GameKeys {
  */
 export interface InputCallbacks {
   moveCursor: (dx: number, dy: number) => void;
-  selectBuilding: (type: 'quarry' | 'forge' | 'workbench' | 'chest') => void;
+  selectBuilding: (type: BuildingType) => void;
   handleAction: () => void;
   deleteBuilding: () => void;
   rotate: () => void;
@@ -86,9 +87,9 @@ export class InputManager {
     // Build mode
     this.keys.B.on('down', () => cb.toggleBuildMode());
 
-    // Build mode selection keys (Q=quarry, W=workbench)
-    // F and C are handled by moveCursor/cycleRecipe above;
-    // GameScene resolves conflicts based on buildModeActive state
+    // Build mode selection: Q=quarry, W=workbench
+    // F (forge) and C (chest) reuse moveCursor/cycleRecipe bindings;
+    // GameScene intercepts them when buildModeActive is true
     this.keys.Q.on('down', () => cb.selectBuilding('quarry'));
     this.keys.W.on('down', () => cb.selectBuilding('workbench'));
 

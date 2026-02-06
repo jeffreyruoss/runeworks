@@ -134,12 +134,12 @@ export class GameScene extends Phaser.Scene {
   // --- Input handlers ---
 
   /**
-   * Movement callback - also handles F key in build mode (forge selection).
-   * In build mode, movement keys are disabled.
+   * Movement callback - intercepts keys during build mode.
+   * F key (dx=1, dy=0) selects forge; all other movement is blocked.
    */
   private handleMoveCursor(dx: number, dy: number): void {
     if (this.buildModeActive) {
-      // F key fires both moveCursor(1,0) and is the forge build key
+      // F key is bound to moveCursor(1,0) — in build mode, treat it as forge selection
       if (dx === 1 && dy === 0) {
         this.selectBuildingAndCloseBuildMode('forge');
       }

@@ -77,7 +77,7 @@ export interface SimulationState {
  */
 export interface GameUIState {
   buildingCount: number;
-  selectedBuilding: string | null;
+  selectedBuilding: BuildingType | null;
   cursorX: number;
   cursorY: number;
   cursorInfo: string | null; // What's under the cursor (terrain type or building)

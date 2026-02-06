@@ -94,6 +94,7 @@ Use these skills for common tasks (invoke with `/skillname`):
 | `/debug-sim` | Debug simulation        | `/debug-sim items stuck`          |
 | `/balance`   | Analyze game balance    | `/balance forge throughput`       |
 | `/refactor`  | Refactor code           | `/refactor GameScene.ts`          |
+| `/review`    | Code review             | `/review src/Simulation.ts`       |
 
 ## Maintaining Agents & Skills
 
