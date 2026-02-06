@@ -47,5 +47,24 @@ export const STAGES: Stage[] = [
 ];
 
 export function getStage(id: number): Stage | undefined {
-  return STAGES.find((s) => s.id === id);
+  if (id < 1 || id > STAGES.length) return undefined;
+  return STAGES[id - 1];
 }
+
+export const ITEM_DISPLAY_NAMES: Record<string, string> = {
+  arcstone: 'Arcstone',
+  sunite: 'Sunite',
+  arcane_ingot: 'Arcane Ingot',
+  sun_ingot: 'Sun Ingot',
+  cogwheel: 'Cogwheel',
+  thread: 'Thread',
+  rune: 'Rune',
+};
+
+export const PRODUCTION_CHAINS: Record<string, string> = {
+  arcane_ingot: 'Quarry[Arcstone Vein] -> Forge (purify)',
+  sun_ingot: 'Quarry[Sunite Vein] -> Forge (purify)',
+  cogwheel: 'Quarry[Arcstone] -> Forge -> Workbench (2 ingots)',
+  thread: 'Quarry[Sunite] -> Forge -> Workbench (1 ingot -> 2)',
+  rune: '1 Arcane Ingot + 3 Thread -> Workbench',
+};

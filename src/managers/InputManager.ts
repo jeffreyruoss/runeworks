@@ -109,10 +109,10 @@ export class InputManager {
     this.keys.ESC.on('down', () => cb.handleEsc());
     this.keys.X.on('down', () => cb.handleEsc());
     this.keys.M.on('down', () => cb.toggleMenu());
-    this.keys.O.on('down', () => cb.toggleObjectives());
 
     // Toggle controls
     this.keys.P.on('down', () => cb.togglePause());
+    this.keys.O.on('down', () => cb.toggleObjectives());
     this.keys.I.on('down', () => cb.toggleInventory());
     this.keys.H.on('down', () => cb.toggleBufferDisplay());
     this.keys.C.on('down', () => cb.cycleRecipe());

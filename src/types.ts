@@ -94,5 +94,5 @@ export interface GameUIState {
   currentStage: number;
   stageComplete: boolean;
   stageCompleteShown: boolean;
-  objectiveProgress: Array<{ item: string; required: number; produced: number }>;
+  objectiveProgress: Array<{ item: ItemType; required: number; produced: number }>;
 }

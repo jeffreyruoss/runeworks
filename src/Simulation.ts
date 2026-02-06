@@ -112,6 +112,12 @@ export class Simulation {
     this.onStateChanged?.(this.state);
   }
 
+  setPaused(paused: boolean): void {
+    if (!this.state.running) return;
+    this.state.paused = paused;
+    this.onStateChanged?.(this.state);
+  }
+
   setSpeed(speed: number): void {
     this.state.speed = Math.max(1, Math.min(4, speed));
     this.onStateChanged?.(this.state);
