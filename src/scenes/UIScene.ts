@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { CANVAS_WIDTH, CANVAS_HEIGHT, COLORS, BUILDING_COSTS } from '../config';
 import { GameUIState } from '../types';
+import { getStage } from '../data/stages';
 
 export class UIScene extends Phaser.Scene {
   private buildingCountText!: Phaser.GameObjects.Text;
@@ -17,6 +18,19 @@ export class UIScene extends Phaser.Scene {
 
   // Inventory panel
   private inventoryPanel!: Phaser.GameObjects.Container;
+
+  // Objectives panel
+  private objectivesPanel!: Phaser.GameObjects.Container;
+  private stageTitleText!: Phaser.GameObjects.Text;
+  private objectiveTexts: Phaser.GameObjects.Text[] = [];
+  private objectiveChainTexts: Phaser.GameObjects.Text[] = [];
+  private stageCompleteText!: Phaser.GameObjects.Text;
+
+  // Stage complete overlay
+  private stageCompletePanel!: Phaser.GameObjects.Container;
+  private stageCompleteTitle!: Phaser.GameObjects.Text;
+  private stageCompleteNameText!: Phaser.GameObjects.Text;
+  private stageCompleteNextText!: Phaser.GameObjects.Text;
 
   constructor() {
     super({ key: 'UIScene' });
@@ -95,7 +109,7 @@ export class UIScene extends Phaser.Scene {
     this.add.text(
       4,
       CANVAS_HEIGHT - 12,
-      'ESDF:Move  Space:Build  Del:Remove  R:Rotate  P:Pause  H:Stats  M:Menu  X:Back',
+      'ESDF:Move  Space:Build  Del:Remove  R:Rotate  P:Pause  H:Stats  O:Goals  M:Menu  X:Back',
       {
         fontFamily: 'monospace',
         fontSize: '8px',
@@ -108,6 +122,12 @@ export class UIScene extends Phaser.Scene {
 
     // Create inventory panel (hidden by default)
     this.createInventoryPanel();
+
+    // Create objectives panel (hidden by default)
+    this.createObjectivesPanel();
+
+    // Create stage complete overlay (hidden by default)
+    this.createStageCompletePanel();
 
     // Listen for events from GameScene
     const gameScene = this.scene.get('GameScene');
@@ -147,6 +167,7 @@ export class UIScene extends Phaser.Scene {
       'P - Pause/Resume',
       'H - Toggle stats',
       'C - Cycle recipe',
+      'O - Objectives',
       '</> - Speed down/up',
       'M - Menu',
       'X/Esc - Cancel/Back',
@@ -213,6 +234,182 @@ export class UIScene extends Phaser.Scene {
     });
     hint.setOrigin(0.5, 0.5);
     this.inventoryPanel.add(hint);
+  }
+
+  private createObjectivesPanel(): void {
+    this.objectivesPanel = this.add.container(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+    this.objectivesPanel.setDepth(1000);
+    this.objectivesPanel.setVisible(false);
+
+    // Background
+    const bg = this.add.graphics();
+    bg.fillStyle(0x000000, 0.9);
+    bg.fillRect(-160, -110, 320, 220);
+    bg.lineStyle(2, 0x666666);
+    bg.strokeRect(-160, -110, 320, 220);
+    // Divider under title
+    bg.lineStyle(1, 0x444444);
+    bg.lineBetween(-150, -78, 150, -78);
+    this.objectivesPanel.add(bg);
+
+    // Stage title
+    this.stageTitleText = this.add.text(0, -92, '', {
+      fontFamily: 'monospace',
+      fontSize: '14px',
+      color: '#ffffff',
+    });
+    this.stageTitleText.setOrigin(0.5, 0.5);
+    this.objectivesPanel.add(this.stageTitleText);
+
+    // Objective + chain text lines (up to 3 pairs)
+    const startY = -60;
+    for (let i = 0; i < 3; i++) {
+      const y = startY + i * 40;
+
+      const objText = this.add.text(-145, y, '', {
+        fontFamily: 'monospace',
+        fontSize: '10px',
+        color: '#aaaaaa',
+      });
+      this.objectiveTexts.push(objText);
+      this.objectivesPanel.add(objText);
+
+      const chainText = this.add.text(-133, y + 14, '', {
+        fontFamily: 'monospace',
+        fontSize: '8px',
+        color: '#666688',
+      });
+      this.objectiveChainTexts.push(chainText);
+      this.objectivesPanel.add(chainText);
+    }
+
+    // Stage complete text
+    this.stageCompleteText = this.add.text(0, 68, 'STAGE COMPLETE!', {
+      fontFamily: 'monospace',
+      fontSize: '12px',
+      color: '#00ff00',
+    });
+    this.stageCompleteText.setOrigin(0.5, 0.5);
+    this.stageCompleteText.setVisible(false);
+    this.objectivesPanel.add(this.stageCompleteText);
+
+    // Close hint
+    const hint = this.add.text(0, 95, 'Press O, X, or Esc to close', {
+      fontFamily: 'monospace',
+      fontSize: '8px',
+      color: '#888888',
+    });
+    hint.setOrigin(0.5, 0.5);
+    this.objectivesPanel.add(hint);
+  }
+
+  private createStageCompletePanel(): void {
+    this.stageCompletePanel = this.add.container(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+    this.stageCompletePanel.setDepth(1001);
+    this.stageCompletePanel.setVisible(false);
+
+    // Background
+    const bg = this.add.graphics();
+    bg.fillStyle(0x000000, 0.9);
+    bg.fillRect(-120, -60, 240, 120);
+    bg.lineStyle(2, 0x00ff00);
+    bg.strokeRect(-120, -60, 240, 120);
+    this.stageCompletePanel.add(bg);
+
+    // Title
+    this.stageCompleteTitle = this.add.text(0, -35, 'STAGE COMPLETE!', {
+      fontFamily: 'monospace',
+      fontSize: '14px',
+      color: '#00ff00',
+    });
+    this.stageCompleteTitle.setOrigin(0.5, 0.5);
+    this.stageCompletePanel.add(this.stageCompleteTitle);
+
+    // Stage name
+    this.stageCompleteNameText = this.add.text(0, -10, '', {
+      fontFamily: 'monospace',
+      fontSize: '10px',
+      color: '#ffffff',
+    });
+    this.stageCompleteNameText.setOrigin(0.5, 0.5);
+    this.stageCompletePanel.add(this.stageCompleteNameText);
+
+    // Next stage / continue hint
+    this.stageCompleteNextText = this.add.text(0, 25, '', {
+      fontFamily: 'monospace',
+      fontSize: '10px',
+      color: '#aaaaaa',
+    });
+    this.stageCompleteNextText.setOrigin(0.5, 0.5);
+    this.stageCompletePanel.add(this.stageCompleteNextText);
+
+    // Action hint
+    const hint = this.add.text(0, 45, '[Space] Continue', {
+      fontFamily: 'monospace',
+      fontSize: '10px',
+      color: '#00ffff',
+    });
+    hint.setOrigin(0.5, 0.5);
+    this.stageCompletePanel.add(hint);
+  }
+
+  private updateStageCompletePanel(state: GameUIState): void {
+    const stage = getStage(state.currentStage);
+    const stageName = stage ? stage.name : `Stage ${state.currentStage}`;
+    this.stageCompleteNameText.setText(stageName);
+
+    const nextStage = getStage(state.currentStage + 1);
+    if (nextStage) {
+      this.stageCompleteNextText.setText(`Next: Stage ${nextStage.id} - ${nextStage.name}`);
+    } else {
+      this.stageCompleteNextText.setText('All stages complete!');
+    }
+  }
+
+  private readonly ITEM_DISPLAY_NAMES: Record<string, string> = {
+    arcstone: 'Arcstone',
+    sunite: 'Sunite',
+    arcane_ingot: 'Arcane Ingot',
+    sun_ingot: 'Sun Ingot',
+    cogwheel: 'Cogwheel',
+    thread: 'Thread',
+    rune: 'Rune',
+  };
+
+  private readonly PRODUCTION_CHAINS: Record<string, string> = {
+    arcane_ingot: 'Quarry[Arcstone Vein] -> Forge (purify)',
+    sun_ingot: 'Quarry[Sunite Vein] -> Forge (purify)',
+    cogwheel: 'Quarry[Arcstone] -> Forge -> Workbench (2 ingots)',
+    thread: 'Quarry[Sunite] -> Forge -> Workbench (1 ingot -> 2)',
+    rune: '1 Arcane Ingot + 3 Thread -> Workbench',
+  };
+
+  private updateObjectivesContent(state: GameUIState): void {
+    const stage = getStage(state.currentStage);
+    const stageName = stage ? stage.name : `Stage ${state.currentStage}`;
+    this.stageTitleText.setText(`Stage ${state.currentStage}: ${stageName}`);
+
+    for (let i = 0; i < this.objectiveTexts.length; i++) {
+      if (i < state.objectiveProgress.length) {
+        const obj = state.objectiveProgress[i];
+        const done = obj.produced >= obj.required;
+        const check = done ? '[x]' : '[ ]';
+        const name = this.ITEM_DISPLAY_NAMES[obj.item] || obj.item;
+        this.objectiveTexts[i].setText(`${check} ${name}: ${obj.produced}/${obj.required}`);
+        this.objectiveTexts[i].setColor(done ? '#00ff00' : '#aaaaaa');
+        this.objectiveTexts[i].setVisible(true);
+
+        const chain = this.PRODUCTION_CHAINS[obj.item] || '';
+        this.objectiveChainTexts[i].setText(chain);
+        this.objectiveChainTexts[i].setColor(done ? '#448844' : '#666688');
+        this.objectiveChainTexts[i].setVisible(true);
+      } else {
+        this.objectiveTexts[i].setVisible(false);
+        this.objectiveChainTexts[i].setVisible(false);
+      }
+    }
+
+    this.stageCompleteText.setVisible(state.stageComplete);
   }
 
   private onGameStateChanged(state: GameUIState): void {
@@ -285,6 +482,18 @@ export class UIScene extends Phaser.Scene {
 
     // Inventory visibility
     this.inventoryPanel.setVisible(state.inventoryOpen);
+
+    // Objectives panel
+    this.objectivesPanel.setVisible(state.objectivesOpen);
+    if (state.objectivesOpen) {
+      this.updateObjectivesContent(state);
+    }
+
+    // Stage complete overlay
+    this.stageCompletePanel.setVisible(state.stageCompleteShown);
+    if (state.stageCompleteShown) {
+      this.updateStageCompletePanel(state);
+    }
   }
 
   shutdown(): void {

@@ -90,4 +90,9 @@ export interface GameUIState {
   inventoryOpen: boolean;
   playerResources: PlayerResources;
   buildModeActive: boolean;
+  objectivesOpen: boolean;
+  currentStage: number;
+  stageComplete: boolean;
+  stageCompleteShown: boolean;
+  objectiveProgress: Array<{ item: string; required: number; produced: number }>;
 }

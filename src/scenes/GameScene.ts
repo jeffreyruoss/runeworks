@@ -4,6 +4,7 @@ import { Building, BuildingType, PlayerResources } from '../types';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
 import { getRecipesForBuilding } from '../data/recipes';
 import { getBuildingAt } from '../utils';
+import { getStage } from '../data/stages';
 import { Simulation } from '../Simulation';
 import { InputManager } from '../managers/InputManager';
 import { TerrainRenderer } from '../managers/TerrainRenderer';
@@ -35,6 +36,9 @@ export class GameScene extends Phaser.Scene {
   private menuOpen = false;
   private inventoryOpen = false;
   private buildModeActive = false;
+  private objectivesOpen = false;
+  private currentStage = 1;
+  private stageCompleteShown = false;
 
   // Player resources
   private playerResources: PlayerResources = { stone: 0 };
@@ -78,6 +82,7 @@ export class GameScene extends Phaser.Scene {
       changeSpeed: (delta) => this.changeSpeed(delta),
       toggleBuildMode: () => this.toggleBuildMode(),
       toggleMenu: () => this.toggleMenu(),
+      toggleObjectives: () => this.toggleObjectives(),
     });
 
     // Center cursor
@@ -100,7 +105,17 @@ export class GameScene extends Phaser.Scene {
 
     this.simulation.onItemProduced = (item, count) => {
       this.events.emit('itemProduced', { item, count });
+      this.checkStageComplete();
     };
+  }
+
+  private checkStageComplete(): void {
+    if (this.stageCompleteShown) return;
+    if (!this.isStageComplete()) return;
+
+    this.stageCompleteShown = true;
+    this.simulation.togglePause();
+    this.emitUIUpdate();
   }
 
   private placeCrystalVeins(): void {
@@ -206,6 +221,10 @@ export class GameScene extends Phaser.Scene {
       this.closeMenu();
       return;
     }
+    if (this.objectivesOpen) {
+      this.toggleObjectives();
+      return;
+    }
     if (this.inventoryOpen) {
       this.toggleInventory();
       return;
@@ -251,6 +270,27 @@ export class GameScene extends Phaser.Scene {
     this.emitUIUpdate();
   }
 
+  private toggleObjectives(): void {
+    this.objectivesOpen = !this.objectivesOpen;
+    this.emitUIUpdate();
+  }
+
+  private getObjectiveProgress(): Array<{ item: string; required: number; produced: number }> {
+    const stage = getStage(this.currentStage);
+    if (!stage) return [];
+    const produced = this.simulation.getState().itemsProduced;
+    return stage.objectives.map((obj) => ({
+      item: obj.item,
+      required: obj.count,
+      produced: produced.get(obj.item) || 0,
+    }));
+  }
+
+  private isStageComplete(): boolean {
+    const progress = this.getObjectiveProgress();
+    return progress.length > 0 && progress.every((p) => p.produced >= p.required);
+  }
+
   private toggleBufferDisplay(): void {
     this.showAllBuffers = !this.showAllBuffers;
     this.bufferIndicators.update(this.buildings, this.getBuildingAtCursor(), this.showAllBuffers);
@@ -280,8 +320,20 @@ export class GameScene extends Phaser.Scene {
   }
 
   private handleAction(): void {
+    if (this.stageCompleteShown) {
+      this.continueToNextStage();
+      return;
+    }
     if (this.gatherStone()) return;
     this.placeBuilding();
+  }
+
+  private continueToNextStage(): void {
+    this.currentStage++;
+    this.stageCompleteShown = false;
+    this.simulation.resetItemsProduced();
+    this.simulation.togglePause();
+    this.emitUIUpdate();
   }
 
   private gatherStone(): boolean {
@@ -433,6 +485,11 @@ export class GameScene extends Phaser.Scene {
       inventoryOpen: this.inventoryOpen,
       playerResources: this.playerResources,
       buildModeActive: this.buildModeActive,
+      objectivesOpen: this.objectivesOpen,
+      currentStage: this.currentStage,
+      stageComplete: this.isStageComplete(),
+      stageCompleteShown: this.stageCompleteShown,
+      objectiveProgress: this.getObjectiveProgress(),
     });
   }
 

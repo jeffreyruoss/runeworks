@@ -121,6 +121,11 @@ export class Simulation {
     return { ...this.state };
   }
 
+  resetItemsProduced(): void {
+    this.state.itemsProduced = new Map();
+    this.onStateChanged?.(this.state);
+  }
+
   update(deltaMs: number): void {
     if (!this.state.running || this.state.paused) return;
 
