@@ -95,7 +95,7 @@ export class UIScene extends Phaser.Scene {
     this.add.text(
       4,
       CANVAS_HEIGHT - 12,
-      'ESDF:Move  Space:Gather/Build  Del:Remove  R:Rotate  P:Pause  H:Stats  Esc:Menu',
+      'ESDF:Move  Space:Build  Del:Remove  R:Rotate  P:Pause  H:Stats  M:Menu  X:Back',
       {
         fontFamily: 'monospace',
         fontSize: '8px',
@@ -148,7 +148,8 @@ export class UIScene extends Phaser.Scene {
       'H - Toggle stats',
       'C - Cycle recipe',
       '</> - Speed down/up',
-      'Esc - Menu/Back',
+      'M - Menu',
+      'X/Esc - Cancel/Back',
     ];
 
     let yPos = -70;
@@ -164,7 +165,7 @@ export class UIScene extends Phaser.Scene {
     }
 
     // Close hint at bottom
-    const closeHint = this.add.text(0, 90, 'Press Esc to close', {
+    const closeHint = this.add.text(0, 90, 'Press M or Esc to close', {
       fontFamily: 'monospace',
       fontSize: '10px',
       color: '#666666',
@@ -205,7 +206,7 @@ export class UIScene extends Phaser.Scene {
     this.inventoryPanel.add(placeholder);
 
     // Close hint
-    const hint = this.add.text(0, 40, 'Press I or Esc to close', {
+    const hint = this.add.text(0, 40, 'Press I, X, or Esc to close', {
       fontFamily: 'monospace',
       fontSize: '8px',
       color: '#888888',

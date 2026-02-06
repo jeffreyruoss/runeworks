@@ -16,6 +16,8 @@ export interface GameKeys {
   P: Phaser.Input.Keyboard.Key;
   I: Phaser.Input.Keyboard.Key;
   H: Phaser.Input.Keyboard.Key;
+  X: Phaser.Input.Keyboard.Key;
+  M: Phaser.Input.Keyboard.Key;
   ESC: Phaser.Input.Keyboard.Key;
   SHIFT: Phaser.Input.Keyboard.Key;
   ENTER: Phaser.Input.Keyboard.Key;
@@ -40,6 +42,7 @@ export interface InputCallbacks {
   cycleRecipe: () => void;
   changeSpeed: (delta: number) => void;
   toggleBuildMode: () => void;
+  toggleMenu: () => void;
 }
 
 /**
@@ -67,6 +70,8 @@ export class InputManager {
       P: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P),
       I: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.I),
       H: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.H),
+      X: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X),
+      M: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.M),
       ESC: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC),
       SHIFT: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT),
       ENTER: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER),
@@ -99,6 +104,8 @@ export class InputManager {
     this.keys.BACKSPACE.on('down', () => cb.deleteBuilding());
     this.keys.R.on('down', () => cb.rotate());
     this.keys.ESC.on('down', () => cb.handleEsc());
+    this.keys.X.on('down', () => cb.handleEsc());
+    this.keys.M.on('down', () => cb.toggleMenu());
 
     // Toggle controls
     this.keys.P.on('down', () => cb.togglePause());

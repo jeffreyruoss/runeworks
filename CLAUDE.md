@@ -60,7 +60,8 @@ ASCII art in `assets/sprites/src/*.txt` → `tools/spritegen/generate.js` → PN
 - **H**: Toggle buffer stats display on all buildings
 - **C** (normal mode): Cycle workbench recipe
 - **. / ,**: Speed up / slow down simulation
-- **Esc**: Cancel build mode / cancel selection / close menu
+- **M**: Toggle menu
+- **X / Esc**: Cancel build mode / cancel selection / close menu / go back
 
 ## Design Reference
 

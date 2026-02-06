@@ -77,6 +77,7 @@ export class GameScene extends Phaser.Scene {
       cycleRecipe: () => this.handleCycleRecipe(),
       changeSpeed: (delta) => this.changeSpeed(delta),
       toggleBuildMode: () => this.toggleBuildMode(),
+      toggleMenu: () => this.toggleMenu(),
     });
 
     // Center cursor
@@ -229,6 +230,14 @@ export class GameScene extends Phaser.Scene {
     this.menuOpen = false;
     this.events.emit('menuClosed');
     this.emitUIUpdate();
+  }
+
+  private toggleMenu(): void {
+    if (this.menuOpen) {
+      this.closeMenu();
+    } else {
+      this.openMenu();
+    }
   }
 
   private togglePause(): void {
