@@ -48,6 +48,15 @@ export const BUILDING_COSTS: Record<BuildingType, Partial<PlayerResources>> = {
   chest: { stone: 2, wood: 1 },
 };
 
+// Resource display abbreviations (shared by UIScene and GuidePanel)
+export const RESOURCE_ABBREVIATIONS: Record<string, string> = {
+  stone: 'St',
+  wood: 'Wd',
+  iron: 'Fe',
+  clay: 'Cl',
+  crystal_shard: 'Cr',
+};
+
 // Colors for UI
 export const COLORS = {
   background: 0x1a1a1a,

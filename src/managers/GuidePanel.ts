@@ -1,0 +1,271 @@
+import Phaser from 'phaser';
+import {
+  CANVAS_WIDTH,
+  CANVAS_HEIGHT,
+  BUILDING_COSTS,
+  TICKS_PER_SECOND,
+  RESOURCE_ABBREVIATIONS,
+} from '../config';
+import { ITEM_DISPLAY_NAMES } from '../data/stages';
+import { TERRAIN_DISPLAY_NAMES, TERRAIN_COLORS } from '../data/terrain';
+import { RECIPES } from '../data/recipes';
+import { BUILDING_DEFINITIONS } from '../data/buildings';
+import { BuildingType, ItemType, TerrainType } from '../types';
+
+/** Items that have 8×8 sprites in the atlas */
+const ITEM_SPRITES: Set<ItemType> = new Set([
+  'arcstone',
+  'sunite',
+  'arcane_ingot',
+  'sun_ingot',
+  'cogwheel',
+  'thread',
+  'rune',
+]);
+
+/** Resource entries: terrain type → item yielded, display name, source terrain name */
+const RESOURCE_ENTRIES: Array<{
+  item: ItemType;
+  terrain: Exclude<TerrainType, 'empty'>;
+}> = [
+  { item: 'stone', terrain: 'stone' },
+  { item: 'wood', terrain: 'forest' },
+  { item: 'iron', terrain: 'iron' },
+  { item: 'clay', terrain: 'clay' },
+  { item: 'crystal_shard', terrain: 'crystal_shard' },
+  { item: 'arcstone', terrain: 'arcstone' },
+  { item: 'sunite', terrain: 'sunite' },
+];
+
+/**
+ * Full-page guide panel showing all resources, items, buildings, and recipes.
+ * Toggled with the G key.
+ */
+export class GuidePanel {
+  private scene: Phaser.Scene;
+  private container!: Phaser.GameObjects.Container;
+
+  constructor(scene: Phaser.Scene) {
+    this.scene = scene;
+    this.createPanel();
+  }
+
+  setVisible(visible: boolean): void {
+    this.container.setVisible(visible);
+  }
+
+  private createPanel(): void {
+    this.container = this.scene.add.container(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+    this.container.setDepth(1000);
+    this.container.setVisible(false);
+
+    const panelW = 580;
+    const panelH = 370;
+
+    // Background
+    const bg = this.scene.add.graphics();
+    bg.fillStyle(0x000000, 0.93);
+    bg.fillRect(-panelW / 2, -panelH / 2, panelW, panelH);
+    bg.lineStyle(2, 0x666666);
+    bg.strokeRect(-panelW / 2, -panelH / 2, panelW, panelH);
+    this.container.add(bg);
+
+    // Title
+    const title = this.scene.add.text(0, -panelH / 2 + 12, 'GUIDE', {
+      fontFamily: 'monospace',
+      fontSize: '14px',
+      color: '#ffffff',
+    });
+    title.setOrigin(0.5, 0.5);
+    this.container.add(title);
+
+    // Three columns layout
+    const colX = [-panelW / 2 + 14, -panelW / 2 + 200, -panelW / 2 + 380];
+    const topY = -panelH / 2 + 28;
+
+    this.createResourcesSection(colX[0], topY);
+    this.createItemsSection(colX[1], topY);
+    this.createBuildingsSection(colX[2], topY);
+
+    // Close hint
+    const hint = this.scene.add.text(0, panelH / 2 - 12, 'Press G, X, or Esc to close', {
+      fontFamily: 'monospace',
+      fontSize: '8px',
+      color: '#888888',
+    });
+    hint.setOrigin(0.5, 0.5);
+    this.container.add(hint);
+  }
+
+  private createResourcesSection(x: number, y: number): void {
+    const header = this.scene.add.text(x, y, 'RESOURCES', {
+      fontFamily: 'monospace',
+      fontSize: '10px',
+      color: '#88aaff',
+    });
+    this.container.add(header);
+
+    // Divider
+    const divider = this.scene.add.graphics();
+    divider.lineStyle(1, 0x444466);
+    divider.lineBetween(x, y + 12, x + 170, y + 12);
+    this.container.add(divider);
+
+    let rowY = y + 18;
+    for (const entry of RESOURCE_ENTRIES) {
+      const name = ITEM_DISPLAY_NAMES[entry.item] || entry.item;
+      const source = TERRAIN_DISPLAY_NAMES[entry.terrain];
+
+      // Thumbnail: colored rectangle from terrain colors
+      const thumb = this.scene.add.graphics();
+      const colors = TERRAIN_COLORS[entry.terrain];
+      thumb.fillStyle(colors.highlight, 1);
+      thumb.fillRect(x, rowY, 10, 10);
+      this.container.add(thumb);
+
+      const nameText = this.scene.add.text(x + 14, rowY, name, {
+        fontFamily: 'monospace',
+        fontSize: '8px',
+        color: '#cccccc',
+      });
+      this.container.add(nameText);
+
+      const sourceText = this.scene.add.text(x + 14, rowY + 10, source, {
+        fontFamily: 'monospace',
+        fontSize: '7px',
+        color: '#666666',
+      });
+      this.container.add(sourceText);
+
+      rowY += 22;
+    }
+  }
+
+  private createItemsSection(x: number, y: number): void {
+    const header = this.scene.add.text(x, y, 'CRAFTED ITEMS', {
+      fontFamily: 'monospace',
+      fontSize: '10px',
+      color: '#ffaa44',
+    });
+    this.container.add(header);
+
+    const divider = this.scene.add.graphics();
+    divider.lineStyle(1, 0x664422);
+    divider.lineBetween(x, y + 12, x + 170, y + 12);
+    this.container.add(divider);
+
+    let rowY = y + 18;
+    for (const recipe of RECIPES) {
+      // Get the first output item for display
+      const outputItem = [...recipe.outputs.keys()][0];
+      const outputCount = recipe.outputs.get(outputItem)!;
+      const name = ITEM_DISPLAY_NAMES[outputItem] || outputItem;
+
+      // Thumbnail: sprite if available
+      if (ITEM_SPRITES.has(outputItem)) {
+        const sprite = this.scene.add.sprite(x + 5, rowY + 5, 'sprites', outputItem);
+        sprite.setDisplaySize(10, 10);
+        this.container.add(sprite);
+      } else {
+        const thumb = this.scene.add.graphics();
+        thumb.fillStyle(0x888888, 1);
+        thumb.fillRect(x, rowY, 10, 10);
+        this.container.add(thumb);
+      }
+
+      const nameText = this.scene.add.text(x + 14, rowY, name, {
+        fontFamily: 'monospace',
+        fontSize: '8px',
+        color: '#cccccc',
+      });
+      this.container.add(nameText);
+
+      // Recipe line: inputs → output (time) | building
+      const inputStr = [...recipe.inputs.entries()]
+        .map(([item, count]) => `${count} ${ITEM_DISPLAY_NAMES[item] || item}`)
+        .join(' + ');
+      const timeStr = `${recipe.craftTimeTicks / TICKS_PER_SECOND}s`;
+      const buildingName = recipe.building.charAt(0).toUpperCase() + recipe.building.slice(1);
+      const recipeStr = `${inputStr} -> ${outputCount} (${timeStr}) [${buildingName}]`;
+
+      const recipeText = this.scene.add.text(x + 14, rowY + 10, recipeStr, {
+        fontFamily: 'monospace',
+        fontSize: '7px',
+        color: '#666666',
+      });
+      this.container.add(recipeText);
+
+      rowY += 24;
+    }
+  }
+
+  private createBuildingsSection(x: number, y: number): void {
+    const header = this.scene.add.text(x, y, 'BUILDINGS', {
+      fontFamily: 'monospace',
+      fontSize: '10px',
+      color: '#44ff88',
+    });
+    this.container.add(header);
+
+    const divider = this.scene.add.graphics();
+    divider.lineStyle(1, 0x226644);
+    divider.lineBetween(x, y + 12, x + 170, y + 12);
+    this.container.add(divider);
+
+    const buildings: BuildingType[] = ['quarry', 'forge', 'workbench', 'chest'];
+
+    let rowY = y + 18;
+    for (const bType of buildings) {
+      const def = BUILDING_DEFINITIONS[bType];
+      const cost = BUILDING_COSTS[bType];
+      const name = bType.charAt(0).toUpperCase() + bType.slice(1);
+
+      // Thumbnail: building sprite scaled down
+      const sprite = this.scene.add.sprite(x + 7, rowY + 7, 'sprites', bType);
+      sprite.setDisplaySize(14, 14);
+      this.container.add(sprite);
+
+      const nameText = this.scene.add.text(x + 18, rowY, name, {
+        fontFamily: 'monospace',
+        fontSize: '8px',
+        color: '#cccccc',
+      });
+      this.container.add(nameText);
+
+      // Size + cost
+      const costStr = Object.entries(cost)
+        .filter(([, v]) => v && v > 0)
+        .map(([k, v]) => `${v}${RESOURCE_ABBREVIATIONS[k] || k}`)
+        .join(' ');
+      const sizeStr = `${def.width}x${def.height}`;
+
+      const detailText = this.scene.add.text(x + 18, rowY + 10, `${sizeStr}  Cost: ${costStr}`, {
+        fontFamily: 'monospace',
+        fontSize: '7px',
+        color: '#666666',
+      });
+      this.container.add(detailText);
+
+      // I/O description
+      let ioStr = '';
+      if (bType === 'quarry') {
+        ioStr = 'Extracts from veins -> output';
+      } else if (bType === 'chest') {
+        ioStr = 'Storage (all sides)';
+      } else {
+        const inSides = def.inputSides.join('/');
+        const outSides = def.outputSides.join('/');
+        ioStr = `In:${inSides} -> Out:${outSides}`;
+      }
+
+      const ioText = this.scene.add.text(x + 18, rowY + 19, ioStr, {
+        fontFamily: 'monospace',
+        fontSize: '7px',
+        color: '#555555',
+      });
+      this.container.add(ioText);
+
+      rowY += 34;
+    }
+  }
+}

@@ -19,6 +19,7 @@ export interface GameKeys {
   X: Phaser.Input.Keyboard.Key;
   M: Phaser.Input.Keyboard.Key;
   O: Phaser.Input.Keyboard.Key;
+  G: Phaser.Input.Keyboard.Key;
   ESC: Phaser.Input.Keyboard.Key;
   SHIFT: Phaser.Input.Keyboard.Key;
   ENTER: Phaser.Input.Keyboard.Key;
@@ -45,6 +46,7 @@ export interface InputCallbacks {
   toggleBuildMode: () => void;
   toggleMenu: () => void;
   toggleObjectives: () => void;
+  toggleGuide: () => void;
 }
 
 /**
@@ -75,6 +77,7 @@ export class InputManager {
       X: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X),
       M: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.M),
       O: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O),
+      G: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.G),
       ESC: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC),
       SHIFT: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT),
       ENTER: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER),
@@ -113,6 +116,7 @@ export class InputManager {
     // Toggle controls
     this.keys.P.on('down', () => cb.togglePause());
     this.keys.O.on('down', () => cb.toggleObjectives());
+    this.keys.G.on('down', () => cb.toggleGuide());
     this.keys.I.on('down', () => cb.toggleInventory());
     this.keys.H.on('down', () => cb.toggleBufferDisplay());
     this.keys.C.on('down', () => cb.cycleRecipe());

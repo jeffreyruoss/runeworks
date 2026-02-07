@@ -1,7 +1,14 @@
 import Phaser from 'phaser';
-import { CANVAS_WIDTH, CANVAS_HEIGHT, COLORS, BUILDING_COSTS } from '../config';
+import {
+  CANVAS_WIDTH,
+  CANVAS_HEIGHT,
+  COLORS,
+  BUILDING_COSTS,
+  RESOURCE_ABBREVIATIONS,
+} from '../config';
 import { GameUIState, PlayerResources } from '../types';
 import { ObjectivesPanel } from '../managers/ObjectivesPanel';
+import { GuidePanel } from '../managers/GuidePanel';
 import { canAfford } from '../utils';
 
 export class UIScene extends Phaser.Scene {
@@ -22,6 +29,9 @@ export class UIScene extends Phaser.Scene {
 
   // Objectives (delegated to manager)
   private objectivesPanel!: ObjectivesPanel;
+
+  // Guide panel
+  private guidePanel!: GuidePanel;
 
   constructor() {
     super({ key: 'UIScene' });
@@ -100,7 +110,7 @@ export class UIScene extends Phaser.Scene {
     this.add.text(
       4,
       CANVAS_HEIGHT - 12,
-      'ESDF:Move  Space:Build  Del:Remove  R:Rotate  P:Pause  H:Stats  O:Goals  M:Menu  X:Back',
+      'ESDF:Move  Spc:Build  Del:Rmv  R:Rot  P:Pause  H:Stats  O:Goals  G:Guide  M:Menu  X:Back',
       {
         fontFamily: 'monospace',
         fontSize: '8px',
@@ -116,6 +126,9 @@ export class UIScene extends Phaser.Scene {
 
     // Create objectives panels (delegated to manager)
     this.objectivesPanel = new ObjectivesPanel(this);
+
+    // Create guide panel
+    this.guidePanel = new GuidePanel(this);
 
     // Listen for events from GameScene
     const gameScene = this.scene.get('GameScene');
@@ -156,6 +169,7 @@ export class UIScene extends Phaser.Scene {
       'H - Toggle stats',
       'C - Cycle recipe',
       'O - Objectives',
+      'G - Guide',
       '</> - Speed down/up',
       'M - Menu',
       'X/Esc - Cancel/Back',
@@ -296,6 +310,9 @@ export class UIScene extends Phaser.Scene {
     // Inventory visibility
     this.inventoryPanel.setVisible(state.inventoryOpen);
 
+    // Guide panel visibility
+    this.guidePanel.setVisible(state.guideOpen);
+
     // Objectives and stage complete (delegated to manager)
     this.objectivesPanel.update(state);
   }
@@ -311,16 +328,9 @@ export class UIScene extends Phaser.Scene {
   }
 
   private formatCost(cost: Partial<PlayerResources>): string {
-    const abbrev: Record<string, string> = {
-      stone: 'St',
-      wood: 'Wd',
-      iron: 'Fe',
-      clay: 'Cl',
-      crystal_shard: 'Cr',
-    };
     return Object.entries(cost)
       .filter(([, v]) => v && v > 0)
-      .map(([k, v]) => `${abbrev[k] || k}:${v}`)
+      .map(([k, v]) => `${RESOURCE_ABBREVIATIONS[k] || k}:${v}`)
       .join(' ');
   }
 

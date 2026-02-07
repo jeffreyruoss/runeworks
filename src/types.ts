@@ -116,6 +116,7 @@ export interface GameUIState {
   playerResources: PlayerResources;
   buildModeActive: boolean;
   objectivesOpen: boolean;
+  guideOpen: boolean;
   currentStage: number;
   stageComplete: boolean;
   stageCompleteShown: boolean;

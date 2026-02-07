@@ -10,6 +10,7 @@ import { TerrainRenderer } from '../managers/TerrainRenderer';
 import { BuildingPlacer } from '../managers/BuildingPlacer';
 import { BufferIndicators } from '../managers/BufferIndicators';
 import { StageManager } from '../managers/StageManager';
+import { PanelManager } from '../managers/PanelManager';
 import { generateTerrain } from '../terrain/terrainSetup';
 import { QUARRIABLE_TERRAIN, TERRAIN_DISPLAY_NAMES } from '../data/terrain';
 
@@ -33,11 +34,10 @@ export class GameScene extends Phaser.Scene {
   private buildingPlacer!: BuildingPlacer;
   private bufferIndicators!: BufferIndicators;
   private stageManager!: StageManager;
+  private panelManager!: PanelManager;
 
   // UI state
   private showAllBuffers = false;
-  private menuOpen = false;
-  private inventoryOpen = false;
   private buildModeActive = false;
 
   // Player resources
@@ -57,6 +57,7 @@ export class GameScene extends Phaser.Scene {
     // Initialize simulation
     this.simulation = new Simulation();
     this.stageManager = new StageManager(this.simulation);
+    this.panelManager = new PanelManager(this.stageManager);
     this.setupSimulationCallbacks();
 
     // Initialize managers
@@ -87,6 +88,7 @@ export class GameScene extends Phaser.Scene {
       toggleBuildMode: () => this.toggleBuildMode(),
       toggleMenu: () => this.toggleMenu(),
       toggleObjectives: () => this.toggleObjectives(),
+      toggleGuide: () => this.toggleGuide(),
     });
 
     // Center cursor
@@ -189,17 +191,11 @@ export class GameScene extends Phaser.Scene {
       this.emitUIUpdate();
       return;
     }
-    if (this.menuOpen) {
-      this.closeMenu();
-      return;
-    }
-    if (this.stageManager.isObjectivesOpen()) {
-      this.stageManager.closeObjectives();
+    const closed = this.panelManager.closeTopPanel();
+    if (closed) {
+      if (closed === 'menu') this.events.emit('menuClosed');
+      if (closed === 'inventory') this.events.emit('inventoryToggled', false);
       this.emitUIUpdate();
-      return;
-    }
-    if (this.inventoryOpen) {
-      this.toggleInventory();
       return;
     }
     if (this.selectedBuilding) {
@@ -209,27 +205,16 @@ export class GameScene extends Phaser.Scene {
       this.emitUIUpdate();
       return;
     }
-    this.openMenu();
-  }
-
-  private openMenu(): void {
-    this.menuOpen = true;
+    this.panelManager.openMenu();
     this.events.emit('menuOpened');
     this.emitUIUpdate();
   }
 
-  private closeMenu(): void {
-    this.menuOpen = false;
-    this.events.emit('menuClosed');
-    this.emitUIUpdate();
-  }
-
   private toggleMenu(): void {
-    if (this.menuOpen) {
-      this.closeMenu();
-    } else {
-      this.openMenu();
-    }
+    const wasOpen = this.panelManager.isMenuOpen();
+    this.panelManager.toggleMenu();
+    this.events.emit(wasOpen ? 'menuClosed' : 'menuOpened');
+    this.emitUIUpdate();
   }
 
   private togglePause(): void {
@@ -238,18 +223,18 @@ export class GameScene extends Phaser.Scene {
   }
 
   private toggleInventory(): void {
-    this.inventoryOpen = !this.inventoryOpen;
-    this.events.emit('inventoryToggled', this.inventoryOpen);
+    const isOpen = this.panelManager.toggleInventory();
+    this.events.emit('inventoryToggled', isOpen);
+    this.emitUIUpdate();
+  }
+
+  private toggleGuide(): void {
+    this.panelManager.toggleGuide();
     this.emitUIUpdate();
   }
 
   private toggleObjectives(): void {
-    // Close other panels when opening objectives
-    if (!this.stageManager.isObjectivesOpen()) {
-      if (this.menuOpen) this.menuOpen = false;
-      if (this.inventoryOpen) this.inventoryOpen = false;
-    }
-    this.stageManager.toggleObjectives();
+    this.panelManager.toggleObjectives();
     this.emitUIUpdate();
   }
 
@@ -287,8 +272,11 @@ export class GameScene extends Phaser.Scene {
       this.emitUIUpdate();
       return;
     }
-    if (this.mineResource()) return;
-    this.placeBuilding();
+    if (this.selectedBuilding) {
+      this.placeBuilding();
+    } else {
+      this.mineResource();
+    }
   }
 
   private mineResource(): boolean {
@@ -428,11 +416,12 @@ export class GameScene extends Phaser.Scene {
       simSpeed: state.speed,
       simTick: state.tickCount,
       itemsProduced: Object.fromEntries(state.itemsProduced),
-      menuOpen: this.menuOpen,
-      inventoryOpen: this.inventoryOpen,
+      menuOpen: this.panelManager.isMenuOpen(),
+      inventoryOpen: this.panelManager.isInventoryOpen(),
       playerResources: this.playerResources,
       buildModeActive: this.buildModeActive,
-      objectivesOpen: this.stageManager.isObjectivesOpen(),
+      guideOpen: this.panelManager.isGuideOpen(),
+      objectivesOpen: this.panelManager.isObjectivesOpen(),
       currentStage: this.stageManager.getCurrentStage(),
       stageComplete: this.stageManager.isStageComplete(),
       stageCompleteShown: this.stageManager.isStageCompleteShown(),
