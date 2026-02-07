@@ -1,7 +1,13 @@
 import { Simulation } from '../../src/Simulation';
 import { QUARRY_TICKS_PER_ORE } from '../../src/config';
 import { BUILDING_DEFINITIONS } from '../../src/data/buildings';
-import { createTestBuilding, tickSimulation, resetIdCounter, startWithInputs } from './helpers';
+import {
+  createTestBuilding,
+  tickSimulation,
+  resetIdCounter,
+  startWithInputs,
+  placeResourcePatch,
+} from './helpers';
 
 describe('Transfer', () => {
   let sim: Simulation;
@@ -20,7 +26,7 @@ describe('Transfer', () => {
       const quarry = createTestBuilding('quarry', { x: 0, y: 0, rotation: 0 });
       const forge = createTestBuilding('forge', { x: 2, y: 0, rotation: 0 });
       sim.setBuildings([quarry, forge]);
-      sim.placeCrystalVein(0, 0, 2, 2, 'arcstone');
+      placeResourcePatch(sim, 0, 0, 2, 2, 'arcstone');
       sim.start();
 
       // Run exactly enough ticks for quarry to produce + transfer in same tick
@@ -39,7 +45,7 @@ describe('Transfer', () => {
       const quarry = createTestBuilding('quarry', { x: 0, y: 2, rotation: 0 });
       const forge = createTestBuilding('forge', { x: 0, y: 0, rotation: 0 });
       sim.setBuildings([quarry, forge]);
-      sim.placeCrystalVein(0, 2, 2, 2, 'arcstone');
+      placeResourcePatch(sim, 0, 2, 2, 2, 'arcstone');
       sim.start();
 
       tickSimulation(sim, QUARRY_TICKS_PER_ORE + 1);
@@ -56,7 +62,7 @@ describe('Transfer', () => {
       const quarry = createTestBuilding('quarry', { x: 0, y: 0, rotation: 0 });
       const forge = createTestBuilding('forge', { x: 2, y: 0, rotation: 2 });
       sim.setBuildings([quarry, forge]);
-      sim.placeCrystalVein(0, 0, 2, 2, 'arcstone');
+      placeResourcePatch(sim, 0, 0, 2, 2, 'arcstone');
       sim.start();
 
       tickSimulation(sim, QUARRY_TICKS_PER_ORE + 1);
@@ -70,7 +76,7 @@ describe('Transfer', () => {
       const quarry = createTestBuilding('quarry', { x: 0, y: 0, rotation: 0 });
       const forge = createTestBuilding('forge', { x: 3, y: 0, rotation: 0 });
       sim.setBuildings([quarry, forge]);
-      sim.placeCrystalVein(0, 0, 2, 2, 'arcstone');
+      placeResourcePatch(sim, 0, 0, 2, 2, 'arcstone');
       sim.start();
 
       tickSimulation(sim, QUARRY_TICKS_PER_ORE + 1);
@@ -89,7 +95,7 @@ describe('Transfer', () => {
       const chest2 = createTestBuilding('chest', { x: 2, y: 1 });
 
       sim.setBuildings([quarry, chest1, chest2]);
-      sim.placeCrystalVein(0, 0, 2, 2, 'arcstone');
+      placeResourcePatch(sim, 0, 0, 2, 2, 'arcstone');
       sim.start();
 
       // Produce 4 items plus extra ticks for transfers
@@ -110,7 +116,7 @@ describe('Transfer', () => {
       const chest = createTestBuilding('chest', { x: 2, y: 0 });
 
       sim.setBuildings([quarry, chest]);
-      sim.placeCrystalVein(0, 0, 2, 2, 'arcstone');
+      placeResourcePatch(sim, 0, 0, 2, 2, 'arcstone');
       sim.start();
 
       tickSimulation(sim, QUARRY_TICKS_PER_ORE + 1);
@@ -122,7 +128,7 @@ describe('Transfer', () => {
       const forge = createTestBuilding('forge', { x: 2, y: 0, rotation: 0 });
 
       sim.setBuildings([quarry, forge]);
-      sim.placeCrystalVein(0, 0, 2, 2, 'arcstone');
+      placeResourcePatch(sim, 0, 0, 2, 2, 'arcstone');
       sim.start();
 
       // Use exactly QUARRY_TICKS_PER_ORE so transfer happens but forge
@@ -217,7 +223,7 @@ describe('Transfer', () => {
       const forge = createTestBuilding('forge', { x: 2, y: 0, rotation: 0 });
 
       sim.setBuildings([quarry, forge]);
-      sim.placeCrystalVein(0, 0, 2, 2, 'arcstone');
+      placeResourcePatch(sim, 0, 0, 2, 2, 'arcstone');
       sim.start();
 
       // Pre-fill forge buffers: input to capacity, output to capacity
@@ -237,7 +243,7 @@ describe('Transfer', () => {
       const chest = createTestBuilding('chest', { x: 2, y: 0 });
 
       sim.setBuildings([quarry, chest]);
-      sim.placeCrystalVein(0, 0, 2, 2, 'arcstone');
+      placeResourcePatch(sim, 0, 0, 2, 2, 'arcstone');
       sim.start();
 
       // Pre-fill chest to capacity

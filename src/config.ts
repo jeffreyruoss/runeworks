@@ -39,13 +39,14 @@ export const BUILDING_SIZES = {
   chest: { width: 1, height: 1 },
 } as const;
 
-// Building costs (in stone)
-export const BUILDING_COSTS = {
-  quarry: 5,
-  forge: 3,
-  workbench: 4,
-  chest: 1,
-} as const;
+// Building costs (multi-resource)
+import { BuildingType, PlayerResources } from './types';
+export const BUILDING_COSTS: Record<BuildingType, Partial<PlayerResources>> = {
+  quarry: { stone: 5, wood: 3 },
+  forge: { stone: 6, iron: 2 },
+  workbench: { stone: 4, wood: 4, iron: 1 },
+  chest: { stone: 2, wood: 1 },
+};
 
 // Colors for UI
 export const COLORS = {
@@ -56,12 +57,4 @@ export const COLORS = {
   cursorNeutral: 0xffffff,
   hudBackground: 0x000000,
   hudText: 0xffffff,
-  // Terrain colors
-  arcstoneBase: 0x4a3b6e,
-  arcstoneHighlight: 0x7b68ee,
-  suniteBase: 0x8b6914,
-  suniteHighlight: 0xdaa520,
-  // Stone deposit colors
-  stoneDepositBase: 0x5a5a5a,
-  stoneDepositHighlight: 0x8a8a8a,
 } as const;

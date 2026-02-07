@@ -1,6 +1,12 @@
 import { Simulation } from '../../src/Simulation';
 import { GRID_WIDTH, GRID_HEIGHT, MS_PER_TICK } from '../../src/config';
-import { createTestBuilding, tickSimulation, resetIdCounter, startWithInputs } from './helpers';
+import {
+  createTestBuilding,
+  tickSimulation,
+  resetIdCounter,
+  startWithInputs,
+  placeResourcePatch,
+} from './helpers';
 
 describe('Simulation', () => {
   let sim: Simulation;
@@ -111,45 +117,42 @@ describe('Simulation', () => {
       expect(sim.getTerrain(GRID_WIDTH, GRID_HEIGHT)).toBe('empty');
     });
 
-    it('placeCrystalVein sets rectangular area', () => {
-      sim.placeCrystalVein(2, 3, 4, 3, 'arcstone');
+    it('addResourcePatch sets rectangular area', () => {
+      placeResourcePatch(sim, 2, 3, 4, 3, 'arcstone');
 
-      // Inside the vein
+      // Inside the patch
       expect(sim.getTerrain(2, 3)).toBe('arcstone');
       expect(sim.getTerrain(5, 5)).toBe('arcstone');
       expect(sim.getTerrain(3, 4)).toBe('arcstone');
 
-      // Outside the vein
+      // Outside the patch
       expect(sim.getTerrain(1, 3)).toBe('empty');
       expect(sim.getTerrain(6, 3)).toBe('empty');
       expect(sim.getTerrain(2, 2)).toBe('empty');
       expect(sim.getTerrain(2, 6)).toBe('empty');
     });
 
-    it('placeCrystalVein clips to grid boundaries', () => {
-      sim.placeCrystalVein(GRID_WIDTH - 2, GRID_HEIGHT - 2, 5, 5, 'sunite');
+    it('addResourcePatch clips to grid boundaries', () => {
+      placeResourcePatch(sim, GRID_WIDTH - 2, GRID_HEIGHT - 2, 5, 5, 'sunite');
 
       expect(sim.getTerrain(GRID_WIDTH - 2, GRID_HEIGHT - 2)).toBe('sunite');
       expect(sim.getTerrain(GRID_WIDTH - 1, GRID_HEIGHT - 1)).toBe('sunite');
       expect(sim.getTerrain(GRID_WIDTH, GRID_HEIGHT)).toBe('empty');
     });
 
-    it('sets and gets stone_deposit terrain', () => {
-      sim.setTerrain(3, 3, 'stone_deposit');
-      expect(sim.getTerrain(3, 3)).toBe('stone_deposit');
+    it('sets and gets stone terrain', () => {
+      sim.setTerrain(3, 3, 'stone');
+      expect(sim.getTerrain(3, 3)).toBe('stone');
     });
 
-    it('quarry does not extract from stone_deposit', () => {
+    it('quarry extracts from stone terrain when on a patch', () => {
       const quarry = createTestBuilding('quarry', { x: 0, y: 0 });
       sim.setBuildings([quarry]);
-      sim.setTerrain(0, 0, 'stone_deposit');
-      sim.setTerrain(1, 0, 'stone_deposit');
-      sim.setTerrain(0, 1, 'stone_deposit');
-      sim.setTerrain(1, 1, 'stone_deposit');
+      placeResourcePatch(sim, 0, 0, 2, 2, 'stone');
       sim.start();
 
       tickSimulation(sim, 40);
-      expect(quarry.outputBuffer.size).toBe(0);
+      expect(quarry.outputBuffer.get('stone')).toBeGreaterThan(0);
     });
   });
 

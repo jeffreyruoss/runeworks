@@ -1,4 +1,4 @@
-import type { Building, BuildingType, ItemType } from '../../src/types';
+import type { Building, BuildingType, ItemType, Position, TerrainType } from '../../src/types';
 import { MS_PER_TICK } from '../../src/config';
 import { Simulation } from '../../src/Simulation';
 
@@ -66,4 +66,26 @@ export function startWithInputs(
   for (const [item, count] of items) {
     building.inputBuffer.set(item, count);
   }
+}
+
+/**
+ * Place a resource patch as a rectangular area (replaces old placeCrystalVein).
+ * Sets terrain and registers with the patch manager via addResourcePatch.
+ */
+export function placeResourcePatch(
+  sim: Simulation,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  type: TerrainType,
+  pool?: number
+): void {
+  const tiles: Position[] = [];
+  for (let dy = 0; dy < height; dy++) {
+    for (let dx = 0; dx < width; dx++) {
+      tiles.push({ x: x + dx, y: y + dy });
+    }
+  }
+  sim.addResourcePatch(type, tiles, pool ?? tiles.length * 10);
 }

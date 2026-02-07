@@ -9,13 +9,26 @@ export type ItemType =
   | 'sun_ingot'
   | 'cogwheel'
   | 'thread'
-  | 'rune';
+  | 'rune'
+  | 'stone'
+  | 'wood'
+  | 'iron'
+  | 'clay'
+  | 'crystal_shard';
 
 export type BuildingType = 'quarry' | 'forge' | 'workbench' | 'chest';
 
 export type Direction = 'up' | 'down' | 'left' | 'right';
 
-export type TerrainType = 'empty' | 'arcstone' | 'sunite' | 'stone_deposit';
+export type TerrainType =
+  | 'empty'
+  | 'arcstone'
+  | 'sunite'
+  | 'stone'
+  | 'iron'
+  | 'forest'
+  | 'clay'
+  | 'crystal_shard';
 
 export interface Position {
   x: number;
@@ -24,6 +37,18 @@ export interface Position {
 
 export interface PlayerResources {
   stone: number;
+  wood: number;
+  iron: number;
+  clay: number;
+  crystal_shard: number;
+}
+
+export interface ResourcePatch {
+  id: number;
+  terrainType: TerrainType;
+  tiles: Position[];
+  totalPool: number;
+  remainingPool: number;
 }
 
 export interface BuildingDefinition {

@@ -59,6 +59,11 @@ export const ITEM_DISPLAY_NAMES: Record<string, string> = {
   cogwheel: 'Cogwheel',
   thread: 'Thread',
   rune: 'Rune',
+  stone: 'Stone',
+  wood: 'Wood',
+  iron: 'Iron',
+  clay: 'Clay',
+  crystal_shard: 'Crystal Shard',
 };
 
 export const PRODUCTION_CHAINS: Record<string, string> = {

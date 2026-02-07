@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
 import { CANVAS_WIDTH, CANVAS_HEIGHT, COLORS, BUILDING_COSTS } from '../config';
-import { GameUIState } from '../types';
+import { GameUIState, PlayerResources } from '../types';
 import { ObjectivesPanel } from '../managers/ObjectivesPanel';
+import { canAfford } from '../utils';
 
 export class UIScene extends Phaser.Scene {
   private buildingCountText!: Phaser.GameObjects.Text;
@@ -9,7 +10,7 @@ export class UIScene extends Phaser.Scene {
   private cursorPosText!: Phaser.GameObjects.Text;
   private simStatusText!: Phaser.GameObjects.Text;
   private itemsText!: Phaser.GameObjects.Text;
-  private stoneCountText!: Phaser.GameObjects.Text;
+  private resourcesText!: Phaser.GameObjects.Text;
   private cursorInfoText!: Phaser.GameObjects.Text;
   private hotbarText!: Phaser.GameObjects.Text;
 
@@ -51,8 +52,8 @@ export class UIScene extends Phaser.Scene {
     });
     this.simStatusText.setOrigin(0.5, 0);
 
-    // Stone count (top-right area)
-    this.stoneCountText = this.add.text(CANVAS_WIDTH - 130, 2, 'Stone:0', {
+    // Resources (top-right area)
+    this.resourcesText = this.add.text(CANVAS_WIDTH - 200, 2, '', {
       fontFamily: 'monospace',
       fontSize: '10px',
       color: '#aaaaaa',
@@ -238,19 +239,20 @@ export class UIScene extends Phaser.Scene {
     // Cursor position
     this.cursorPosText.setText(`X:${state.cursorX} Y:${state.cursorY}`);
 
-    // Stone count
-    this.stoneCountText.setText(`Stone:${state.playerResources.stone}`);
+    // Resources - show all non-zero
+    this.resourcesText.setText(this.formatResources(state.playerResources));
 
     // Selected building with cost info
     if (state.selectedBuilding) {
       const cost = BUILDING_COSTS[state.selectedBuilding];
-      const hasEnough = state.playerResources.stone >= cost;
+      const affordable = canAfford(state.playerResources, cost);
+      const costStr = this.formatCost(cost);
 
-      if (hasEnough) {
-        this.selectedText.setText(`${state.selectedBuilding.toUpperCase()} (${cost})`);
+      if (affordable) {
+        this.selectedText.setText(`${state.selectedBuilding.toUpperCase()} (${costStr})`);
         this.selectedText.setColor('#00ff00');
       } else {
-        this.selectedText.setText(`${state.selectedBuilding.toUpperCase()} (${cost}) Need stone!`);
+        this.selectedText.setText(`${state.selectedBuilding.toUpperCase()} (${costStr})`);
         this.selectedText.setColor('#ff6666');
       }
     } else {
@@ -296,6 +298,30 @@ export class UIScene extends Phaser.Scene {
 
     // Objectives and stage complete (delegated to manager)
     this.objectivesPanel.update(state);
+  }
+
+  private formatResources(res: PlayerResources): string {
+    const parts: string[] = [];
+    if (res.stone) parts.push(`St:${res.stone}`);
+    if (res.wood) parts.push(`Wd:${res.wood}`);
+    if (res.iron) parts.push(`Fe:${res.iron}`);
+    if (res.clay) parts.push(`Cl:${res.clay}`);
+    if (res.crystal_shard) parts.push(`Cr:${res.crystal_shard}`);
+    return parts.join(' ') || 'No resources';
+  }
+
+  private formatCost(cost: Partial<PlayerResources>): string {
+    const abbrev: Record<string, string> = {
+      stone: 'St',
+      wood: 'Wd',
+      iron: 'Fe',
+      clay: 'Cl',
+      crystal_shard: 'Cr',
+    };
+    return Object.entries(cost)
+      .filter(([, v]) => v && v > 0)
+      .map(([k, v]) => `${abbrev[k] || k}:${v}`)
+      .join(' ');
   }
 
   shutdown(): void {

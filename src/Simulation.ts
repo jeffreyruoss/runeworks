@@ -1,9 +1,11 @@
-import { Building, ItemType, TerrainType, SimulationState } from './types';
+import { Building, ItemType, Position, ResourcePatch, TerrainType, SimulationState } from './types';
 import { BUILDING_DEFINITIONS } from './data/buildings';
 import { getRecipe } from './data/recipes';
 import { GRID_WIDTH, GRID_HEIGHT, MS_PER_TICK, QUARRY_TICKS_PER_ORE } from './config';
 import { getBufferTotal, addToBuffer, consumeIngredients, hasIngredients } from './utils';
 import { TransferSystem } from './simulation/transfers';
+import { ResourcePatchManager } from './terrain/ResourcePatchManager';
+import { QUARRIABLE_TERRAIN } from './data/terrain';
 
 /**
  * Core simulation engine for Runeworks
@@ -21,6 +23,7 @@ export class Simulation {
   private state: SimulationState;
   private accumulator = 0;
   private transferSystem = new TransferSystem();
+  private patchManager = new ResourcePatchManager();
 
   // Callbacks
   public onItemProduced?: (item: ItemType, count: number) => void;
@@ -61,18 +64,28 @@ export class Simulation {
     return 'empty';
   }
 
-  placeCrystalVein(
+  addResourcePatch(terrainType: TerrainType, tiles: Position[], pool: number): void {
+    for (const tile of tiles) {
+      this.setTerrain(tile.x, tile.y, terrainType);
+    }
+    this.patchManager.addPatch(terrainType, tiles, pool);
+  }
+
+  getPatchAt(x: number, y: number): ResourcePatch | null {
+    return this.patchManager.getPatchAt(x, y);
+  }
+
+  extractFromPatch(
     x: number,
-    y: number,
-    width: number,
-    height: number,
-    type: 'arcstone' | 'sunite'
-  ): void {
-    for (let dy = 0; dy < height; dy++) {
-      for (let dx = 0; dx < width; dx++) {
-        this.setTerrain(x + dx, y + dy, type);
+    y: number
+  ): { item: ItemType; depleted: boolean; tilesToClear: Position[] } | null {
+    const result = this.patchManager.extractFromPatch(x, y);
+    if (result?.depleted) {
+      for (const tile of result.tilesToClear) {
+        this.setTerrain(tile.x, tile.y, 'empty');
       }
     }
+    return result;
   }
 
   setBuildings(buildings: Building[]): void {
@@ -182,8 +195,8 @@ export class Simulation {
       return;
     }
 
-    const oreType = this.getOreUnderBuilding(building);
-    if (!oreType) {
+    const resource = this.getResourceUnderBuilding(building);
+    if (!resource) {
       building.ticksStarved++;
       return;
     }
@@ -191,8 +204,15 @@ export class Simulation {
     building.craftProgress++;
     if (building.craftProgress >= QUARRY_TICKS_PER_ORE) {
       building.craftProgress = 0;
-      const itemType: ItemType = oreType === 'arcstone' ? 'arcstone' : 'sunite';
-      addToBuffer(building.outputBuffer, itemType, 1);
+      const result = this.patchManager.extractFromPatch(resource.x, resource.y);
+      if (result) {
+        addToBuffer(building.outputBuffer, result.item, 1);
+        if (result.depleted) {
+          for (const tile of result.tilesToClear) {
+            this.setTerrain(tile.x, tile.y, 'empty');
+          }
+        }
+      }
     }
   }
 
@@ -268,13 +288,17 @@ export class Simulation {
     }
   }
 
-  private getOreUnderBuilding(building: Building): TerrainType | null {
+  private getResourceUnderBuilding(
+    building: Building
+  ): { x: number; y: number; terrain: TerrainType } | null {
     const def = BUILDING_DEFINITIONS[building.type];
     for (let dy = 0; dy < def.height; dy++) {
       for (let dx = 0; dx < def.width; dx++) {
-        const terrain = this.getTerrain(building.x + dx, building.y + dy);
-        if (terrain === 'arcstone' || terrain === 'sunite') {
-          return terrain;
+        const tx = building.x + dx;
+        const ty = building.y + dy;
+        const terrain = this.getTerrain(tx, ty);
+        if (QUARRIABLE_TERRAIN.has(terrain)) {
+          return { x: tx, y: ty, terrain };
         }
       }
     }

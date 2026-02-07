@@ -1,7 +1,13 @@
 import { Simulation } from '../../src/Simulation';
 import { QUARRY_TICKS_PER_ORE } from '../../src/config';
 import { BUILDING_DEFINITIONS } from '../../src/data/buildings';
-import { createTestBuilding, tickSimulation, resetIdCounter, startWithInputs } from './helpers';
+import {
+  createTestBuilding,
+  tickSimulation,
+  resetIdCounter,
+  startWithInputs,
+  placeResourcePatch,
+} from './helpers';
 
 describe('Production', () => {
   let sim: Simulation;
@@ -15,7 +21,7 @@ describe('Production', () => {
     it('extracts arcstone ore after QUARRY_TICKS_PER_ORE ticks', () => {
       const quarry = createTestBuilding('quarry', { x: 0, y: 0 });
       sim.setBuildings([quarry]);
-      sim.placeCrystalVein(0, 0, 2, 2, 'arcstone');
+      placeResourcePatch(sim, 0, 0, 2, 2, 'arcstone');
       sim.start();
 
       // One tick before production
@@ -30,7 +36,7 @@ describe('Production', () => {
     it('extracts sunite ore when on sunite vein', () => {
       const quarry = createTestBuilding('quarry', { x: 4, y: 4 });
       sim.setBuildings([quarry]);
-      sim.placeCrystalVein(4, 4, 2, 2, 'sunite');
+      placeResourcePatch(sim, 4, 4, 2, 2, 'sunite');
       sim.start();
 
       tickSimulation(sim, QUARRY_TICKS_PER_ORE);
@@ -40,7 +46,7 @@ describe('Production', () => {
     it('produces multiple ore over time', () => {
       const quarry = createTestBuilding('quarry', { x: 0, y: 0 });
       sim.setBuildings([quarry]);
-      sim.placeCrystalVein(0, 0, 2, 2, 'arcstone');
+      placeResourcePatch(sim, 0, 0, 2, 2, 'arcstone');
       sim.start();
 
       tickSimulation(sim, QUARRY_TICKS_PER_ORE * 3);
@@ -61,7 +67,7 @@ describe('Production', () => {
     it('blocks when output buffer is full', () => {
       const quarry = createTestBuilding('quarry', { x: 0, y: 0 });
       sim.setBuildings([quarry]);
-      sim.placeCrystalVein(0, 0, 2, 2, 'arcstone');
+      placeResourcePatch(sim, 0, 0, 2, 2, 'arcstone');
       sim.start();
 
       // Run enough ticks to fill the output buffer (size 5)

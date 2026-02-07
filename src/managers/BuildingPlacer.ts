@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 import { TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, BUILDING_COSTS } from '../config';
 import { Building, BuildingType, PlayerResources, TerrainType } from '../types';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
+import { QUARRIABLE_TERRAIN } from '../data/terrain';
+import { canAfford, deductCost } from '../utils';
 
 /**
  * Manages building placement: ghost preview sprite, placement validation,
@@ -99,24 +101,24 @@ export class BuildingPlacer {
       }
     }
 
-    // Quarries must be on crystal veins
+    // Quarries must be on a quarriable resource
     if (selectedBuilding === 'quarry') {
-      let hasOre = false;
+      let hasResource = false;
       for (let dy = 0; dy < def.height; dy++) {
         for (let dx = 0; dx < def.width; dx++) {
           const terrain = getTerrain(cursorX + dx, cursorY + dy);
-          if (terrain === 'arcstone' || terrain === 'sunite') {
-            hasOre = true;
+          if (QUARRIABLE_TERRAIN.has(terrain)) {
+            hasResource = true;
             break;
           }
         }
       }
-      if (!hasOre) return false;
+      if (!hasResource) return false;
     }
 
-    // Check stone cost
+    // Check multi-resource cost
     const cost = BUILDING_COSTS[selectedBuilding];
-    if (playerResources.stone < cost) {
+    if (!canAfford(playerResources, cost)) {
       return false;
     }
 
@@ -150,9 +152,9 @@ export class BuildingPlacer {
 
     const def = BUILDING_DEFINITIONS[selectedBuilding];
 
-    // Deduct stone cost
+    // Deduct multi-resource cost
     const cost = BUILDING_COSTS[selectedBuilding];
-    playerResources.stone -= cost;
+    deductCost(playerResources, cost);
 
     // Determine initial recipe
     let selectedRecipe: string | null = null;

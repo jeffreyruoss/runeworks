@@ -3,13 +3,15 @@ import { TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, COLORS, CURSOR_JUMP_STEP } from '..
 import { Building, BuildingType, PlayerResources } from '../types';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
 import { getRecipesForBuilding } from '../data/recipes';
-import { getBuildingAt } from '../utils';
+import { getBuildingAt, addPlayerResource } from '../utils';
 import { Simulation } from '../Simulation';
 import { InputManager } from '../managers/InputManager';
 import { TerrainRenderer } from '../managers/TerrainRenderer';
 import { BuildingPlacer } from '../managers/BuildingPlacer';
 import { BufferIndicators } from '../managers/BufferIndicators';
 import { StageManager } from '../managers/StageManager';
+import { generateTerrain } from '../terrain/terrainSetup';
+import { QUARRIABLE_TERRAIN, TERRAIN_DISPLAY_NAMES } from '../data/terrain';
 
 export class GameScene extends Phaser.Scene {
   // Cursor state
@@ -39,10 +41,13 @@ export class GameScene extends Phaser.Scene {
   private buildModeActive = false;
 
   // Player resources
-  private playerResources: PlayerResources = { stone: 0 };
-
-  // Stone deposit charges (how much stone remains at each deposit)
-  private depositCharges: Map<string, number> = new Map();
+  private playerResources: PlayerResources = {
+    stone: 0,
+    wood: 0,
+    iron: 0,
+    clay: 0,
+    crystal_shard: 0,
+  };
 
   constructor() {
     super({ key: 'GameScene' });
@@ -64,7 +69,7 @@ export class GameScene extends Phaser.Scene {
 
     // Draw grid and terrain
     this.terrainRenderer.drawGrid();
-    this.placeCrystalVeins();
+    this.setupTerrain();
 
     // Setup input (must be after other init so callbacks reference valid state)
     this.inputManager = new InputManager(this, {
@@ -109,33 +114,9 @@ export class GameScene extends Phaser.Scene {
     };
   }
 
-  private placeCrystalVeins(): void {
-    this.simulation.placeCrystalVein(5, 8, 6, 6, 'arcstone');
-    this.simulation.placeCrystalVein(30, 8, 6, 6, 'sunite');
-    this.placeStoneDeposits();
+  private setupTerrain(): void {
+    generateTerrain(this.simulation);
     this.terrainRenderer.drawTerrain((x, y) => this.simulation.getTerrain(x, y));
-  }
-
-  private placeStoneDeposits(): void {
-    const depositPositions = [
-      { x: 3, y: 6 },
-      { x: 4, y: 7 },
-      { x: 2, y: 10 },
-      { x: 3, y: 12 },
-      { x: 11, y: 7 },
-      { x: 12, y: 9 },
-      { x: 28, y: 6 },
-      { x: 27, y: 8 },
-      { x: 36, y: 7 },
-      { x: 37, y: 10 },
-      { x: 29, y: 14 },
-      { x: 35, y: 13 },
-    ];
-
-    for (const pos of depositPositions) {
-      this.simulation.setTerrain(pos.x, pos.y, 'stone_deposit');
-      this.depositCharges.set(`${pos.x},${pos.y}`, 3);
-    }
   }
 
   // --- Input handlers ---
@@ -306,27 +287,18 @@ export class GameScene extends Phaser.Scene {
       this.emitUIUpdate();
       return;
     }
-    if (this.gatherStone()) return;
+    if (this.mineResource()) return;
     this.placeBuilding();
   }
 
-  private gatherStone(): boolean {
+  private mineResource(): boolean {
     const terrain = this.simulation.getTerrain(this.cursor.x, this.cursor.y);
-    if (terrain !== 'stone_deposit') return false;
+    if (!QUARRIABLE_TERRAIN.has(terrain)) return false;
 
-    const key = `${this.cursor.x},${this.cursor.y}`;
-    const charges = this.depositCharges.get(key) || 0;
-    if (charges <= 0) return false;
+    const result = this.simulation.extractFromPatch(this.cursor.x, this.cursor.y);
+    if (!result) return false;
 
-    this.playerResources.stone++;
-
-    const remaining = charges - 1;
-    if (remaining <= 0) {
-      this.depositCharges.delete(key);
-      this.simulation.setTerrain(this.cursor.x, this.cursor.y, 'empty');
-    } else {
-      this.depositCharges.set(key, remaining);
-    }
+    addPlayerResource(this.playerResources, result.item, 1);
 
     this.terrainRenderer.drawTerrain((x, y) => this.simulation.getTerrain(x, y));
     this.emitUIUpdate();
@@ -431,13 +403,14 @@ export class GameScene extends Phaser.Scene {
     }
 
     const terrain = this.simulation.getTerrain(this.cursor.x, this.cursor.y);
-    if (terrain === 'stone_deposit') {
-      const key = `${this.cursor.x},${this.cursor.y}`;
-      const charges = this.depositCharges.get(key) || 0;
-      return `Stone Deposit (${charges})`;
+    if (terrain !== 'empty') {
+      const displayName = TERRAIN_DISPLAY_NAMES[terrain];
+      const patch = this.simulation.getPatchAt(this.cursor.x, this.cursor.y);
+      if (patch) {
+        return `${displayName} (${patch.remainingPool}/${patch.totalPool})`;
+      }
+      return displayName;
     }
-    if (terrain === 'arcstone') return 'Arcstone Vein';
-    if (terrain === 'sunite') return 'Sunite Vein';
 
     return null;
   }

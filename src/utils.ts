@@ -1,4 +1,4 @@
-import { ItemType, Direction, Building } from './types';
+import { ItemType, Direction, Building, PlayerResources } from './types';
 import { BUILDING_DEFINITIONS } from './data/buildings';
 
 /**
@@ -101,4 +101,41 @@ export function oppositeDirection(dir: Direction): Direction {
     down: 'up',
   };
   return opposites[dir];
+}
+
+/**
+ * Check if player can afford a multi-resource cost
+ */
+export function canAfford(resources: PlayerResources, cost: Partial<PlayerResources>): boolean {
+  for (const [key, amount] of Object.entries(cost)) {
+    if (amount && resources[key as keyof PlayerResources] < amount) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Deduct a multi-resource cost from player resources
+ */
+export function deductCost(resources: PlayerResources, cost: Partial<PlayerResources>): void {
+  for (const [key, amount] of Object.entries(cost)) {
+    if (amount) {
+      const k = key as keyof PlayerResources;
+      resources[k] -= amount;
+    }
+  }
+}
+
+/** Resource keys on PlayerResources */
+const RESOURCE_KEYS: Set<string> = new Set(['stone', 'wood', 'iron', 'clay', 'crystal_shard']);
+
+/**
+ * Add an amount to the matching PlayerResources field.
+ * Silently ignores items that aren't player resources (e.g. arcane_ingot).
+ */
+export function addPlayerResource(resources: PlayerResources, item: string, amount: number): void {
+  if (RESOURCE_KEYS.has(item)) {
+    resources[item as keyof PlayerResources] += amount;
+  }
 }
