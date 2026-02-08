@@ -36,6 +36,13 @@ npm run sprites   # Regenerate sprite atlas from ASCII definitions
 - **TerrainRenderer** (`src/managers/TerrainRenderer.ts`) - Draws crystal veins, stone deposits, and grid lines
 - **BuildingPlacer** (`src/managers/BuildingPlacer.ts`) - Ghost preview sprite, placement validation, building creation
 - **BufferIndicators** (`src/managers/BufferIndicators.ts`) - Buffer count text overlays on buildings
+- **PanelManager** (`src/managers/PanelManager.ts`) - Panel open/close state and mutual exclusion (menu, inventory, guide, objectives)
+- **StageManager** (`src/managers/StageManager.ts`) - Stage progression, objective tracking, completion flow
+
+### Managers (used by UIScene)
+
+- **ObjectivesPanel** (`src/managers/ObjectivesPanel.ts`) - Objectives panel and stage complete overlay rendering
+- **GuidePanel** (`src/managers/GuidePanel.ts`) - Full-page reference panel showing resources, items, buildings, and recipes
 
 ### Sprite Pipeline
 
@@ -57,11 +64,12 @@ ASCII art in `assets/sprites/src/*.txt` → `tools/spritegen/generate.js` → PN
 - **R**: Rotate building
 - **P**: Pause/resume simulation
 - **I**: Toggle inventory panel
+- **G**: Toggle guide panel (resources, items, buildings reference)
 - **H**: Toggle buffer stats display on all buildings
 - **C** (normal mode): Cycle workbench recipe
 - **. / ,**: Speed up / slow down simulation
 - **M**: Toggle menu
-- **X / Esc**: Cancel build mode / cancel selection / close menu / go back
+- **X / Esc**: Cancel build mode / cancel selection / close panel / go back
 
 ## Design Reference
 
@@ -123,19 +131,23 @@ Keep `.claude/agents/` and `.claude/skills/` in sync with the codebase:
 Most frequently edited files:
 
 ```
-src/scenes/GameScene.ts           # Gameplay orchestrator (370 lines)
+src/scenes/GameScene.ts           # Gameplay orchestrator (435 lines)
 src/Simulation.ts                 # Tick logic, production (278 lines)
-src/scenes/UIScene.ts             # HUD elements (284 lines)
+src/managers/GuidePanel.ts        # Guide panel with resources/items/buildings (271 lines)
+src/scenes/UIScene.ts             # HUD elements (341 lines)
 src/managers/BuildingPlacer.ts    # Placement validation, ghost sprite (201 lines)
+src/managers/ObjectivesPanel.ts   # Objectives & stage complete overlay (190 lines)
 src/simulation/transfers.ts       # Item distribution (166 lines)
-src/managers/InputManager.ts      # Keyboard bindings (110 lines)
+src/managers/InputManager.ts      # Keyboard bindings (128 lines)
 src/managers/TerrainRenderer.ts   # Terrain/grid drawing (101 lines)
+src/managers/StageManager.ts      # Stage progression & objectives (97 lines)
 src/utils.ts                      # Pure helpers (94 lines)
+src/managers/PanelManager.ts      # Panel state & mutual exclusion (91 lines)
 src/managers/BufferIndicators.ts  # Buffer overlays (72 lines)
+src/config.ts                     # Constants (69 lines)
 src/data/recipes.ts               # Recipe definitions
 src/data/buildings.ts             # Building specs
 src/types.ts                      # Core interfaces
-src/config.ts                     # Constants
 assets/sprites/src/*.txt          # ASCII sprite definitions
 ```
 
@@ -242,10 +254,12 @@ npm run dev                # Game loads without console errors
 - ✅ Workbench + recipes
 - ✅ Chest storage
 - ✅ Sprite generation pipeline
+- ✅ Stage system (10 stages with objectives and progression)
+- ✅ Guide panel (G key — resources, items, buildings reference)
+- ✅ Multi-resource terrain and gathering
 
 **Not yet implemented:**
 
-- ⬜ Stage system (goals, constraints, progression)
 - ⬜ Results screen with bottleneck hints
 - ⬜ Stage select / menu scene
 - ⬜ Save/load progress (localStorage)
@@ -255,7 +269,7 @@ npm run dev                # Game loads without console errors
 
 **Current items/buildings:**
 
-- Items: arcstone, sunite, arcane_ingot, sun_ingot, cogwheel, thread, rune
+- Items: arcstone, sunite, arcane_ingot, sun_ingot, cogwheel, thread, rune, stone, wood, iron, clay, crystal_shard
 - Buildings: quarry (2×2), forge (2×2), workbench (2×2), chest (1×1)
 
 ## Modularity Guidelines
@@ -270,9 +284,10 @@ Keep the codebase modular so Claude Code can read, understand, and modify files 
 
 ### Current Modularity Debt
 
-| File           | Lines | Status                                                         |
-| -------------- | ----- | -------------------------------------------------------------- |
-| `GameScene.ts` | 370   | Slightly over target; acceptable as orchestrator. Watch growth |
+| File           | Lines | Status                                                                  |
+| -------------- | ----- | ----------------------------------------------------------------------- |
+| `GameScene.ts` | 435   | Over target; building CRUD and cursor visuals are extraction candidates |
+| `UIScene.ts`   | 341   | Slightly over target; menu/inventory panels could extract to managers   |
 
 All other files are under 300 lines. **Rule: When a file grows past 300 lines, extract a cohesive subsystem before or alongside your change.** Don't make large files larger.
 
@@ -319,19 +334,27 @@ src/
 │   ├── BootScene.ts       # Asset loading
 │   ├── GameScene.ts       # Gameplay orchestrator
 │   └── UIScene.ts         # HUD rendering
-├── managers/        # Stateful subsystems used by GameScene
+├── managers/        # Stateful subsystems used by scenes
 │   ├── InputManager.ts    # Keyboard setup & bindings
 │   ├── TerrainRenderer.ts # Crystal/stone/grid drawing
 │   ├── BuildingPlacer.ts  # Ghost sprite & placement logic
-│   └── BufferIndicators.ts# Buffer count overlays
+│   ├── BufferIndicators.ts# Buffer count overlays
+│   ├── PanelManager.ts   # Panel open/close state & mutual exclusion
+│   ├── StageManager.ts   # Stage progression & objective tracking
+│   ├── ObjectivesPanel.ts# Objectives panel & stage complete overlay
+│   └── GuidePanel.ts     # Full-page reference guide panel
 ├── simulation/      # Tick engine subsystems
 │   └── transfers.ts       # Round-robin item distribution
 ├── data/            # Static definitions
 │   ├── buildings.ts       # Building specs
-│   └── recipes.ts         # Crafting recipes
+│   ├── recipes.ts         # Crafting recipes
+│   ├── stages.ts          # Stage definitions & display names
+│   └── terrain.ts         # Terrain types, colors, display names
+├── terrain/         # Terrain generation
+│   └── terrainSetup.ts    # Procedural terrain patch generation
 ├── Simulation.ts    # Core tick engine (production phase)
 ├── types.ts         # Shared interfaces
-├── config.ts        # Game constants
+├── config.ts        # Game constants & shared abbreviations
 ├── utils.ts         # Pure helpers (buffers, directions, lookups)
 └── main.ts          # Phaser game config & entry point
 ```
