@@ -19,21 +19,21 @@ interface PatchDef {
 /** Default patch layout for the 40x25 grid */
 const PATCH_LAYOUT: PatchDef[] = [
   // 2 stone patches
-  { type: 'stone', cx: 8, cy: 5, size: 25, pool: 50 },
-  { type: 'stone', cx: 32, cy: 18, size: 25, pool: 50 },
+  { type: 'stone', cx: 8, cy: 5, size: 25, pool: 500 },
+  { type: 'stone', cx: 32, cy: 18, size: 25, pool: 500 },
   // 2 forest patches
-  { type: 'forest', cx: 15, cy: 2, size: 30, pool: 60 },
-  { type: 'forest', cx: 25, cy: 20, size: 30, pool: 60 },
+  { type: 'forest', cx: 15, cy: 2, size: 30, pool: 600 },
+  { type: 'forest', cx: 25, cy: 20, size: 30, pool: 600 },
   // Arcstone (organic blob)
-  { type: 'arcstone', cx: 6, cy: 12, size: 25, pool: 75 },
+  { type: 'arcstone', cx: 6, cy: 12, size: 25, pool: 750 },
   // Sunite (organic blob)
-  { type: 'sunite', cx: 33, cy: 10, size: 25, pool: 75 },
+  { type: 'sunite', cx: 33, cy: 10, size: 25, pool: 750 },
   // Iron
-  { type: 'iron', cx: 20, cy: 12, size: 20, pool: 40 },
+  { type: 'iron', cx: 20, cy: 12, size: 20, pool: 400 },
   // Clay
-  { type: 'clay', cx: 14, cy: 20, size: 20, pool: 40 },
+  { type: 'clay', cx: 14, cy: 20, size: 20, pool: 400 },
   // Crystal shard (small, rare)
-  { type: 'crystal_shard', cx: 20, cy: 8, size: 7, pool: 35 },
+  { type: 'crystal_shard', cx: 20, cy: 8, size: 7, pool: 350 },
 ];
 
 /**
