@@ -16,7 +16,7 @@ export type ItemType =
   | 'clay'
   | 'crystal_shard';
 
-export type BuildingType = 'quarry' | 'forge' | 'workbench' | 'chest';
+export type BuildingType = 'quarry' | 'forge' | 'workbench' | 'chest' | 'arcane_study';
 
 export type Direction = 'up' | 'down' | 'left' | 'right';
 
@@ -68,7 +68,7 @@ export interface Recipe {
   inputs: Map<ItemType, number>;
   outputs: Map<ItemType, number>;
   craftTimeTicks: number;
-  building: 'forge' | 'workbench';
+  building: 'forge' | 'workbench' | 'arcane_study';
 }
 
 export interface Building {
@@ -121,4 +121,6 @@ export interface GameUIState {
   stageComplete: boolean;
   stageCompleteShown: boolean;
   objectiveProgress: Array<{ item: ItemType; required: number; produced: number }>;
+  researchOpen: boolean;
+  researchPoints: number;
 }

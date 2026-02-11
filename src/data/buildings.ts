@@ -41,4 +41,14 @@ export const BUILDING_DEFINITIONS: Record<BuildingType, BuildingDefinition> = {
     inputBufferSize: 50,
     outputBufferSize: 50, // Chest input/output buffers have same size
   },
+  arcane_study: {
+    type: 'arcane_study',
+    width: 2,
+    height: 2,
+    powerCost: 3,
+    inputSides: ['left', 'up'],
+    outputSides: [],
+    inputBufferSize: 10,
+    outputBufferSize: 0, // RP is a meta-resource, not a physical item
+  },
 };

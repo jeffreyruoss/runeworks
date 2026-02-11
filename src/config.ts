@@ -29,6 +29,7 @@ export const POWER_COSTS = {
   forge: 3,
   workbench: 4,
   chest: 0,
+  arcane_study: 3,
 } as const;
 
 // Building sizes (in tiles)
@@ -37,6 +38,7 @@ export const BUILDING_SIZES = {
   forge: { width: 2, height: 2 },
   workbench: { width: 2, height: 2 },
   chest: { width: 1, height: 1 },
+  arcane_study: { width: 2, height: 2 },
 } as const;
 
 // Building costs (multi-resource)
@@ -46,15 +48,16 @@ export const BUILDING_COSTS: Record<BuildingType, Partial<PlayerResources>> = {
   forge: { stone: 6, iron: 2 },
   workbench: { stone: 4, wood: 4, iron: 1 },
   chest: { stone: 2, wood: 1 },
+  arcane_study: { stone: 4, crystal_shard: 2 },
 };
 
-// Resource display abbreviations (shared by UIScene and GuidePanel)
-export const RESOURCE_ABBREVIATIONS: Record<string, string> = {
-  stone: 'St',
-  wood: 'Wd',
-  iron: 'Fe',
-  clay: 'Cl',
-  crystal_shard: 'Cr',
+// Resource display names (shared by UIScene and GuidePanel)
+export const RESOURCE_DISPLAY_NAMES: Record<string, string> = {
+  stone: 'Stone',
+  wood: 'Wood',
+  iron: 'Iron',
+  clay: 'Clay',
+  crystal_shard: 'Crystal',
 };
 
 // Colors for UI

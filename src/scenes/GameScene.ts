@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, COLORS, CURSOR_JUMP_STEP } from '../config';
 import { Building, BuildingType, PlayerResources } from '../types';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
-import { getRecipesForBuilding } from '../data/recipes';
+import { getRecipe, getRecipesForBuilding } from '../data/recipes';
 import { getBuildingAt, addPlayerResource } from '../utils';
 import { Simulation } from '../Simulation';
 import { InputManager } from '../managers/InputManager';
@@ -11,8 +11,10 @@ import { BuildingPlacer } from '../managers/BuildingPlacer';
 import { BufferIndicators } from '../managers/BufferIndicators';
 import { StageManager } from '../managers/StageManager';
 import { PanelManager } from '../managers/PanelManager';
+import { ResearchManager } from '../managers/ResearchManager';
 import { generateTerrain } from '../terrain/terrainSetup';
 import { QUARRIABLE_TERRAIN, TERRAIN_DISPLAY_NAMES } from '../data/terrain';
+import { RESEARCH_RECIPES, getResearchRecipe } from '../data/research';
 
 export class GameScene extends Phaser.Scene {
   // Cursor state
@@ -35,6 +37,7 @@ export class GameScene extends Phaser.Scene {
   private bufferIndicators!: BufferIndicators;
   private stageManager!: StageManager;
   private panelManager!: PanelManager;
+  private researchManager!: ResearchManager;
 
   // UI state
   private showAllBuffers = false;
@@ -58,6 +61,8 @@ export class GameScene extends Phaser.Scene {
     this.simulation = new Simulation();
     this.stageManager = new StageManager(this.simulation);
     this.panelManager = new PanelManager(this.stageManager);
+    this.researchManager = new ResearchManager();
+    this.registry.set('researchManager', this.researchManager);
     this.setupSimulationCallbacks();
 
     // Initialize managers
@@ -78,7 +83,7 @@ export class GameScene extends Phaser.Scene {
       selectBuilding: (type) => this.handleSelectBuilding(type),
       handleAction: () => this.handleAction(),
       deleteBuilding: () => this.deleteBuilding(),
-      rotate: () => this.buildingPlacer.rotate(),
+      rotate: () => this.handleRotateOrResearch(),
       handleEsc: () => this.handleEsc(),
       togglePause: () => this.togglePause(),
       toggleInventory: () => this.toggleInventory(),
@@ -114,6 +119,13 @@ export class GameScene extends Phaser.Scene {
       this.stageManager.checkStageComplete();
       this.emitUIUpdate();
     };
+
+    this.simulation.onResearchPointsProduced = (rp) => {
+      this.researchManager.addResearchPoints(rp);
+      this.emitUIUpdate();
+    };
+
+    this.simulation.getUpgrades = () => this.researchManager.getActiveUpgrades();
   }
 
   private setupTerrain(): void {
@@ -128,6 +140,10 @@ export class GameScene extends Phaser.Scene {
    * F key (dx=1, dy=0) selects forge; all other movement is blocked.
    */
   private handleMoveCursor(dx: number, dy: number): void {
+    if (this.panelManager.isResearchOpen()) {
+      this.events.emit('researchNavigate', dx, dy);
+      return;
+    }
     if (this.buildModeActive) {
       // F key is bound to moveCursor(1,0) — in build mode, treat it as forge selection
       if (dx === 1 && dy === 0) {
@@ -168,11 +184,13 @@ export class GameScene extends Phaser.Scene {
   }
 
   private selectBuildingAndCloseBuildMode(type: BuildingType): void {
+    if (!this.researchManager.isBuildingUnlocked(type)) return;
     this.buildModeActive = false;
     this.selectBuilding(type);
   }
 
   private selectBuilding(type: BuildingType): void {
+    if (!this.researchManager.isBuildingUnlocked(type)) return;
     this.selectedBuilding = type;
     this.buildingPlacer.resetRotation();
     this.buildingPlacer.updateGhostSprite(type);
@@ -233,6 +251,23 @@ export class GameScene extends Phaser.Scene {
     this.emitUIUpdate();
   }
 
+  private toggleResearch(): void {
+    this.panelManager.toggleResearch();
+    this.emitUIUpdate();
+  }
+
+  private handleRotateOrResearch(): void {
+    if (this.panelManager.isResearchOpen()) {
+      this.toggleResearch();
+      return;
+    }
+    if (this.selectedBuilding) {
+      this.buildingPlacer.rotate();
+    } else {
+      this.toggleResearch();
+    }
+  }
+
   private toggleObjectives(): void {
     this.panelManager.toggleObjectives();
     this.emitUIUpdate();
@@ -245,16 +280,24 @@ export class GameScene extends Phaser.Scene {
 
   private cycleRecipe(): void {
     const building = this.getBuildingAtCursor();
-    if (!building || building.type !== 'workbench') return;
+    if (!building) return;
 
-    const recipes = getRecipesForBuilding('workbench');
-    if (recipes.length === 0) return;
+    if (building.type === 'workbench') {
+      const recipes = getRecipesForBuilding('workbench').filter((r) =>
+        this.researchManager.isRecipeUnlocked(r.id)
+      );
+      if (recipes.length === 0) return;
 
-    const currentIndex = recipes.findIndex((r) => r.id === building.selectedRecipe);
-    const nextIndex = (currentIndex + 1) % recipes.length;
-    building.selectedRecipe = recipes[nextIndex].id;
-
-    this.emitUIUpdate();
+      const currentIndex = recipes.findIndex((r) => r.id === building.selectedRecipe);
+      const nextIndex = (currentIndex + 1) % recipes.length;
+      building.selectedRecipe = recipes[nextIndex].id;
+      this.emitUIUpdate();
+    } else if (building.type === 'arcane_study') {
+      const currentIndex = RESEARCH_RECIPES.findIndex((r) => r.id === building.selectedRecipe);
+      const nextIndex = (currentIndex + 1) % RESEARCH_RECIPES.length;
+      building.selectedRecipe = RESEARCH_RECIPES[nextIndex].id;
+      this.emitUIUpdate();
+    }
   }
 
   private changeSpeed(delta: number): void {
@@ -267,6 +310,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   private handleAction(): void {
+    if (this.panelManager.isResearchOpen()) {
+      this.events.emit('researchUnlock');
+      return;
+    }
     if (this.stageManager.isStageCompleteShown()) {
       this.stageManager.continueToNextStage();
       this.emitUIUpdate();
@@ -387,7 +434,12 @@ export class GameScene extends Phaser.Scene {
   private getCursorInfo(): string | null {
     const building = this.getBuildingAtCursor();
     if (building) {
-      return building.type.charAt(0).toUpperCase() + building.type.slice(1);
+      const name = building.type
+        .split('_')
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' ');
+      const recipeName = this.getActiveRecipeName(building);
+      return recipeName ? `${name}: ${recipeName}` : name;
     }
 
     const terrain = this.simulation.getTerrain(this.cursor.x, this.cursor.y);
@@ -400,6 +452,19 @@ export class GameScene extends Phaser.Scene {
       return displayName;
     }
 
+    return null;
+  }
+
+  private getActiveRecipeName(building: Building): string | null {
+    if (!building.selectedRecipe) return null;
+    if (building.type === 'arcane_study') {
+      const recipe = getResearchRecipe(building.selectedRecipe);
+      return recipe ? recipe.name : null;
+    }
+    if (building.type === 'workbench') {
+      const recipe = getRecipe(building.selectedRecipe);
+      return recipe ? recipe.name : null;
+    }
     return null;
   }
 
@@ -426,6 +491,8 @@ export class GameScene extends Phaser.Scene {
       stageComplete: this.stageManager.isStageComplete(),
       stageCompleteShown: this.stageManager.isStageCompleteShown(),
       objectiveProgress: this.stageManager.getObjectiveProgress(),
+      researchOpen: this.panelManager.isResearchOpen(),
+      researchPoints: this.researchManager.getResearchPoints(),
     });
   }
 

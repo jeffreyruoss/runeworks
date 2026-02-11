@@ -1,0 +1,38 @@
+# Arcane Study building sprite
+# 32x32 for 2x2 building
+# Mystical research station with glowing runes
+
+@name arcane_study
+@size 32
+
+................................
+.PPPPPPPPPPPPPPPPPPPPPPPPPPPPPP.
+.PppppppppppppppppppppppppppppP.
+.PpPPPPPPPPPPPPPPPPPPPPPPPPPPpP.
+.PpP......................PpPpP.
+BB.P.pppppppppppppppppp...PpPGG.
+Bb.P.pxxxxxxxxxxxxxxxxp...PpPGg.
+Bb.P.px..............xp...PpPGg.
+Bb.P.px.PPPPPPPPPP...xp...PpPGg.
+Bb.P.px.PppppppppP...xp...PpPGg.
+Bb.P.px.Pp......pP...xp...PpPGg.
+Bb.P.px.Pp.jCCj.pP...xp...PpPGg.
+Bb.P.px.Pp.CppC.pP...xp...PpPGg.
+Bb.P.px.Pp.CppC.pP...xp...PpPGg.
+Bb.P.px.Pp.jCCj.pP...xp...PpPGg.
+Bb.P.px.Pp......pP...xp...PpPGg.
+Bb.P.px.PppppppppP...xp...PpPGg.
+Bb.P.px.PPPPPPPPPP...xp...PpPGg.
+Bb.P.px..............xp...PpPGg.
+Bb.P.pxxxxxxxxxxxxxxxxp...PpPGg.
+BB.P.pppppppppppppppppp...PpPGG.
+.PpP......................PpPpP.
+.PpPPPPPPPPPPPPPPPPPPPPPPPPPPpP.
+.PppppppppppppppppppppppppppppP.
+.PPPPPPPPPPPPPPPPPPPPPPPPPPPPPP.
+................................
+................................
+................................
+................................
+................................
+................................

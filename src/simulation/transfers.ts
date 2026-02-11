@@ -1,6 +1,7 @@
 import { Building, ItemType, Direction } from '../types';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
 import { getRecipe } from '../data/recipes';
+import { getResearchRecipe } from '../data/research';
 import {
   getBufferTotal,
   addToBuffer,
@@ -167,6 +168,11 @@ export function canAcceptItem(building: Building, itemType: ItemType): boolean {
       const recipe = getRecipe(building.selectedRecipe);
       if (!recipe) return false;
       return recipe.inputs.has(itemType);
+    case 'arcane_study':
+      if (!building.selectedRecipe) return false;
+      const researchRecipe = getResearchRecipe(building.selectedRecipe);
+      if (!researchRecipe) return false;
+      return researchRecipe.input === itemType;
     default:
       return false;
   }

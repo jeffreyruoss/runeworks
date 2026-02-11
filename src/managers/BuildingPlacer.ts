@@ -162,6 +162,8 @@ export class BuildingPlacer {
       selectedRecipe = 'purify_arcstone';
     } else if (selectedBuilding === 'workbench') {
       selectedRecipe = 'forge_cogwheel';
+    } else if (selectedBuilding === 'arcane_study') {
+      selectedRecipe = 'study_arcane_ingot';
     }
 
     const building: Building = {

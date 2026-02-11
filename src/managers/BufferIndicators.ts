@@ -28,7 +28,7 @@ export class BufferIndicators {
       const outputCount = getBufferTotal(building.outputBuffer);
 
       const shouldShow =
-        (inputCount > 0 || outputCount > 0) && (showAll || building === cursorBuilding);
+        showAll || (building === cursorBuilding && (inputCount > 0 || outputCount > 0));
 
       if (shouldShow) {
         const def = BUILDING_DEFINITIONS[building.type];

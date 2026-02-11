@@ -4,10 +4,14 @@
 
 ## Next
 
-Now that we have 4.6, code review everything again and ensure it is all 4.6 friendly
+docs/mana-system.md
+Since the code has changed a bit, please check if we need to update the plan.
 
-"r" for research
-someway to gain research points
+Should we not allow non-quarry buildings on quarriable researches?
+
+In key commands, let's separate build mode from regular mode.
+
+Now that we have 4.6, code review everything again and ensure it is all 4.6 friendly
 
 How can we improve CLAUDE.md for this project
 

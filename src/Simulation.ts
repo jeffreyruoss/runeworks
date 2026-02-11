@@ -2,7 +2,14 @@ import { Building, ItemType, Position, ResourcePatch, TerrainType, SimulationSta
 import { BUILDING_DEFINITIONS } from './data/buildings';
 import { getRecipe } from './data/recipes';
 import { GRID_WIDTH, GRID_HEIGHT, MS_PER_TICK, QUARRY_TICKS_PER_ORE } from './config';
-import { getBufferTotal, addToBuffer, consumeIngredients, hasIngredients } from './utils';
+import {
+  getBufferTotal,
+  addToBuffer,
+  consumeIngredients,
+  hasIngredients,
+  removeFromBuffer,
+} from './utils';
+import { getResearchRecipe } from './data/research';
 import { TransferSystem } from './simulation/transfers';
 import { ResourcePatchManager } from './terrain/ResourcePatchManager';
 import { QUARRIABLE_TERRAIN } from './data/terrain';
@@ -28,6 +35,10 @@ export class Simulation {
   // Callbacks
   public onItemProduced?: (item: ItemType, count: number) => void;
   public onStateChanged?: (state: SimulationState) => void;
+  public onResearchPointsProduced?: (rp: number) => void;
+
+  // Research upgrade hooks (set by GameScene)
+  public getUpgrades?: () => { bufferBonus: number; craftSpeedMultiplier: number };
 
   constructor() {
     this.state = {
@@ -183,14 +194,25 @@ export class Simulation {
         break;
       case 'chest':
         break;
+      case 'arcane_study':
+        this.updateArcaneStudy(building);
+        break;
     }
+  }
+
+  private getBufferBonus(): number {
+    return this.getUpgrades?.().bufferBonus ?? 0;
+  }
+
+  private getCraftSpeedMultiplier(): number {
+    return this.getUpgrades?.().craftSpeedMultiplier ?? 1;
   }
 
   private updateQuarry(building: Building): void {
     const def = BUILDING_DEFINITIONS.quarry;
 
     const outputCount = getBufferTotal(building.outputBuffer);
-    if (outputCount >= def.outputBufferSize) {
+    if (outputCount >= def.outputBufferSize + this.getBufferBonus()) {
       building.ticksBlocked++;
       return;
     }
@@ -233,7 +255,7 @@ export class Simulation {
     }
 
     const outputCount = getBufferTotal(building.outputBuffer);
-    if (outputCount >= def.outputBufferSize) {
+    if (outputCount >= def.outputBufferSize + this.getBufferBonus()) {
       building.ticksBlocked++;
       return;
     }
@@ -247,7 +269,9 @@ export class Simulation {
     }
 
     building.craftProgress++;
-    if (building.craftProgress >= recipe.craftTimeTicks) {
+    if (
+      building.craftProgress >= Math.ceil(recipe.craftTimeTicks * this.getCraftSpeedMultiplier())
+    ) {
       building.craftProgress = 0;
       for (const [item, count] of recipe.outputs) {
         addToBuffer(building.outputBuffer, item, count);
@@ -265,7 +289,7 @@ export class Simulation {
     if (!recipe) return;
 
     const outputCount = getBufferTotal(building.outputBuffer);
-    if (outputCount >= def.outputBufferSize) {
+    if (outputCount >= def.outputBufferSize + this.getBufferBonus()) {
       building.ticksBlocked++;
       return;
     }
@@ -279,12 +303,38 @@ export class Simulation {
     }
 
     building.craftProgress++;
-    if (building.craftProgress >= recipe.craftTimeTicks) {
+    if (
+      building.craftProgress >= Math.ceil(recipe.craftTimeTicks * this.getCraftSpeedMultiplier())
+    ) {
       building.craftProgress = 0;
       for (const [item, count] of recipe.outputs) {
         addToBuffer(building.outputBuffer, item, count);
         this.recordProduction(item, count);
       }
+    }
+  }
+
+  private updateArcaneStudy(building: Building): void {
+    if (!building.selectedRecipe) return;
+
+    const recipe = getResearchRecipe(building.selectedRecipe);
+    if (!recipe) return;
+
+    if (building.craftProgress === 0) {
+      const available = building.inputBuffer.get(recipe.input) || 0;
+      if (available < recipe.inputCount) {
+        building.ticksStarved++;
+        return;
+      }
+      removeFromBuffer(building.inputBuffer, recipe.input, recipe.inputCount);
+    }
+
+    building.craftProgress++;
+    if (
+      building.craftProgress >= Math.ceil(recipe.craftTimeTicks * this.getCraftSpeedMultiplier())
+    ) {
+      building.craftProgress = 0;
+      this.onResearchPointsProduced?.(recipe.rpYield);
     }
   }
 

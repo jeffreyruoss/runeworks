@@ -20,6 +20,7 @@ export interface GameKeys {
   M: Phaser.Input.Keyboard.Key;
   O: Phaser.Input.Keyboard.Key;
   G: Phaser.Input.Keyboard.Key;
+  A: Phaser.Input.Keyboard.Key;
   ESC: Phaser.Input.Keyboard.Key;
   SHIFT: Phaser.Input.Keyboard.Key;
   ENTER: Phaser.Input.Keyboard.Key;
@@ -78,6 +79,7 @@ export class InputManager {
       M: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.M),
       O: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O),
       G: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.G),
+      A: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
       ESC: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC),
       SHIFT: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT),
       ENTER: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER),
@@ -103,6 +105,7 @@ export class InputManager {
     // GameScene intercepts them when buildModeActive is true
     this.keys.Q.on('down', () => cb.selectBuilding('quarry'));
     this.keys.W.on('down', () => cb.selectBuilding('workbench'));
+    this.keys.A.on('down', () => cb.selectBuilding('arcane_study'));
 
     // Actions
     this.keys.SPACE.on('down', () => cb.handleAction());

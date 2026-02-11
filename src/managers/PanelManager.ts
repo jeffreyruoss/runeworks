@@ -1,6 +1,6 @@
 import { StageManager } from './StageManager';
 
-export type PanelType = 'menu' | 'inventory' | 'guide' | 'objectives';
+export type PanelType = 'menu' | 'inventory' | 'guide' | 'objectives' | 'research';
 
 /**
  * Manages open/close state and mutual exclusion for UI panels.
@@ -10,6 +10,7 @@ export class PanelManager {
   private menuOpen = false;
   private inventoryOpen = false;
   private guideOpen = false;
+  private researchOpen = false;
 
   private stageManager: StageManager;
 
@@ -27,6 +28,10 @@ export class PanelManager {
 
   isGuideOpen(): boolean {
     return this.guideOpen;
+  }
+
+  isResearchOpen(): boolean {
+    return this.researchOpen;
   }
 
   isObjectivesOpen(): boolean {
@@ -56,6 +61,11 @@ export class PanelManager {
     this.guideOpen = !this.guideOpen;
   }
 
+  toggleResearch(): void {
+    if (!this.researchOpen) this.closeAll();
+    this.researchOpen = !this.researchOpen;
+  }
+
   toggleObjectives(): void {
     if (!this.stageManager.isObjectivesOpen()) this.closeAll();
     this.stageManager.toggleObjectives();
@@ -66,6 +76,10 @@ export class PanelManager {
     if (this.menuOpen) {
       this.menuOpen = false;
       return 'menu';
+    }
+    if (this.researchOpen) {
+      this.researchOpen = false;
+      return 'research';
     }
     if (this.guideOpen) {
       this.guideOpen = false;
@@ -86,6 +100,7 @@ export class PanelManager {
     this.menuOpen = false;
     this.inventoryOpen = false;
     this.guideOpen = false;
+    this.researchOpen = false;
     if (this.stageManager.isObjectivesOpen()) this.stageManager.closeObjectives();
   }
 }

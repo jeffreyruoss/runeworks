@@ -1,6 +1,6 @@
 {
   "frames": {
-    "quarry": {
+    "arcane_study": {
       "frame": {
         "x": 0,
         "y": 0,
@@ -18,7 +18,7 @@
         "h": 32
       }
     },
-    "forge": {
+    "quarry": {
       "frame": {
         "x": 0,
         "y": 32,
@@ -36,7 +36,7 @@
         "h": 32
       }
     },
-    "workbench": {
+    "forge": {
       "frame": {
         "x": 0,
         "y": 64,
@@ -54,7 +54,7 @@
         "h": 32
       }
     },
-    "cursor_2x2": {
+    "workbench": {
       "frame": {
         "x": 0,
         "y": 96,
@@ -72,7 +72,7 @@
         "h": 32
       }
     },
-    "favicon": {
+    "cursor_2x2": {
       "frame": {
         "x": 0,
         "y": 128,
@@ -90,43 +90,25 @@
         "h": 32
       }
     },
-    "chest": {
+    "favicon": {
       "frame": {
         "x": 0,
         "y": 160,
-        "w": 16,
-        "h": 16
+        "w": 32,
+        "h": 32
       },
       "sourceSize": {
-        "w": 16,
-        "h": 16
+        "w": 32,
+        "h": 32
       },
       "spriteSourceSize": {
         "x": 0,
         "y": 0,
-        "w": 16,
-        "h": 16
+        "w": 32,
+        "h": 32
       }
     },
-    "ground": {
-      "frame": {
-        "x": 0,
-        "y": 176,
-        "w": 16,
-        "h": 16
-      },
-      "sourceSize": {
-        "w": 16,
-        "h": 16
-      },
-      "spriteSourceSize": {
-        "x": 0,
-        "y": 0,
-        "w": 16,
-        "h": 16
-      }
-    },
-    "arcstone_vein": {
+    "chest": {
       "frame": {
         "x": 0,
         "y": 192,
@@ -144,7 +126,7 @@
         "h": 16
       }
     },
-    "sunite_vein": {
+    "ground": {
       "frame": {
         "x": 0,
         "y": 208,
@@ -162,7 +144,7 @@
         "h": 16
       }
     },
-    "cursor": {
+    "arcstone_vein": {
       "frame": {
         "x": 0,
         "y": 224,
@@ -180,7 +162,7 @@
         "h": 16
       }
     },
-    "cursor_valid": {
+    "sunite_vein": {
       "frame": {
         "x": 0,
         "y": 240,
@@ -198,7 +180,7 @@
         "h": 16
       }
     },
-    "cursor_invalid": {
+    "cursor": {
       "frame": {
         "x": 0,
         "y": 256,
@@ -216,79 +198,43 @@
         "h": 16
       }
     },
-    "arcstone": {
+    "cursor_valid": {
       "frame": {
         "x": 0,
         "y": 272,
-        "w": 8,
-        "h": 8
+        "w": 16,
+        "h": 16
       },
       "sourceSize": {
-        "w": 8,
-        "h": 8
+        "w": 16,
+        "h": 16
       },
       "spriteSourceSize": {
         "x": 0,
         "y": 0,
-        "w": 8,
-        "h": 8
+        "w": 16,
+        "h": 16
       }
     },
-    "sunite": {
-      "frame": {
-        "x": 0,
-        "y": 280,
-        "w": 8,
-        "h": 8
-      },
-      "sourceSize": {
-        "w": 8,
-        "h": 8
-      },
-      "spriteSourceSize": {
-        "x": 0,
-        "y": 0,
-        "w": 8,
-        "h": 8
-      }
-    },
-    "arcane_ingot": {
+    "cursor_invalid": {
       "frame": {
         "x": 0,
         "y": 288,
-        "w": 8,
-        "h": 8
+        "w": 16,
+        "h": 16
       },
       "sourceSize": {
-        "w": 8,
-        "h": 8
+        "w": 16,
+        "h": 16
       },
       "spriteSourceSize": {
         "x": 0,
         "y": 0,
-        "w": 8,
-        "h": 8
+        "w": 16,
+        "h": 16
       }
     },
-    "sun_ingot": {
-      "frame": {
-        "x": 0,
-        "y": 296,
-        "w": 8,
-        "h": 8
-      },
-      "sourceSize": {
-        "w": 8,
-        "h": 8
-      },
-      "spriteSourceSize": {
-        "x": 0,
-        "y": 0,
-        "w": 8,
-        "h": 8
-      }
-    },
-    "cogwheel": {
+    "arcstone": {
       "frame": {
         "x": 0,
         "y": 304,
@@ -306,7 +252,7 @@
         "h": 8
       }
     },
-    "thread": {
+    "sunite": {
       "frame": {
         "x": 0,
         "y": 312,
@@ -324,7 +270,7 @@
         "h": 8
       }
     },
-    "rune": {
+    "arcane_ingot": {
       "frame": {
         "x": 0,
         "y": 320,
@@ -342,7 +288,7 @@
         "h": 8
       }
     },
-    "arrow_right": {
+    "sun_ingot": {
       "frame": {
         "x": 0,
         "y": 328,
@@ -360,7 +306,7 @@
         "h": 8
       }
     },
-    "arrow_left": {
+    "cogwheel": {
       "frame": {
         "x": 0,
         "y": 336,
@@ -378,7 +324,7 @@
         "h": 8
       }
     },
-    "arrow_up": {
+    "thread": {
       "frame": {
         "x": 0,
         "y": 344,
@@ -396,10 +342,82 @@
         "h": 8
       }
     },
-    "arrow_down": {
+    "rune": {
       "frame": {
         "x": 0,
         "y": 352,
+        "w": 8,
+        "h": 8
+      },
+      "sourceSize": {
+        "w": 8,
+        "h": 8
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 8,
+        "h": 8
+      }
+    },
+    "arrow_right": {
+      "frame": {
+        "x": 0,
+        "y": 360,
+        "w": 8,
+        "h": 8
+      },
+      "sourceSize": {
+        "w": 8,
+        "h": 8
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 8,
+        "h": 8
+      }
+    },
+    "arrow_left": {
+      "frame": {
+        "x": 0,
+        "y": 368,
+        "w": 8,
+        "h": 8
+      },
+      "sourceSize": {
+        "w": 8,
+        "h": 8
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 8,
+        "h": 8
+      }
+    },
+    "arrow_up": {
+      "frame": {
+        "x": 0,
+        "y": 376,
+        "w": 8,
+        "h": 8
+      },
+      "sourceSize": {
+        "w": 8,
+        "h": 8
+      },
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 8,
+        "h": 8
+      }
+    },
+    "arrow_down": {
+      "frame": {
+        "x": 0,
+        "y": 384,
         "w": 8,
         "h": 8
       },

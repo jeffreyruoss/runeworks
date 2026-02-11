@@ -4,11 +4,13 @@ import {
   CANVAS_HEIGHT,
   COLORS,
   BUILDING_COSTS,
-  RESOURCE_ABBREVIATIONS,
+  RESOURCE_DISPLAY_NAMES,
 } from '../config';
 import { GameUIState, PlayerResources } from '../types';
 import { ObjectivesPanel } from '../managers/ObjectivesPanel';
 import { GuidePanel } from '../managers/GuidePanel';
+import { ResearchPanel } from '../managers/ResearchPanel';
+import { ResearchManager } from '../managers/ResearchManager';
 import { canAfford } from '../utils';
 
 export class UIScene extends Phaser.Scene {
@@ -32,6 +34,10 @@ export class UIScene extends Phaser.Scene {
 
   // Guide panel
   private guidePanel!: GuidePanel;
+
+  // Research panel
+  private researchPanel!: ResearchPanel;
+  private researchManager!: ResearchManager;
 
   constructor() {
     super({ key: 'UIScene' });
@@ -63,7 +69,7 @@ export class UIScene extends Phaser.Scene {
     this.simStatusText.setOrigin(0.5, 0);
 
     // Resources (top-right area)
-    this.resourcesText = this.add.text(CANVAS_WIDTH - 200, 2, '', {
+    this.resourcesText = this.add.text(CANVAS_WIDTH - 280, 2, '', {
       fontFamily: 'monospace',
       fontSize: '10px',
       color: '#aaaaaa',
@@ -110,7 +116,7 @@ export class UIScene extends Phaser.Scene {
     this.add.text(
       4,
       CANVAS_HEIGHT - 12,
-      'ESDF:Move  Spc:Build  Del:Rmv  R:Rot  P:Pause  H:Stats  O:Goals  G:Guide  M:Menu  X:Back',
+      'ESDF:Move  Spc:Build  Del:Rmv  R:Rot/Research  P:Pause  H:Stats  O:Goals  G:Guide  M:Menu',
       {
         fontFamily: 'monospace',
         fontSize: '8px',
@@ -130,9 +136,15 @@ export class UIScene extends Phaser.Scene {
     // Create guide panel
     this.guidePanel = new GuidePanel(this);
 
+    // Get shared research manager from GameScene via registry
+    this.researchManager = this.registry.get('researchManager') as ResearchManager;
+    this.researchPanel = new ResearchPanel(this);
+
     // Listen for events from GameScene
     const gameScene = this.scene.get('GameScene');
     gameScene.events.on('gameStateChanged', this.onGameStateChanged, this);
+    gameScene.events.on('researchNavigate', this.onResearchNavigate, this);
+    gameScene.events.on('researchUnlock', this.onResearchUnlock, this);
   }
 
   private createMenuPanel(): void {
@@ -164,7 +176,7 @@ export class UIScene extends Phaser.Scene {
       'B - Build menu',
       'Space/Enter - Gather/Build',
       'Backspace - Demolish',
-      'R - Rotate',
+      'R - Rotate / Research',
       'P - Pause/Resume',
       'H - Toggle stats',
       'C - Cycle recipe',
@@ -262,11 +274,12 @@ export class UIScene extends Phaser.Scene {
       const affordable = canAfford(state.playerResources, cost);
       const costStr = this.formatCost(cost);
 
+      const displayName = state.selectedBuilding.replace(/_/g, ' ').toUpperCase();
       if (affordable) {
-        this.selectedText.setText(`${state.selectedBuilding.toUpperCase()} (${costStr})`);
+        this.selectedText.setText(`${displayName} (${costStr})`);
         this.selectedText.setColor('#00ff00');
       } else {
-        this.selectedText.setText(`${state.selectedBuilding.toUpperCase()} (${costStr})`);
+        this.selectedText.setText(`${displayName} (${costStr})`);
         this.selectedText.setColor('#ff6666');
       }
     } else {
@@ -276,19 +289,26 @@ export class UIScene extends Phaser.Scene {
 
     // Hotbar - dynamic based on build mode
     if (state.buildModeActive) {
-      this.hotbarText.setText('[Q] Quarry  [F] Forge  [W] Workbench  [C] Chest');
+      const entries: string[] = ['[Q] Quarry', '[F] Forge', '[W] Workbench', '[C] Chest'];
+      if (this.researchManager.isBuildingUnlocked('arcane_study')) {
+        entries.push('[A] Study');
+      }
+      this.hotbarText.setText(entries.join('  '));
       this.hotbarText.setColor('#ffffff');
     } else {
       this.hotbarText.setText('[B] Build');
       this.hotbarText.setColor('#aaaaaa');
     }
 
+    // RP display (after sim status)
+    const rpStr = state.researchPoints > 0 ? `  RP:${state.researchPoints}` : '';
+
     // Simulation status with play/pause icon
     if (state.simPaused) {
-      this.simStatusText.setText(`║ ${state.simSpeed}x`);
+      this.simStatusText.setText(`║ ${state.simSpeed}x${rpStr}`);
       this.simStatusText.setColor('#ffff00');
     } else {
-      this.simStatusText.setText(`► ${state.simSpeed}x`);
+      this.simStatusText.setText(`► ${state.simSpeed}x${rpStr}`);
       this.simStatusText.setColor('#00ffff');
     }
 
@@ -313,29 +333,47 @@ export class UIScene extends Phaser.Scene {
     // Guide panel visibility
     this.guidePanel.setVisible(state.guideOpen);
 
+    // Research panel visibility
+    this.researchPanel.setVisible(state.researchOpen);
+    if (state.researchOpen) {
+      this.researchPanel.update(this.researchManager);
+    }
+
     // Objectives and stage complete (delegated to manager)
     this.objectivesPanel.update(state);
   }
 
   private formatResources(res: PlayerResources): string {
     const parts: string[] = [];
-    if (res.stone) parts.push(`St:${res.stone}`);
-    if (res.wood) parts.push(`Wd:${res.wood}`);
-    if (res.iron) parts.push(`Fe:${res.iron}`);
-    if (res.clay) parts.push(`Cl:${res.clay}`);
-    if (res.crystal_shard) parts.push(`Cr:${res.crystal_shard}`);
+    if (res.stone) parts.push(`Stone:${res.stone}`);
+    if (res.wood) parts.push(`Wood:${res.wood}`);
+    if (res.iron) parts.push(`Iron:${res.iron}`);
+    if (res.clay) parts.push(`Clay:${res.clay}`);
+    if (res.crystal_shard) parts.push(`Crystal:${res.crystal_shard}`);
     return parts.join(' ') || 'No resources';
   }
 
   private formatCost(cost: Partial<PlayerResources>): string {
     return Object.entries(cost)
       .filter(([, v]) => v && v > 0)
-      .map(([k, v]) => `${RESOURCE_ABBREVIATIONS[k] || k}:${v}`)
+      .map(([k, v]) => `${RESOURCE_DISPLAY_NAMES[k] || k}:${v}`)
       .join(' ');
+  }
+
+  private onResearchNavigate(dx: number, dy: number): void {
+    this.researchPanel.navigate(dx, dy);
+    this.researchPanel.update(this.researchManager);
+  }
+
+  private onResearchUnlock(): void {
+    this.researchPanel.tryUnlock(this.researchManager);
+    this.researchPanel.update(this.researchManager);
   }
 
   shutdown(): void {
     const gameScene = this.scene.get('GameScene');
     gameScene.events.off('gameStateChanged', this.onGameStateChanged, this);
+    gameScene.events.off('researchNavigate', this.onResearchNavigate, this);
+    gameScene.events.off('researchUnlock', this.onResearchUnlock, this);
   }
 }

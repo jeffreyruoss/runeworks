@@ -4,11 +4,12 @@ import {
   CANVAS_HEIGHT,
   BUILDING_COSTS,
   TICKS_PER_SECOND,
-  RESOURCE_ABBREVIATIONS,
+  RESOURCE_DISPLAY_NAMES,
 } from '../config';
 import { ITEM_DISPLAY_NAMES } from '../data/stages';
 import { TERRAIN_DISPLAY_NAMES, TERRAIN_COLORS } from '../data/terrain';
 import { RECIPES } from '../data/recipes';
+import { RESEARCH_RECIPES } from '../data/research';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
 import { BuildingType, ItemType, TerrainType } from '../types';
 
@@ -86,6 +87,7 @@ export class GuidePanel {
     this.createResourcesSection(colX[0], topY);
     this.createItemsSection(colX[1], topY);
     this.createBuildingsSection(colX[2], topY);
+    this.createResearchRecipesSection(colX[1], topY + 185);
 
     // Close hint
     const hint = this.scene.add.text(0, panelH / 2 - 12, 'Press G, X, or Esc to close', {
@@ -212,13 +214,16 @@ export class GuidePanel {
     divider.lineBetween(x, y + 12, x + 170, y + 12);
     this.container.add(divider);
 
-    const buildings: BuildingType[] = ['quarry', 'forge', 'workbench', 'chest'];
+    const buildings: BuildingType[] = ['quarry', 'forge', 'workbench', 'chest', 'arcane_study'];
 
     let rowY = y + 18;
     for (const bType of buildings) {
       const def = BUILDING_DEFINITIONS[bType];
       const cost = BUILDING_COSTS[bType];
-      const name = bType.charAt(0).toUpperCase() + bType.slice(1);
+      const name = bType
+        .split('_')
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' ');
 
       // Thumbnail: building sprite scaled down
       const sprite = this.scene.add.sprite(x + 7, rowY + 7, 'sprites', bType);
@@ -235,7 +240,7 @@ export class GuidePanel {
       // Size + cost
       const costStr = Object.entries(cost)
         .filter(([, v]) => v && v > 0)
-        .map(([k, v]) => `${v}${RESOURCE_ABBREVIATIONS[k] || k}`)
+        .map(([k, v]) => `${v} ${RESOURCE_DISPLAY_NAMES[k] || k}`)
         .join(' ');
       const sizeStr = `${def.width}x${def.height}`;
 
@@ -252,6 +257,8 @@ export class GuidePanel {
         ioStr = 'Extracts from veins -> output';
       } else if (bType === 'chest') {
         ioStr = 'Storage (all sides)';
+      } else if (bType === 'arcane_study') {
+        ioStr = 'Consumes items -> Research Points';
       } else {
         const inSides = def.inputSides.join('/');
         const outSides = def.outputSides.join('/');
@@ -266,6 +273,37 @@ export class GuidePanel {
       this.container.add(ioText);
 
       rowY += 34;
+    }
+  }
+
+  private createResearchRecipesSection(x: number, y: number): void {
+    const header = this.scene.add.text(x, y, 'RESEARCH (Arcane Study)', {
+      fontFamily: 'monospace',
+      fontSize: '10px',
+      color: '#cc88ff',
+    });
+    this.container.add(header);
+
+    const divider = this.scene.add.graphics();
+    divider.lineStyle(1, 0x442266);
+    divider.lineBetween(x, y + 12, x + 170, y + 12);
+    this.container.add(divider);
+
+    let rowY = y + 16;
+    for (const recipe of RESEARCH_RECIPES) {
+      const timeStr = `${recipe.craftTimeTicks / TICKS_PER_SECOND}s`;
+      const text = this.scene.add.text(
+        x,
+        rowY,
+        `${recipe.inputCount} ${ITEM_DISPLAY_NAMES[recipe.input] || recipe.input} -> ${recipe.rpYield} RP (${timeStr})`,
+        {
+          fontFamily: 'monospace',
+          fontSize: '7px',
+          color: '#666666',
+        }
+      );
+      this.container.add(text);
+      rowY += 12;
     }
   }
 }
