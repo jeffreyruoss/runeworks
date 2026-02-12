@@ -27,7 +27,8 @@ npm run sprites   # Regenerate sprite atlas from ASCII definitions
 
 - **Simulation** (`src/Simulation.ts`) - Tick-based deterministic engine (20 ticks/sec). Handles production phase (buildings process recipes). Delegates transfer to TransferSystem.
 - **TransferSystem** (`src/simulation/transfers.ts`) - Round-robin item distribution between adjacent buildings
-- **Building Definitions** (`src/data/buildings.ts`) - Specs for Quarry, Forge, Workbench, Chest
+- **ManaSystem** (`src/simulation/ManaSystem.ts`) - Mana power network: BFS connectivity, speed multipliers, accumulator-based speed gating
+- **Building Definitions** (`src/data/buildings.ts`) - Specs for all buildings (Quarry, Forge, Workbench, Chest, Arcane Study, Mana Well/Obelisk/Tower)
 - **Recipes** (`src/data/recipes.ts`) - Crafting recipes with input/output mappings and timing
 
 ### Managers (used by GameScene)
@@ -57,8 +58,9 @@ ASCII art in `assets/sprites/src/*.txt` → `tools/spritegen/generate.js` → PN
 ## Keyboard Controls (GameScene)
 
 - **ESDF**: Move cursor (+ Shift for 5-tile jumps)
-- **B**: Toggle build menu (shows Q/F/W/C building options)
-- **Q/F/W/C** (build mode): Select Quarry/Forge/Workbench/Chest
+- **B**: Toggle build menu (shows Q/F/W/C/A/M/O/T building options)
+- **Q/F/W/C/A** (build mode): Select Quarry/Forge/Workbench/Chest/Arcane Study
+- **M/O/T** (build mode): Select Mana Well/Mana Obelisk/Mana Tower
 - **Space/Enter**: Gather stone / Construct building
 - **Backspace**: Demolish building
 - **R**: Rotate building
@@ -270,7 +272,7 @@ npm run dev                # Game loads without console errors
 **Current items/buildings:**
 
 - Items: arcstone, sunite, arcane_ingot, sun_ingot, cogwheel, thread, rune, stone, wood, iron, clay, crystal_shard
-- Buildings: quarry (2×2), forge (2×2), workbench (2×2), chest (1×1)
+- Buildings: quarry (2×2), forge (2×2), workbench (2×2), chest (1×1), arcane_study (2×2), mana_well (1×1), mana_obelisk (2×2), mana_tower (1×1)
 
 ## Modularity Guidelines
 

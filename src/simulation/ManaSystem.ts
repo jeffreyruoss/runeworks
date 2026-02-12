@@ -25,10 +25,6 @@ export class ManaSystem {
     return this.totalConsumption;
   }
 
-  isConnected(buildingId: number): boolean {
-    return this.connectedSet.has(buildingId);
-  }
-
   /**
    * Recompute mana network connectivity and speed multipliers for all buildings.
    * Called once per tick before production phase.
@@ -37,18 +33,6 @@ export class ManaSystem {
     this.computeConnectivity(buildings);
     this.computeManaBalance(buildings);
     this.applySpeedMultipliers(buildings);
-  }
-
-  /**
-   * Get the speed multiplier for a building based on mana network state.
-   * Returns 1.0 for free buildings, trickle (0.05) for disconnected powered, or scaled value.
-   */
-  getSpeedMultiplier(building: Building): number {
-    const def = BUILDING_DEFINITIONS[building.type];
-    if (def.powerCost === 0) return 1;
-    if (!building.connected) return 0.05;
-    if (this.totalConsumption === 0) return 1;
-    return Math.min(1, this.totalProduction / this.totalConsumption);
   }
 
   private computeConnectivity(buildings: Building[]): void {
@@ -110,8 +94,7 @@ export class ManaSystem {
     const sourceDef = BUILDING_DEFINITIONS[source.type];
     const targetDef = BUILDING_DEFINITIONS[target.type];
 
-    // Find closest distance between any tile of source and any tile of target
-    // Use center-to-center of each building for simplicity
+    // Approximate range using center-to-center Chebyshev distance
     const srcCx = source.x + sourceDef.width / 2;
     const srcCy = source.y + sourceDef.height / 2;
     const tgtCx = target.x + targetDef.width / 2;
@@ -149,10 +132,10 @@ export class ManaSystem {
 
       if (!b.connected) {
         // Disconnected: trickle at 5%
-        b.manaAccumulator += 5; // 5 per tick out of 100
+        b.manaAccumulator = Math.min(b.manaAccumulator + 5, 200);
       } else {
         // Connected: scale by mana ratio (0-100%)
-        b.manaAccumulator += Math.round(multiplier * 100);
+        b.manaAccumulator = Math.min(b.manaAccumulator + Math.round(multiplier * 100), 200);
       }
     }
   }

@@ -6,8 +6,8 @@ import {
   BUILDING_COSTS,
   RESOURCE_DISPLAY_NAMES,
 } from '../config';
-import { BuildingType, GameUIState, PlayerResources } from '../types';
-import { getStage } from '../data/stages';
+import { GameUIState, PlayerResources } from '../types';
+
 import { ObjectivesPanel } from '../managers/ObjectivesPanel';
 import { GuidePanel } from '../managers/GuidePanel';
 import { ResearchPanel } from '../managers/ResearchPanel';
@@ -272,13 +272,13 @@ export class UIScene extends Phaser.Scene {
       if (this.researchManager.isBuildingUnlocked('arcane_study')) {
         entries.push('[A] Study');
       }
-      if (this.isBuildingUnlockedByStage('mana_well', state.currentStage)) {
+      if (state.unlockedManaBuildings.includes('mana_well')) {
         entries.push('[M] Well');
       }
-      if (this.isBuildingUnlockedByStage('mana_obelisk', state.currentStage)) {
+      if (state.unlockedManaBuildings.includes('mana_obelisk')) {
         entries.push('[O] Obelisk');
       }
-      if (this.isBuildingUnlockedByStage('mana_tower', state.currentStage)) {
+      if (state.unlockedManaBuildings.includes('mana_tower')) {
         entries.push('[T] Tower');
       }
       this.hotbarText.setText(entries.join('  '));
@@ -352,14 +352,6 @@ export class UIScene extends Phaser.Scene {
       .filter(([, v]) => v && v > 0)
       .map(([k, v]) => `${RESOURCE_DISPLAY_NAMES[k] || k}:${v}`)
       .join(' ');
-  }
-
-  private isBuildingUnlockedByStage(type: BuildingType, currentStage: number): boolean {
-    for (let i = 1; i <= currentStage; i++) {
-      const stage = getStage(i);
-      if (stage?.unlockedBuildings?.includes(type)) return true;
-    }
-    return false;
   }
 
   private onResearchNavigate(dx: number, dy: number): void {

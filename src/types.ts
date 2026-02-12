@@ -136,4 +136,5 @@ export interface GameUIState {
   researchPoints: number;
   manaProduction: number;
   manaConsumption: number;
+  unlockedManaBuildings: BuildingType[];
 }

@@ -272,7 +272,7 @@ export class GameScene extends Phaser.Scene {
       return;
     }
     if (this.selectedBuilding) {
-      this.buildingPlacer.rotate();
+      this.buildingPlacer.rotate(this.selectedBuilding);
     } else {
       this.toggleResearch();
     }
@@ -476,6 +476,9 @@ export class GameScene extends Phaser.Scene {
       researchPoints: this.researchManager.getResearchPoints(),
       manaProduction: state.manaProduction,
       manaConsumption: state.manaConsumption,
+      unlockedManaBuildings: (['mana_well', 'mana_obelisk', 'mana_tower'] as BuildingType[]).filter(
+        (t) => this.stageManager.isBuildingUnlockedByStage(t)
+      ),
     });
   }
 

@@ -269,9 +269,7 @@ export class GuidePanel {
         ioStr = 'Storage (all sides)';
       } else if (bType === 'arcane_study') {
         ioStr = 'Consumes items -> Research Points';
-      } else if (bType === 'mana_well') {
-        ioStr = `Generates ${def.manaProduction} mana, range ${def.manaRadius}`;
-      } else if (bType === 'mana_obelisk') {
+      } else if (def.manaProduction > 0) {
         ioStr = `Generates ${def.manaProduction} mana, range ${def.manaRadius}`;
       } else if (bType === 'mana_tower') {
         ioStr = `Extends mana network, range ${def.manaRadius}`;

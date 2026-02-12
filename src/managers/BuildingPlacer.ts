@@ -22,7 +22,12 @@ export class BuildingPlacer {
     return this.ghostRotation;
   }
 
-  rotate(): void {
+  rotate(selectedBuilding: BuildingType | null): void {
+    if (selectedBuilding) {
+      const def = BUILDING_DEFINITIONS[selectedBuilding];
+      // Mana buildings have no rotation (no input/output sides)
+      if (def.inputSides.length === 0 && def.outputSides.length === 0) return;
+    }
     this.ghostRotation = (this.ghostRotation + 1) % 4;
     if (this.ghostSprite) {
       this.ghostSprite.setAngle(this.ghostRotation * 90);
@@ -196,7 +201,7 @@ export class BuildingPlacer {
       selectedBuilding
     );
     sprite.setOrigin(0.5, 0.5);
-    sprite.setAngle(this.ghostRotation * 90);
+    sprite.setAngle(building.rotation * 90);
     sprite.setDepth(10);
 
     return { building, sprite };
