@@ -5,7 +5,6 @@ import {
   COLORS,
   BUILDING_COSTS,
   RESOURCE_DISPLAY_NAMES,
-  DEFAULT_ZOOM,
 } from '../config';
 import { GameUIState, PlayerResources } from '../types';
 
@@ -13,7 +12,7 @@ import { ObjectivesPanel } from '../managers/ObjectivesPanel';
 import { GuidePanel } from '../managers/GuidePanel';
 import { ResearchPanel } from '../managers/ResearchPanel';
 import { ResearchManager } from '../managers/ResearchManager';
-import { canAfford, makeText } from '../utils';
+import { canAfford, makeText, setupCamera } from '../utils';
 
 export class UIScene extends Phaser.Scene {
   private selectedText!: Phaser.GameObjects.Text;
@@ -44,10 +43,7 @@ export class UIScene extends Phaser.Scene {
   }
 
   create(): void {
-    // Zoom camera so world coords stay at 640x400 while canvas is at full resolution
-    this.cameras.main.setZoom(DEFAULT_ZOOM);
-    this.cameras.main.setBounds(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    this.cameras.main.centerOn(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+    setupCamera(this);
 
     const graphics = this.add.graphics();
 

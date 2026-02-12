@@ -8,7 +8,7 @@ import {
   TerrainType,
 } from './types';
 import { BUILDING_DEFINITIONS } from './data/buildings';
-import { TEXT_RESOLUTION, UI_FONT } from './config';
+import { TEXT_RESOLUTION, UI_FONT, DEFAULT_ZOOM, CANVAS_WIDTH, CANVAS_HEIGHT } from './config';
 import { TERRAIN_DISPLAY_NAMES } from './data/terrain';
 import { getRecipe } from './data/recipes';
 import { getResearchRecipe } from './data/research';
@@ -137,6 +137,16 @@ export function deductCost(resources: PlayerResources, cost: Partial<PlayerResou
       resources[k] -= amount;
     }
   }
+}
+
+/**
+ * Configure a scene's camera for the zoomed rendering approach.
+ * Canvas is at full display resolution; camera zoom keeps world coords at 640x400.
+ */
+export function setupCamera(scene: Phaser.Scene): void {
+  scene.cameras.main.setZoom(DEFAULT_ZOOM);
+  scene.cameras.main.setBounds(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  scene.cameras.main.centerOn(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
 }
 
 /**

@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
-import { CANVAS_WIDTH, CANVAS_HEIGHT, DEFAULT_ZOOM } from '../config';
-import { makeText } from '../utils';
+import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../config';
+import { makeText, setupCamera } from '../utils';
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -8,10 +8,7 @@ export class BootScene extends Phaser.Scene {
   }
 
   preload(): void {
-    // Zoom camera so world coords stay at 640x400
-    this.cameras.main.setZoom(DEFAULT_ZOOM);
-    this.cameras.main.setBounds(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    this.cameras.main.centerOn(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+    setupCamera(this);
 
     const width = CANVAS_WIDTH;
     const height = CANVAS_HEIGHT;
