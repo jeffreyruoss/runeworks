@@ -1,5 +1,13 @@
 import { RESEARCH_NODES, ResearchNode } from '../data/research';
-import { loadResearchData, saveResearchData, ResearchSaveData } from '../data/persistence';
+import {
+  loadResearchData,
+  saveResearchData,
+  clearResearchData,
+  ResearchSaveData,
+} from '../data/persistence';
+
+/** O(1) lookup for research nodes by ID */
+const NODE_MAP: Map<string, ResearchNode> = new Map(RESEARCH_NODES.map((n) => [n.id, n]));
 
 /**
  * Manages research points balance, tech tree unlocks, and persistence.
@@ -28,7 +36,7 @@ export class ResearchManager {
   canUnlock(nodeId: string): boolean {
     if (this.unlockedNodes.has(nodeId)) return false;
 
-    const node = RESEARCH_NODES.find((n) => n.id === nodeId);
+    const node = NODE_MAP.get(nodeId);
     if (!node) return false;
 
     if (this.researchPoints < node.cost) return false;
@@ -41,7 +49,7 @@ export class ResearchManager {
   unlock(nodeId: string): boolean {
     if (!this.canUnlock(nodeId)) return false;
 
-    const node = RESEARCH_NODES.find((n) => n.id === nodeId)!;
+    const node = NODE_MAP.get(nodeId)!;
     this.researchPoints -= node.cost;
     this.unlockedNodes.add(nodeId);
     this.save();
@@ -67,7 +75,6 @@ export class ResearchManager {
 
   /** Base recipes are always available. Research-unlocked recipes require the node. */
   isRecipeUnlocked(recipeId: string): boolean {
-    // Check if any node gates this recipe
     const gatingNode = RESEARCH_NODES.find(
       (n) => n.effect.type === 'unlock_recipe' && n.effect.recipe === recipeId
     );
@@ -76,22 +83,22 @@ export class ResearchManager {
   }
 
   /** Returns active upgrade effects from unlocked nodes. */
-  getActiveUpgrades(): { bufferBonus: number; craftSpeedMultiplier: number } {
+  getActiveUpgrades(): { bufferBonus: number; craftTimeMultiplier: number } {
     let bufferBonus = 0;
-    let craftSpeedMultiplier = 1;
+    let craftTimeMultiplier = 1;
 
     for (const nodeId of this.unlockedNodes) {
-      const node = RESEARCH_NODES.find((n) => n.id === nodeId);
+      const node = NODE_MAP.get(nodeId);
       if (!node) continue;
 
       if (node.effect.type === 'buffer_expansion') {
         bufferBonus += node.effect.amount;
       } else if (node.effect.type === 'overclock') {
-        craftSpeedMultiplier *= node.effect.speedMultiplier;
+        craftTimeMultiplier *= node.effect.craftTimeMultiplier;
       }
     }
 
-    return { bufferBonus, craftSpeedMultiplier };
+    return { bufferBonus, craftTimeMultiplier };
   }
 
   /** Get the state of a specific node for UI display */
@@ -103,6 +110,13 @@ export class ResearchManager {
 
   getNodes(): ResearchNode[] {
     return RESEARCH_NODES;
+  }
+
+  /** Reset all research progress (for new game) */
+  reset(): void {
+    this.researchPoints = 0;
+    this.unlockedNodes.clear();
+    clearResearchData();
   }
 
   private save(): void {

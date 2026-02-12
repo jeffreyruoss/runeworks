@@ -58,7 +58,7 @@ export type ResearchEffect =
   | { type: 'unlock_building'; building: string }
   | { type: 'unlock_recipe'; recipe: string }
   | { type: 'buffer_expansion'; amount: number }
-  | { type: 'overclock'; speedMultiplier: number };
+  | { type: 'overclock'; craftTimeMultiplier: number };
 
 export interface ResearchNode {
   id: string;
@@ -69,6 +69,9 @@ export interface ResearchNode {
   effect: ResearchEffect;
 }
 
+// NOTE: These nodes reference buildings/recipes that don't exist yet (splitter, merger,
+// advanced_forge, quick_smelt, bulk_processing). When adding those, ensure they're wired
+// to the research gating in ResearchManager.isBuildingUnlocked/isRecipeUnlocked.
 export const RESEARCH_NODES: ResearchNode[] = [
   // Buildings branch
   {
@@ -129,7 +132,7 @@ export const RESEARCH_NODES: ResearchNode[] = [
     branch: 'upgrades',
     cost: 30,
     requires: 'buffer_expansion',
-    effect: { type: 'overclock', speedMultiplier: 0.8 },
+    effect: { type: 'overclock', craftTimeMultiplier: 0.8 },
   },
 ];
 

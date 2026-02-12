@@ -163,16 +163,18 @@ export function canAcceptItem(building: Building, itemType: ItemType): boolean {
       return true;
     case 'forge':
       return itemType === 'arcstone' || itemType === 'sunite';
-    case 'workbench':
+    case 'workbench': {
       if (!building.selectedRecipe) return false;
       const recipe = getRecipe(building.selectedRecipe);
       if (!recipe) return false;
       return recipe.inputs.has(itemType);
-    case 'arcane_study':
+    }
+    case 'arcane_study': {
       if (!building.selectedRecipe) return false;
       const researchRecipe = getResearchRecipe(building.selectedRecipe);
       if (!researchRecipe) return false;
       return researchRecipe.input === itemType;
+    }
     default:
       return false;
   }

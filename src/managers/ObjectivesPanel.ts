@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../config';
 import { GameUIState } from '../types';
 import { getStage, ITEM_DISPLAY_NAMES, PRODUCTION_CHAINS } from '../data/stages';
+import { makeText } from '../utils';
 
 /**
  * Manages the objectives panel and stage complete overlay in the UI.
@@ -42,7 +43,7 @@ export class ObjectivesPanel {
     bg.lineBetween(-150, -78, 150, -78);
     this.objectivesContainer.add(bg);
 
-    this.stageTitleText = this.scene.add.text(0, -92, '', {
+    this.stageTitleText = makeText(this.scene, 0, -92, '', {
       fontFamily: 'monospace',
       fontSize: '14px',
       color: '#ffffff',
@@ -54,7 +55,7 @@ export class ObjectivesPanel {
     for (let i = 0; i < 3; i++) {
       const y = startY + i * 40;
 
-      const objText = this.scene.add.text(-145, y, '', {
+      const objText = makeText(this.scene, -145, y, '', {
         fontFamily: 'monospace',
         fontSize: '10px',
         color: '#aaaaaa',
@@ -62,7 +63,7 @@ export class ObjectivesPanel {
       this.objectiveTexts.push(objText);
       this.objectivesContainer.add(objText);
 
-      const chainText = this.scene.add.text(-133, y + 14, '', {
+      const chainText = makeText(this.scene, -133, y + 14, '', {
         fontFamily: 'monospace',
         fontSize: '8px',
         color: '#666688',
@@ -71,7 +72,7 @@ export class ObjectivesPanel {
       this.objectivesContainer.add(chainText);
     }
 
-    this.stageCompleteText = this.scene.add.text(0, 68, 'STAGE COMPLETE!', {
+    this.stageCompleteText = makeText(this.scene, 0, 68, 'STAGE COMPLETE!', {
       fontFamily: 'monospace',
       fontSize: '12px',
       color: '#00ff00',
@@ -80,7 +81,7 @@ export class ObjectivesPanel {
     this.stageCompleteText.setVisible(false);
     this.objectivesContainer.add(this.stageCompleteText);
 
-    const hint = this.scene.add.text(0, 95, 'Press O, X, or Esc to close', {
+    const hint = makeText(this.scene, 0, 95, 'Press O, X, or Esc to close', {
       fontFamily: 'monospace',
       fontSize: '8px',
       color: '#888888',
@@ -101,7 +102,7 @@ export class ObjectivesPanel {
     bg.strokeRect(-120, -60, 240, 120);
     this.stageCompleteContainer.add(bg);
 
-    const title = this.scene.add.text(0, -35, 'STAGE COMPLETE!', {
+    const title = makeText(this.scene, 0, -35, 'STAGE COMPLETE!', {
       fontFamily: 'monospace',
       fontSize: '14px',
       color: '#00ff00',
@@ -109,7 +110,7 @@ export class ObjectivesPanel {
     title.setOrigin(0.5, 0.5);
     this.stageCompleteContainer.add(title);
 
-    this.stageCompleteNameText = this.scene.add.text(0, -10, '', {
+    this.stageCompleteNameText = makeText(this.scene, 0, -10, '', {
       fontFamily: 'monospace',
       fontSize: '10px',
       color: '#ffffff',
@@ -117,7 +118,7 @@ export class ObjectivesPanel {
     this.stageCompleteNameText.setOrigin(0.5, 0.5);
     this.stageCompleteContainer.add(this.stageCompleteNameText);
 
-    this.stageCompleteNextText = this.scene.add.text(0, 25, '', {
+    this.stageCompleteNextText = makeText(this.scene, 0, 25, '', {
       fontFamily: 'monospace',
       fontSize: '10px',
       color: '#aaaaaa',
@@ -125,7 +126,7 @@ export class ObjectivesPanel {
     this.stageCompleteNextText.setOrigin(0.5, 0.5);
     this.stageCompleteContainer.add(this.stageCompleteNextText);
 
-    const hint = this.scene.add.text(0, 45, '[Space] Continue', {
+    const hint = makeText(this.scene, 0, 45, '[Space] Continue', {
       fontFamily: 'monospace',
       fontSize: '10px',
       color: '#00ffff',

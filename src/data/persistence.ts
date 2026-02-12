@@ -49,3 +49,11 @@ export function saveResearchData(data: ResearchSaveData): void {
     // Silently fail if localStorage is full or unavailable
   }
 }
+
+export function clearResearchData(): void {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // Silently fail
+  }
+}

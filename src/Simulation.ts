@@ -38,7 +38,7 @@ export class Simulation {
   public onResearchPointsProduced?: (rp: number) => void;
 
   // Research upgrade hooks (set by GameScene)
-  public getUpgrades?: () => { bufferBonus: number; craftSpeedMultiplier: number };
+  public getUpgrades?: () => { bufferBonus: number; craftTimeMultiplier: number };
 
   constructor() {
     this.state = {
@@ -204,8 +204,8 @@ export class Simulation {
     return this.getUpgrades?.().bufferBonus ?? 0;
   }
 
-  private getCraftSpeedMultiplier(): number {
-    return this.getUpgrades?.().craftSpeedMultiplier ?? 1;
+  private getCraftTimeMultiplier(): number {
+    return this.getUpgrades?.().craftTimeMultiplier ?? 1;
   }
 
   private updateQuarry(building: Building): void {
@@ -270,7 +270,7 @@ export class Simulation {
 
     building.craftProgress++;
     if (
-      building.craftProgress >= Math.ceil(recipe.craftTimeTicks * this.getCraftSpeedMultiplier())
+      building.craftProgress >= Math.ceil(recipe.craftTimeTicks * this.getCraftTimeMultiplier())
     ) {
       building.craftProgress = 0;
       for (const [item, count] of recipe.outputs) {
@@ -304,7 +304,7 @@ export class Simulation {
 
     building.craftProgress++;
     if (
-      building.craftProgress >= Math.ceil(recipe.craftTimeTicks * this.getCraftSpeedMultiplier())
+      building.craftProgress >= Math.ceil(recipe.craftTimeTicks * this.getCraftTimeMultiplier())
     ) {
       building.craftProgress = 0;
       for (const [item, count] of recipe.outputs) {
@@ -331,7 +331,7 @@ export class Simulation {
 
     building.craftProgress++;
     if (
-      building.craftProgress >= Math.ceil(recipe.craftTimeTicks * this.getCraftSpeedMultiplier())
+      building.craftProgress >= Math.ceil(recipe.craftTimeTicks * this.getCraftTimeMultiplier())
     ) {
       building.craftProgress = 0;
       this.onResearchPointsProduced?.(recipe.rpYield);

@@ -1,7 +1,9 @@
 import Phaser from 'phaser';
 import { CANVAS_WIDTH, CANVAS_HEIGHT, TICKS_PER_SECOND } from '../config';
 import { RESEARCH_NODES, RESEARCH_RECIPES, ResearchBranch, ResearchNode } from '../data/research';
+import { ITEM_DISPLAY_NAMES } from '../data/stages';
 import { ResearchManager } from './ResearchManager';
+import { makeText } from '../utils';
 
 interface NodeDisplay {
   node: ResearchNode;
@@ -117,7 +119,7 @@ export class ResearchPanel {
     this.container.add(bg);
 
     // Title
-    const title = this.scene.add.text(0, -panelH / 2 + 12, 'RESEARCH', {
+    const title = makeText(this.scene, 0, -panelH / 2 + 12, 'RESEARCH', {
       fontFamily: 'monospace',
       fontSize: '14px',
       color: '#cc88ff',
@@ -126,7 +128,7 @@ export class ResearchPanel {
     this.container.add(title);
 
     // RP display
-    this.rpText = this.scene.add.text(0, -panelH / 2 + 28, 'Research Points: 0', {
+    this.rpText = makeText(this.scene, 0, -panelH / 2 + 28, 'Research Points: 0', {
       fontFamily: 'monospace',
       fontSize: '10px',
       color: '#ffaa00',
@@ -135,7 +137,7 @@ export class ResearchPanel {
     this.container.add(this.rpText);
 
     // Selection indicator
-    this.selectionIndicator = this.scene.add.text(0, 0, '>', {
+    this.selectionIndicator = makeText(this.scene, 0, 0, '>', {
       fontFamily: 'monospace',
       fontSize: '10px',
       color: '#ffff00',
@@ -155,7 +157,8 @@ export class ResearchPanel {
     this.createRecipeReference(-panelW / 2 + 14, topY + 180);
 
     // Close hint
-    const hint = this.scene.add.text(
+    const hint = makeText(
+      this.scene,
       0,
       panelH / 2 - 12,
       'ESDF:Navigate  Space:Unlock  R/X/Esc:Close',
@@ -176,7 +179,7 @@ export class ResearchPanel {
     branch: ResearchBranch,
     color: string
   ): void {
-    const header = this.scene.add.text(x, y, title, {
+    const header = makeText(this.scene, x, y, title, {
       fontFamily: 'monospace',
       fontSize: '10px',
       color,
@@ -192,14 +195,14 @@ export class ResearchPanel {
     let rowY = y + 18;
 
     for (const node of branchNodes) {
-      const statusText = this.scene.add.text(x, rowY, '[-]', {
+      const statusText = makeText(this.scene, x, rowY, '[-]', {
         fontFamily: 'monospace',
         fontSize: '10px',
         color: '#666666',
       });
       this.container.add(statusText);
 
-      const nameText = this.scene.add.text(x + 26, rowY, `${node.name} (${node.cost} RP)`, {
+      const nameText = makeText(this.scene, x + 26, rowY, `${node.name} (${node.cost} RP)`, {
         fontFamily: 'monospace',
         fontSize: '9px',
         color: '#aaaaaa',
@@ -208,7 +211,7 @@ export class ResearchPanel {
 
       // Effect description
       const effectStr = this.getEffectDescription(node);
-      const effectText = this.scene.add.text(x + 26, rowY + 12, effectStr, {
+      const effectText = makeText(this.scene, x + 26, rowY + 12, effectStr, {
         fontFamily: 'monospace',
         fontSize: '7px',
         color: '#555555',
@@ -218,7 +221,8 @@ export class ResearchPanel {
       // Requirement
       if (node.requires) {
         const reqNode = RESEARCH_NODES.find((n) => n.id === node.requires);
-        const reqText = this.scene.add.text(
+        const reqText = makeText(
+          this.scene,
           x + 26,
           rowY + 20,
           `Requires: ${reqNode?.name || node.requires}`,
@@ -242,7 +246,7 @@ export class ResearchPanel {
   }
 
   private createRecipeReference(x: number, y: number): void {
-    const header = this.scene.add.text(x, y, 'STUDY RECIPES (Arcane Study building)', {
+    const header = makeText(this.scene, x, y, 'STUDY RECIPES (Arcane Study building)', {
       fontFamily: 'monospace',
       fontSize: '9px',
       color: '#cc88ff',
@@ -257,10 +261,11 @@ export class ResearchPanel {
     let rowY = y + 16;
     for (const recipe of RESEARCH_RECIPES) {
       const timeStr = `${recipe.craftTimeTicks / TICKS_PER_SECOND}s`;
-      const text = this.scene.add.text(
+      const text = makeText(
+        this.scene,
         x,
         rowY,
-        `${recipe.inputCount} ${recipe.input} -> ${recipe.rpYield} RP (${timeStr})`,
+        `${recipe.inputCount} ${ITEM_DISPLAY_NAMES[recipe.input] || recipe.input} -> ${recipe.rpYield} RP (${timeStr})`,
         {
           fontFamily: 'monospace',
           fontSize: '8px',
@@ -282,7 +287,7 @@ export class ResearchPanel {
       case 'buffer_expansion':
         return `+${effect.amount} buffer on all buildings`;
       case 'overclock':
-        return `${Math.round((1 - effect.speedMultiplier) * 100)}% faster crafting`;
+        return `${Math.round((1 - effect.craftTimeMultiplier) * 100)}% faster crafting`;
     }
   }
 }

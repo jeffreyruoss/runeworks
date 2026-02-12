@@ -1,5 +1,7 @@
+import Phaser from 'phaser';
 import { ItemType, Direction, Building, PlayerResources } from './types';
 import { BUILDING_DEFINITIONS } from './data/buildings';
+import { TEXT_RESOLUTION } from './config';
 
 /**
  * Get total count of all items in a buffer
@@ -125,6 +127,19 @@ export function deductCost(resources: PlayerResources, cost: Partial<PlayerResou
       resources[k] -= amount;
     }
   }
+}
+
+/**
+ * Create a text object with resolution set for crisp rendering at game zoom level.
+ */
+export function makeText(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  text: string | string[],
+  style?: Phaser.Types.GameObjects.Text.TextStyle
+): Phaser.GameObjects.Text {
+  return scene.add.text(x, y, text, { ...style, resolution: TEXT_RESOLUTION });
 }
 
 /** Resource keys on PlayerResources */

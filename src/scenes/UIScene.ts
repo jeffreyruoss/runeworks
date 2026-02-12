@@ -11,7 +11,7 @@ import { ObjectivesPanel } from '../managers/ObjectivesPanel';
 import { GuidePanel } from '../managers/GuidePanel';
 import { ResearchPanel } from '../managers/ResearchPanel';
 import { ResearchManager } from '../managers/ResearchManager';
-import { canAfford } from '../utils';
+import { canAfford, makeText } from '../utils';
 
 export class UIScene extends Phaser.Scene {
   private buildingCountText!: Phaser.GameObjects.Text;
@@ -54,14 +54,14 @@ export class UIScene extends Phaser.Scene {
     graphics.fillRect(0, CANVAS_HEIGHT - 28, CANVAS_WIDTH, 28);
 
     // Cursor info (top-left, shows what's under cursor)
-    this.cursorInfoText = this.add.text(4, 2, '', {
+    this.cursorInfoText = makeText(this, 4, 2, '', {
       fontFamily: 'monospace',
       fontSize: '10px',
       color: '#ffffff',
     });
 
     // Simulation status with play icon (top-center)
-    this.simStatusText = this.add.text(CANVAS_WIDTH / 2, 2, '► 1x', {
+    this.simStatusText = makeText(this, CANVAS_WIDTH / 2, 2, '► 1x', {
       fontFamily: 'monospace',
       fontSize: '10px',
       color: '#00ffff',
@@ -69,43 +69,35 @@ export class UIScene extends Phaser.Scene {
     this.simStatusText.setOrigin(0.5, 0);
 
     // Resources (top-right area)
-    this.resourcesText = this.add.text(CANVAS_WIDTH - 280, 2, '', {
+    this.resourcesText = makeText(this, CANVAS_WIDTH - 280, 2, '', {
       fontFamily: 'monospace',
       fontSize: '10px',
       color: '#aaaaaa',
     });
 
     // Cursor position (top-right)
-    this.cursorPosText = this.add.text(CANVAS_WIDTH - 60, 2, 'X:20 Y:12', {
+    this.cursorPosText = makeText(this, CANVAS_WIDTH - 60, 2, 'X:20 Y:12', {
       fontFamily: 'monospace',
       fontSize: '10px',
       color: '#888888',
     });
 
-    // Building count (top-right corner)
-    this.buildingCountText = this.add.text(CANVAS_WIDTH - 4, 2, 'B:0', {
-      fontFamily: 'monospace',
-      fontSize: '10px',
-      color: '#ffffff',
-    });
-    this.buildingCountText.setOrigin(1, 0);
-
     // Items produced (top, second row)
-    this.itemsText = this.add.text(4, 12, '', {
+    this.itemsText = makeText(this, 4, 12, '', {
       fontFamily: 'monospace',
       fontSize: '8px',
       color: '#ffff00',
     });
 
     // Hotbar (bottom) - dynamic based on build mode
-    this.hotbarText = this.add.text(4, CANVAS_HEIGHT - 24, '[B] Build', {
+    this.hotbarText = makeText(this, 4, CANVAS_HEIGHT - 24, '[B] Build', {
       fontFamily: 'monospace',
       fontSize: '10px',
       color: '#aaaaaa',
     });
 
     // Selected building (bottom-right)
-    this.selectedText = this.add.text(CANVAS_WIDTH - 4, CANVAS_HEIGHT - 24, 'None', {
+    this.selectedText = makeText(this, CANVAS_WIDTH - 4, CANVAS_HEIGHT - 24, 'None', {
       fontFamily: 'monospace',
       fontSize: '10px',
       color: '#888888',
@@ -113,7 +105,8 @@ export class UIScene extends Phaser.Scene {
     this.selectedText.setOrigin(1, 0);
 
     // Help text
-    this.add.text(
+    makeText(
+      this,
       4,
       CANVAS_HEIGHT - 12,
       'ESDF:Move  Spc:Build  Del:Rmv  R:Rot/Research  P:Pause  H:Stats  O:Goals  G:Guide  M:Menu',
@@ -161,7 +154,7 @@ export class UIScene extends Phaser.Scene {
     this.menuPanel.add(bg);
 
     // Title
-    const title = this.add.text(0, -100, 'KEY COMMANDS', {
+    const title = makeText(this, 0, -100, 'KEY COMMANDS', {
       fontFamily: 'monospace',
       fontSize: '14px',
       color: '#ffffff',
@@ -189,7 +182,7 @@ export class UIScene extends Phaser.Scene {
 
     let yPos = -70;
     for (const cmd of keyCommands) {
-      const cmdText = this.add.text(0, yPos, cmd, {
+      const cmdText = makeText(this, 0, yPos, cmd, {
         fontFamily: 'monospace',
         fontSize: '8px',
         color: '#888888',
@@ -200,7 +193,7 @@ export class UIScene extends Phaser.Scene {
     }
 
     // Close hint at bottom
-    const closeHint = this.add.text(0, 90, 'Press M or Esc to close', {
+    const closeHint = makeText(this, 0, 90, 'Press M or Esc to close', {
       fontFamily: 'monospace',
       fontSize: '10px',
       color: '#666666',
@@ -223,16 +216,16 @@ export class UIScene extends Phaser.Scene {
     this.inventoryPanel.add(bg);
 
     // Title
-    const title = this.add.text(0, -45, 'INVENTORY', {
+    const invTitle = makeText(this, 0, -45, 'INVENTORY', {
       fontFamily: 'monospace',
       fontSize: '12px',
       color: '#ffffff',
     });
-    title.setOrigin(0.5, 0.5);
-    this.inventoryPanel.add(title);
+    invTitle.setOrigin(0.5, 0.5);
+    this.inventoryPanel.add(invTitle);
 
     // Placeholder text
-    const placeholder = this.add.text(0, 0, 'Coming soon...', {
+    const placeholder = makeText(this, 0, 0, 'Coming soon...', {
       fontFamily: 'monospace',
       fontSize: '10px',
       color: '#666666',
@@ -241,7 +234,7 @@ export class UIScene extends Phaser.Scene {
     this.inventoryPanel.add(placeholder);
 
     // Close hint
-    const hint = this.add.text(0, 40, 'Press I, X, or Esc to close', {
+    const hint = makeText(this, 0, 40, 'Press I, X, or Esc to close', {
       fontFamily: 'monospace',
       fontSize: '8px',
       color: '#888888',
@@ -258,9 +251,6 @@ export class UIScene extends Phaser.Scene {
     } else {
       this.cursorInfoText.setText('');
     }
-
-    // Building count
-    this.buildingCountText.setText(`B:${state.buildingCount}`);
 
     // Cursor position
     this.cursorPosText.setText(`X:${state.cursorX} Y:${state.cursorY}`);

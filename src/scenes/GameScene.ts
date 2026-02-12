@@ -438,7 +438,17 @@ export class GameScene extends Phaser.Scene {
         .split('_')
         .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
         .join(' ');
-      const recipeName = this.getActiveRecipeName(building);
+      // Inline recipe name lookup
+      let recipeName: string | null = null;
+      if (building.selectedRecipe) {
+        const recipe =
+          building.type === 'arcane_study'
+            ? getResearchRecipe(building.selectedRecipe)
+            : building.type === 'workbench'
+              ? getRecipe(building.selectedRecipe)
+              : null;
+        recipeName = recipe?.name ?? null;
+      }
       return recipeName ? `${name}: ${recipeName}` : name;
     }
 
@@ -452,19 +462,6 @@ export class GameScene extends Phaser.Scene {
       return displayName;
     }
 
-    return null;
-  }
-
-  private getActiveRecipeName(building: Building): string | null {
-    if (!building.selectedRecipe) return null;
-    if (building.type === 'arcane_study') {
-      const recipe = getResearchRecipe(building.selectedRecipe);
-      return recipe ? recipe.name : null;
-    }
-    if (building.type === 'workbench') {
-      const recipe = getRecipe(building.selectedRecipe);
-      return recipe ? recipe.name : null;
-    }
     return null;
   }
 

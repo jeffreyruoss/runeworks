@@ -2,6 +2,8 @@
  * Game configuration constants
  */
 
+import { BuildingType, PlayerResources } from './types';
+
 // Grid and display
 export const TILE_SIZE = 16;
 export const GRID_WIDTH = 40;
@@ -9,6 +11,7 @@ export const GRID_HEIGHT = 25;
 export const CANVAS_WIDTH = GRID_WIDTH * TILE_SIZE; // 640
 export const CANVAS_HEIGHT = GRID_HEIGHT * TILE_SIZE; // 400
 export const DEFAULT_ZOOM = 4;
+export const TEXT_RESOLUTION = DEFAULT_ZOOM;
 
 // Simulation
 export const TICKS_PER_SECOND = 20;
@@ -24,25 +27,24 @@ export const DEFAULT_INPUT_BUFFER_SIZE = 10;
 export const DEFAULT_OUTPUT_BUFFER_SIZE = 5;
 
 // Power costs
-export const POWER_COSTS = {
+export const POWER_COSTS: Record<BuildingType, number> = {
   quarry: 2,
   forge: 3,
   workbench: 4,
   chest: 0,
   arcane_study: 3,
-} as const;
+};
 
 // Building sizes (in tiles)
-export const BUILDING_SIZES = {
+export const BUILDING_SIZES: Record<BuildingType, { width: number; height: number }> = {
   quarry: { width: 2, height: 2 },
   forge: { width: 2, height: 2 },
   workbench: { width: 2, height: 2 },
   chest: { width: 1, height: 1 },
   arcane_study: { width: 2, height: 2 },
-} as const;
+};
 
 // Building costs (multi-resource)
-import { BuildingType, PlayerResources } from './types';
 export const BUILDING_COSTS: Record<BuildingType, Partial<PlayerResources>> = {
   quarry: { stone: 5, wood: 3 },
   forge: { stone: 6, iron: 2 },
