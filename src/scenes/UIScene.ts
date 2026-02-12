@@ -133,53 +133,87 @@ export class UIScene extends Phaser.Scene {
     this.menuPanel.setDepth(1000);
     this.menuPanel.setVisible(false);
 
-    // Background - larger container to fit content
+    // Background
+    const panelW = 480;
+    const panelH = 240;
     const bg = this.add.graphics();
     bg.fillStyle(0x000000, 0.9);
-    bg.fillRect(-140, -120, 280, 240);
+    bg.fillRect(-panelW / 2, -panelH / 2, panelW, panelH);
     bg.lineStyle(2, 0x666666);
-    bg.strokeRect(-140, -120, 280, 240);
+    bg.strokeRect(-panelW / 2, -panelH / 2, panelW, panelH);
     this.menuPanel.add(bg);
 
     // Title
-    const title = makeText(this, 0, -100, 'KEY COMMANDS', {
+    const title = makeText(this, 0, -panelH / 2 + 14, 'KEY COMMANDS', {
       fontSize: '14px',
       color: '#ffffff',
     });
     title.setOrigin(0.5, 0.5);
     this.menuPanel.add(title);
 
-    // Key commands list
-    const keyCommands = [
+    // Column layout helper
+    const colX = [-panelW / 4, panelW / 4];
+    const startY = -panelH / 2 + 40;
+    const lineH = 13;
+
+    const addColumn = (x: number, header: string, commands: string[]): void => {
+      let y = startY;
+      const headerText = makeText(this, x, y, header, {
+        fontSize: '9px',
+        color: '#aaaaaa',
+      });
+      headerText.setOrigin(0.5, 0.5);
+      this.menuPanel.add(headerText);
+      y += lineH + 2;
+
+      for (const cmd of commands) {
+        const cmdText = makeText(this, x, y, cmd, {
+          fontSize: '8px',
+          color: '#888888',
+        });
+        cmdText.setOrigin(0.5, 0.5);
+        this.menuPanel.add(cmdText);
+        y += lineH;
+      }
+    };
+
+    addColumn(colX[0], 'REGULAR MODE', [
       'ESDF - Move cursor',
       'Shift+ESDF - Jump 5 tiles',
-      'B - Build menu',
       'Space/Enter - Gather/Build',
       'Backspace - Demolish',
       'R - Rotate / Research',
-      'P - Pause/Resume',
-      'H - Toggle stats',
       'C - Cycle recipe',
+      'P - Pause/Resume',
+      '</> - Speed down/up',
+      'H - Toggle stats',
       'O - Objectives',
       'G - Guide',
-      '</> - Speed down/up',
       'M - Menu',
       'X/Esc - Cancel/Back',
-    ];
+    ]);
 
-    let yPos = -70;
-    for (const cmd of keyCommands) {
-      const cmdText = makeText(this, 0, yPos, cmd, {
-        fontSize: '8px',
-        color: '#888888',
-      });
-      cmdText.setOrigin(0.5, 0.5);
-      this.menuPanel.add(cmdText);
-      yPos += 12;
-    }
+    addColumn(colX[1], 'BUILD MODE', [
+      'B - Toggle build menu',
+      'Q - Quarry',
+      'F - Forge',
+      'W - Workbench',
+      'C - Chest',
+      'A - Arcane Study',
+      'M - Mana Well',
+      'O - Mana Obelisk',
+      'T - Mana Tower',
+      'X/Esc - Exit build mode',
+    ]);
+
+    // Divider line between columns
+    const divider = this.add.graphics();
+    divider.lineStyle(1, 0x444444);
+    divider.lineBetween(0, startY - 6, 0, panelH / 2 - 30);
+    this.menuPanel.add(divider);
 
     // Close hint at bottom
-    const closeHint = makeText(this, 0, 90, 'Press M or Esc to close', {
+    const closeHint = makeText(this, 0, panelH / 2 - 14, 'Press M or Esc to close', {
       fontSize: '10px',
       color: '#666666',
     });
