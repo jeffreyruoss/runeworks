@@ -16,7 +16,15 @@ export type ItemType =
   | 'clay'
   | 'crystal_shard';
 
-export type BuildingType = 'quarry' | 'forge' | 'workbench' | 'chest' | 'arcane_study';
+export type BuildingType =
+  | 'quarry'
+  | 'forge'
+  | 'workbench'
+  | 'chest'
+  | 'arcane_study'
+  | 'mana_well'
+  | 'mana_obelisk'
+  | 'mana_tower';
 
 export type Direction = 'up' | 'down' | 'left' | 'right';
 
@@ -56,6 +64,8 @@ export interface BuildingDefinition {
   width: number;
   height: number;
   powerCost: number;
+  manaProduction: number;
+  manaRadius: number;
   inputSides: Direction[];
   outputSides: Direction[];
   inputBufferSize: number;
@@ -83,6 +93,8 @@ export interface Building {
   outputBuffer: Map<ItemType, number>;
   craftProgress: number; // ticks into current craft
   selectedRecipe: string | null; // recipe id for workbenches
+  manaAccumulator: number; // fixed-point accumulator for mana speed control
+  connected: boolean; // whether building is in mana network range
 
   // Stats for bottleneck analysis
   ticksStarved: number;
@@ -95,6 +107,8 @@ export interface SimulationState {
   tickCount: number;
   speed: number; // 1, 2, or 4
   itemsProduced: Map<ItemType, number>;
+  manaProduction: number;
+  manaConsumption: number;
 }
 
 /**
@@ -120,4 +134,6 @@ export interface GameUIState {
   objectiveProgress: Array<{ item: ItemType; required: number; produced: number }>;
   researchOpen: boolean;
   researchPoints: number;
+  manaProduction: number;
+  manaConsumption: number;
 }

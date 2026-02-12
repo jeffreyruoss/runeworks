@@ -60,9 +60,18 @@ export class ResearchManager {
     return this.unlockedNodes.has(nodeId);
   }
 
-  /** Base buildings (quarry, forge, workbench, chest, arcane_study) are always available. */
+  /** Base buildings are always available (research doesn't gate them; stages do). */
   isBuildingUnlocked(type: string): boolean {
-    const baseBuildings = ['quarry', 'forge', 'workbench', 'chest', 'arcane_study'];
+    const baseBuildings = [
+      'quarry',
+      'forge',
+      'workbench',
+      'chest',
+      'arcane_study',
+      'mana_well',
+      'mana_obelisk',
+      'mana_tower',
+    ];
     if (baseBuildings.includes(type)) return true;
 
     return RESEARCH_NODES.some(

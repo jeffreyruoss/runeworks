@@ -1,0 +1,22 @@
+# Mana Well - glowing blue well
+# 16x16 for 1x1 building
+
+@name mana_well
+@size 16
+
+................
+..BBBBBBBBBBBB..
+..BbbbbbbbbbBB..
+..Bb........bB..
+..Bb.bbbbbb.bB..
+..Bb.bjjjjb.bB..
+..Bb.bjAAjb.bB..
+..Bb.bjAAjb.bB..
+..Bb.bjAAjb.bB..
+..Bb.bjAAjb.bB..
+..Bb.bjjjjb.bB..
+..Bb.bbbbbb.bB..
+..Bb........bB..
+..BbbbbbbbbbBB..
+..BBBBBBBBBBBB..
+................

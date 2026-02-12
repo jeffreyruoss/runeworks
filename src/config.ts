@@ -26,15 +26,6 @@ export const CURSOR_JUMP_STEP = 5; // tiles to move when holding Shift
 export const DEFAULT_INPUT_BUFFER_SIZE = 10;
 export const DEFAULT_OUTPUT_BUFFER_SIZE = 5;
 
-// Power costs
-export const POWER_COSTS: Record<BuildingType, number> = {
-  quarry: 2,
-  forge: 3,
-  workbench: 4,
-  chest: 0,
-  arcane_study: 3,
-};
-
 // Building sizes (in tiles)
 export const BUILDING_SIZES: Record<BuildingType, { width: number; height: number }> = {
   quarry: { width: 2, height: 2 },
@@ -42,6 +33,9 @@ export const BUILDING_SIZES: Record<BuildingType, { width: number; height: numbe
   workbench: { width: 2, height: 2 },
   chest: { width: 1, height: 1 },
   arcane_study: { width: 2, height: 2 },
+  mana_well: { width: 1, height: 1 },
+  mana_obelisk: { width: 2, height: 2 },
+  mana_tower: { width: 1, height: 1 },
 };
 
 // Building costs (multi-resource)
@@ -51,6 +45,9 @@ export const BUILDING_COSTS: Record<BuildingType, Partial<PlayerResources>> = {
   workbench: { stone: 4, wood: 4, iron: 1 },
   chest: { stone: 2, wood: 1 },
   arcane_study: { stone: 4, crystal_shard: 2 },
+  mana_well: { stone: 3, crystal_shard: 1 },
+  mana_obelisk: { stone: 8, crystal_shard: 4, iron: 2 },
+  mana_tower: { stone: 4, iron: 1 },
 };
 
 // Resource display names (shared by UIScene and GuidePanel)

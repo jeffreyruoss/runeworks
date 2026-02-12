@@ -10,6 +10,7 @@ export interface GameKeys {
   Q: Phaser.Input.Keyboard.Key;
   W: Phaser.Input.Keyboard.Key;
   C: Phaser.Input.Keyboard.Key;
+  T: Phaser.Input.Keyboard.Key;
   SPACE: Phaser.Input.Keyboard.Key;
   BACKSPACE: Phaser.Input.Keyboard.Key;
   R: Phaser.Input.Keyboard.Key;
@@ -69,6 +70,7 @@ export class InputManager {
       Q: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q),
       W: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
       C: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C),
+      T: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.T),
       SPACE: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
       BACKSPACE: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.BACKSPACE),
       R: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R),
@@ -115,6 +117,7 @@ export class InputManager {
     this.keys.ESC.on('down', () => cb.handleEsc());
     this.keys.X.on('down', () => cb.handleEsc());
     this.keys.M.on('down', () => cb.toggleMenu());
+    this.keys.T.on('down', () => cb.selectBuilding('mana_tower'));
 
     // Toggle controls
     this.keys.P.on('down', () => cb.togglePause());

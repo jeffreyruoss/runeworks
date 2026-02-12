@@ -1,4 +1,4 @@
-import { ItemType } from '../types';
+import { BuildingType, ItemType } from '../types';
 
 export interface Objective {
   item: ItemType;
@@ -9,6 +9,7 @@ export interface Stage {
   id: number;
   name: string;
   objectives: Objective[];
+  unlockedBuildings?: BuildingType[];
 }
 
 export const STAGES: Stage[] = [
@@ -23,8 +24,18 @@ export const STAGES: Stage[] = [
       { item: 'sun_ingot', count: 5 },
     ],
   },
-  { id: 5, name: 'Cog Works', objectives: [{ item: 'cogwheel', count: 3 }] },
-  { id: 6, name: 'Thread Spinning', objectives: [{ item: 'thread', count: 8 }] },
+  {
+    id: 5,
+    name: 'Cog Works',
+    objectives: [{ item: 'cogwheel', count: 3 }],
+    unlockedBuildings: ['mana_well'],
+  },
+  {
+    id: 6,
+    name: 'Thread Spinning',
+    objectives: [{ item: 'thread', count: 8 }],
+    unlockedBuildings: ['mana_tower'],
+  },
   {
     id: 7,
     name: 'Mixed Production',
@@ -33,7 +44,12 @@ export const STAGES: Stage[] = [
       { item: 'thread', count: 10 },
     ],
   },
-  { id: 8, name: 'First Rune', objectives: [{ item: 'rune', count: 1 }] },
+  {
+    id: 8,
+    name: 'First Rune',
+    objectives: [{ item: 'rune', count: 1 }],
+    unlockedBuildings: ['mana_obelisk'],
+  },
   { id: 9, name: 'Rune Scribe', objectives: [{ item: 'rune', count: 5 }] },
   {
     id: 10,

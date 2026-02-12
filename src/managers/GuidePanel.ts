@@ -215,7 +215,16 @@ export class GuidePanel {
     divider.lineBetween(x, y + 12, x + 170, y + 12);
     this.container.add(divider);
 
-    const buildings: BuildingType[] = ['quarry', 'forge', 'workbench', 'chest', 'arcane_study'];
+    const buildings: BuildingType[] = [
+      'quarry',
+      'forge',
+      'workbench',
+      'chest',
+      'arcane_study',
+      'mana_well',
+      'mana_obelisk',
+      'mana_tower',
+    ];
 
     let rowY = y + 18;
     for (const bType of buildings) {
@@ -260,6 +269,12 @@ export class GuidePanel {
         ioStr = 'Storage (all sides)';
       } else if (bType === 'arcane_study') {
         ioStr = 'Consumes items -> Research Points';
+      } else if (bType === 'mana_well') {
+        ioStr = `Generates ${def.manaProduction} mana, range ${def.manaRadius}`;
+      } else if (bType === 'mana_obelisk') {
+        ioStr = `Generates ${def.manaProduction} mana, range ${def.manaRadius}`;
+      } else if (bType === 'mana_tower') {
+        ioStr = `Extends mana network, range ${def.manaRadius}`;
       } else {
         const inSides = def.inputSides.join('/');
         const outSides = def.outputSides.join('/');

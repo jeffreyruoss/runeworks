@@ -11,6 +11,7 @@ import {
 } from './utils';
 import { getResearchRecipe } from './data/research';
 import { TransferSystem } from './simulation/transfers';
+import { ManaSystem } from './simulation/ManaSystem';
 import { ResourcePatchManager } from './terrain/ResourcePatchManager';
 import { QUARRIABLE_TERRAIN } from './data/terrain';
 
@@ -30,6 +31,7 @@ export class Simulation {
   private state: SimulationState;
   private accumulator = 0;
   private transferSystem = new TransferSystem();
+  private manaSystem = new ManaSystem();
   private patchManager = new ResourcePatchManager();
 
   // Callbacks
@@ -47,6 +49,8 @@ export class Simulation {
       tickCount: 0,
       speed: 1,
       itemsProduced: new Map(),
+      manaProduction: 0,
+      manaConsumption: 0,
     };
 
     this.initTerrain();
@@ -117,6 +121,8 @@ export class Simulation {
       building.inputBuffer = new Map();
       building.outputBuffer = new Map();
       building.craftProgress = 0;
+      building.manaAccumulator = 0;
+      building.connected = false;
       building.ticksStarved = 0;
       building.ticksBlocked = 0;
     }
@@ -170,6 +176,11 @@ export class Simulation {
   private tick(): void {
     this.state.tickCount++;
 
+    // Phase 0: Mana network
+    this.manaSystem.update(this.buildings);
+    this.state.manaProduction = this.manaSystem.getTotalProduction();
+    this.state.manaConsumption = this.manaSystem.getTotalConsumption();
+
     // Phase 1: Production
     for (const building of this.buildings) {
       this.updateBuilding(building);
@@ -182,6 +193,14 @@ export class Simulation {
   }
 
   private updateBuilding(building: Building): void {
+    const def = BUILDING_DEFINITIONS[building.type];
+
+    // Mana accumulator gate for powered buildings
+    if (def.powerCost > 0) {
+      if (building.manaAccumulator < 100) return;
+      building.manaAccumulator -= 100;
+    }
+
     switch (building.type) {
       case 'quarry':
         this.updateQuarry(building);
@@ -193,6 +212,9 @@ export class Simulation {
         this.updateWorkbench(building);
         break;
       case 'chest':
+      case 'mana_well':
+      case 'mana_obelisk':
+      case 'mana_tower':
         break;
       case 'arcane_study':
         this.updateArcaneStudy(building);

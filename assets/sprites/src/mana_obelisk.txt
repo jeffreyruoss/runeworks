@@ -1,0 +1,37 @@
+# Mana Obelisk - large crystal pillar
+# 32x32 for 2x2 building
+
+@name mana_obelisk
+@size 32
+
+................................
+.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB.
+.BbbbbbbbbbbbbbbbbbbbbbbbbbbbbB.
+.BbBBBBBBBBBBBBBBBBBBBBBBBBBbB.
+.BbB......................BbBbB.
+.BbB.AAAAAAAAAAAAAAAAAA...BbBbB.
+.BbB.AaaaaaaaaaaaaaaAAA...BbBbB.
+.BbB.Aa..............aA...BbBbB.
+.BbB.Aa.BBBBBBBBBB...aA...BbBbB.
+.BbB.Aa.BbbbbbbbbB...aA...BbBbB.
+.BbB.Aa.Bb......bB...aA...BbBbB.
+.BbB.Aa.Bb.jAAj.bB...aA...BbBbB.
+.BbB.Aa.Bb.AaaA.bB...aA...BbBbB.
+.BbB.Aa.Bb.AaaA.bB...aA...BbBbB.
+.BbB.Aa.Bb.jAAj.bB...aA...BbBbB.
+.BbB.Aa.Bb......bB...aA...BbBbB.
+.BbB.Aa.BbbbbbbbbB...aA...BbBbB.
+.BbB.Aa.BBBBBBBBBB...aA...BbBbB.
+.BbB.Aa..............aA...BbBbB.
+.BbB.AaaaaaaaaaaaaaaAAA...BbBbB.
+.BbB.AAAAAAAAAAAAAAAAAA...BbBbB.
+.BbB......................BbBbB.
+.BbBBBBBBBBBBBBBBBBBBBBBBBBBbB.
+.BbbbbbbbbbbbbbbbbbbbbbbbbbbbbB.
+.BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB.
+................................
+................................
+................................
+................................
+................................
+................................

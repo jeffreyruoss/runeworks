@@ -1,7 +1,17 @@
 import Phaser from 'phaser';
-import { ItemType, Direction, Building, PlayerResources } from './types';
+import {
+  ItemType,
+  Direction,
+  Building,
+  PlayerResources,
+  ResourcePatch,
+  TerrainType,
+} from './types';
 import { BUILDING_DEFINITIONS } from './data/buildings';
 import { TEXT_RESOLUTION } from './config';
+import { TERRAIN_DISPLAY_NAMES } from './data/terrain';
+import { getRecipe } from './data/recipes';
+import { getResearchRecipe } from './data/research';
 
 /**
  * Get total count of all items in a buffer
@@ -130,7 +140,10 @@ export function deductCost(resources: PlayerResources, cost: Partial<PlayerResou
 }
 
 /**
- * Create a text object with resolution set for crisp rendering at game zoom level.
+ * Create a text object with high-resolution rendering for crisp display.
+ * Uses resolution multiplier so the internal canvas matches the final zoom,
+ * and linear filtering so the texture maps smoothly to screen pixels
+ * (pixelArt: true forces NEAREST globally which causes aliasing at 1:1 ratio).
  */
 export function makeText(
   scene: Phaser.Scene,
@@ -139,7 +152,47 @@ export function makeText(
   text: string | string[],
   style?: Phaser.Types.GameObjects.Text.TextStyle
 ): Phaser.GameObjects.Text {
-  return scene.add.text(x, y, text, { ...style, resolution: TEXT_RESOLUTION });
+  const t = scene.add.text(x, y, text, { ...style, resolution: TEXT_RESOLUTION });
+  t.texture.setFilter(Phaser.Textures.FilterMode.LINEAR);
+  return t;
+}
+
+/**
+ * Get a display string for what's at a given cursor position.
+ * Returns building name (with recipe), terrain name (with pool info), or null.
+ */
+export function getCursorInfo(
+  building: Building | null,
+  terrain: TerrainType,
+  patch: ResourcePatch | null
+): string | null {
+  if (building) {
+    const name = building.type
+      .split('_')
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ');
+    let recipeName: string | null = null;
+    if (building.selectedRecipe) {
+      const recipe =
+        building.type === 'arcane_study'
+          ? getResearchRecipe(building.selectedRecipe)
+          : building.type === 'workbench'
+            ? getRecipe(building.selectedRecipe)
+            : null;
+      recipeName = recipe?.name ?? null;
+    }
+    return recipeName ? `${name}: ${recipeName}` : name;
+  }
+
+  if (terrain !== 'empty') {
+    const displayName = TERRAIN_DISPLAY_NAMES[terrain];
+    if (patch) {
+      return `${displayName} (${patch.remainingPool}/${patch.totalPool})`;
+    }
+    return displayName;
+  }
+
+  return null;
 }
 
 /** Resource keys on PlayerResources */

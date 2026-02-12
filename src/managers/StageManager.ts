@@ -1,4 +1,4 @@
-import { ItemType, SimulationState } from '../types';
+import { BuildingType, ItemType, SimulationState } from '../types';
 import { getStage, STAGES } from '../data/stages';
 
 export interface ObjectiveProgress {
@@ -92,5 +92,17 @@ export class StageManager {
 
   getCurrentStage(): number {
     return this.currentStage;
+  }
+
+  /** Check if a building type has been unlocked by any stage up to the current one */
+  isBuildingUnlockedByStage(type: BuildingType): boolean {
+    const STAGE_GATED: BuildingType[] = ['mana_well', 'mana_obelisk', 'mana_tower'];
+    if (!STAGE_GATED.includes(type)) return true;
+
+    for (let i = 1; i <= this.currentStage; i++) {
+      const stage = getStage(i);
+      if (stage?.unlockedBuildings?.includes(type)) return true;
+    }
+    return false;
   }
 }

@@ -2,8 +2,8 @@ import Phaser from 'phaser';
 import { TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, COLORS, CURSOR_JUMP_STEP } from '../config';
 import { Building, BuildingType, PlayerResources } from '../types';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
-import { getRecipe, getRecipesForBuilding } from '../data/recipes';
-import { getBuildingAt, addPlayerResource } from '../utils';
+import { getRecipesForBuilding } from '../data/recipes';
+import { getBuildingAt, addPlayerResource, getCursorInfo } from '../utils';
 import { Simulation } from '../Simulation';
 import { InputManager } from '../managers/InputManager';
 import { TerrainRenderer } from '../managers/TerrainRenderer';
@@ -13,8 +13,8 @@ import { StageManager } from '../managers/StageManager';
 import { PanelManager } from '../managers/PanelManager';
 import { ResearchManager } from '../managers/ResearchManager';
 import { generateTerrain } from '../terrain/terrainSetup';
-import { QUARRIABLE_TERRAIN, TERRAIN_DISPLAY_NAMES } from '../data/terrain';
-import { RESEARCH_RECIPES, getResearchRecipe } from '../data/research';
+import { QUARRIABLE_TERRAIN } from '../data/terrain';
+import { RESEARCH_RECIPES } from '../data/research';
 
 export class GameScene extends Phaser.Scene {
   // Cursor state
@@ -184,13 +184,19 @@ export class GameScene extends Phaser.Scene {
   }
 
   private selectBuildingAndCloseBuildMode(type: BuildingType): void {
-    if (!this.researchManager.isBuildingUnlocked(type)) return;
+    if (!this.isBuildingAvailable(type)) return;
     this.buildModeActive = false;
     this.selectBuilding(type);
   }
 
+  /** Check both research unlock and stage-based unlock for a building */
+  private isBuildingAvailable(type: BuildingType): boolean {
+    if (!this.researchManager.isBuildingUnlocked(type)) return false;
+    return this.stageManager.isBuildingUnlockedByStage(type);
+  }
+
   private selectBuilding(type: BuildingType): void {
-    if (!this.researchManager.isBuildingUnlocked(type)) return;
+    if (!this.isBuildingAvailable(type)) return;
     this.selectedBuilding = type;
     this.buildingPlacer.resetRotation();
     this.buildingPlacer.updateGhostSprite(type);
@@ -229,6 +235,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   private toggleMenu(): void {
+    if (this.buildModeActive) {
+      this.selectBuildingAndCloseBuildMode('mana_well');
+      return;
+    }
     const wasOpen = this.panelManager.isMenuOpen();
     this.panelManager.toggleMenu();
     this.events.emit(wasOpen ? 'menuClosed' : 'menuOpened');
@@ -269,6 +279,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   private toggleObjectives(): void {
+    if (this.buildModeActive) {
+      this.selectBuildingAndCloseBuildMode('mana_obelisk');
+      return;
+    }
     this.panelManager.toggleObjectives();
     this.emitUIUpdate();
   }
@@ -431,45 +445,18 @@ export class GameScene extends Phaser.Scene {
     return getBuildingAt(this.cursor.x, this.cursor.y, this.buildings);
   }
 
-  private getCursorInfo(): string | null {
+  private getCursorInfoText(): string | null {
     const building = this.getBuildingAtCursor();
-    if (building) {
-      const name = building.type
-        .split('_')
-        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-        .join(' ');
-      // Inline recipe name lookup
-      let recipeName: string | null = null;
-      if (building.selectedRecipe) {
-        const recipe =
-          building.type === 'arcane_study'
-            ? getResearchRecipe(building.selectedRecipe)
-            : building.type === 'workbench'
-              ? getRecipe(building.selectedRecipe)
-              : null;
-        recipeName = recipe?.name ?? null;
-      }
-      return recipeName ? `${name}: ${recipeName}` : name;
-    }
-
     const terrain = this.simulation.getTerrain(this.cursor.x, this.cursor.y);
-    if (terrain !== 'empty') {
-      const displayName = TERRAIN_DISPLAY_NAMES[terrain];
-      const patch = this.simulation.getPatchAt(this.cursor.x, this.cursor.y);
-      if (patch) {
-        return `${displayName} (${patch.remainingPool}/${patch.totalPool})`;
-      }
-      return displayName;
-    }
-
-    return null;
+    const patch = this.simulation.getPatchAt(this.cursor.x, this.cursor.y);
+    return getCursorInfo(building, terrain, patch);
   }
 
   private emitUIUpdate(): void {
     const state = this.simulation.getState();
     this.events.emit('gameStateChanged', {
       selectedBuilding: this.selectedBuilding,
-      cursorInfo: this.getCursorInfo(),
+      cursorInfo: this.getCursorInfoText(),
       simRunning: state.running,
       simPaused: state.paused,
       simSpeed: state.speed,
@@ -487,6 +474,8 @@ export class GameScene extends Phaser.Scene {
       objectiveProgress: this.stageManager.getObjectiveProgress(),
       researchOpen: this.panelManager.isResearchOpen(),
       researchPoints: this.researchManager.getResearchPoints(),
+      manaProduction: state.manaProduction,
+      manaConsumption: state.manaConsumption,
     });
   }
 

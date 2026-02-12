@@ -32,6 +32,8 @@ export function createTestBuilding(
     outputBuffer: new Map(),
     craftProgress: 0,
     selectedRecipe: options.selectedRecipe ?? null,
+    manaAccumulator: 0,
+    connected: false,
     ticksStarved: 0,
     ticksBlocked: 0,
   };

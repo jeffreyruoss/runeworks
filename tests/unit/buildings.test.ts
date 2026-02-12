@@ -57,10 +57,15 @@ describe('BUILDING_DEFINITIONS', () => {
         }
       });
 
-      it('has output sides or is a sink building', () => {
-        // Sink buildings (arcane_study) produce meta-resources, not physical items
-        const sinkBuildings: BuildingType[] = ['arcane_study'];
-        if (sinkBuildings.includes(type)) {
+      it('has output sides or is a sink/infrastructure building', () => {
+        // Sink buildings produce meta-resources; mana buildings are infrastructure
+        const noOutputBuildings: BuildingType[] = [
+          'arcane_study',
+          'mana_well',
+          'mana_obelisk',
+          'mana_tower',
+        ];
+        if (noOutputBuildings.includes(type)) {
           expect(building.outputSides.length).toBe(0);
         } else {
           expect(building.outputSides.length).toBeGreaterThan(0);

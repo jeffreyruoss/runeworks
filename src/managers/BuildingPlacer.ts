@@ -166,16 +166,24 @@ export class BuildingPlacer {
       selectedRecipe = 'study_arcane_ingot';
     }
 
+    // Mana buildings have no rotation
+    const isManaBuilding =
+      selectedBuilding === 'mana_well' ||
+      selectedBuilding === 'mana_obelisk' ||
+      selectedBuilding === 'mana_tower';
+
     const building: Building = {
       id: buildingIdCounter,
       type: selectedBuilding,
       x: cursorX,
       y: cursorY,
-      rotation: this.ghostRotation,
+      rotation: isManaBuilding ? 0 : this.ghostRotation,
       inputBuffer: new Map(),
       outputBuffer: new Map(),
       craftProgress: 0,
       selectedRecipe,
+      manaAccumulator: 0,
+      connected: false,
       ticksStarved: 0,
       ticksBlocked: 0,
     };

@@ -6,7 +6,8 @@ import {
   BUILDING_COSTS,
   RESOURCE_DISPLAY_NAMES,
 } from '../config';
-import { GameUIState, PlayerResources } from '../types';
+import { BuildingType, GameUIState, PlayerResources } from '../types';
+import { getStage } from '../data/stages';
 import { ObjectivesPanel } from '../managers/ObjectivesPanel';
 import { GuidePanel } from '../managers/GuidePanel';
 import { ResearchPanel } from '../managers/ResearchPanel';
@@ -271,6 +272,15 @@ export class UIScene extends Phaser.Scene {
       if (this.researchManager.isBuildingUnlocked('arcane_study')) {
         entries.push('[A] Study');
       }
+      if (this.isBuildingUnlockedByStage('mana_well', state.currentStage)) {
+        entries.push('[M] Well');
+      }
+      if (this.isBuildingUnlockedByStage('mana_obelisk', state.currentStage)) {
+        entries.push('[O] Obelisk');
+      }
+      if (this.isBuildingUnlockedByStage('mana_tower', state.currentStage)) {
+        entries.push('[T] Tower');
+      }
       this.hotbarText.setText(entries.join('  '));
       this.hotbarText.setColor('#ffffff');
     } else {
@@ -281,12 +291,18 @@ export class UIScene extends Phaser.Scene {
     // RP display (after sim status)
     const rpStr = state.researchPoints > 0 ? `  RP:${state.researchPoints}` : '';
 
+    // Mana display (only when there's mana production or consumption)
+    let manaStr = '';
+    if (state.manaProduction > 0 || state.manaConsumption > 0) {
+      manaStr = `  Mana:${state.manaProduction}/${state.manaConsumption}`;
+    }
+
     // Simulation status with play/pause icon
     if (state.simPaused) {
-      this.simStatusText.setText(`║ ${state.simSpeed}x${rpStr}`);
+      this.simStatusText.setText(`║ ${state.simSpeed}x${rpStr}${manaStr}`);
       this.simStatusText.setColor('#ffff00');
     } else {
-      this.simStatusText.setText(`► ${state.simSpeed}x${rpStr}`);
+      this.simStatusText.setText(`► ${state.simSpeed}x${rpStr}${manaStr}`);
       this.simStatusText.setColor('#00ffff');
     }
 
@@ -336,6 +352,14 @@ export class UIScene extends Phaser.Scene {
       .filter(([, v]) => v && v > 0)
       .map(([k, v]) => `${RESOURCE_DISPLAY_NAMES[k] || k}:${v}`)
       .join(' ');
+  }
+
+  private isBuildingUnlockedByStage(type: BuildingType, currentStage: number): boolean {
+    for (let i = 1; i <= currentStage; i++) {
+      const stage = getStage(i);
+      if (stage?.unlockedBuildings?.includes(type)) return true;
+    }
+    return false;
   }
 
   private onResearchNavigate(dx: number, dy: number): void {
