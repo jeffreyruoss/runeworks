@@ -3,6 +3,7 @@ import { QUARRY_TICKS_PER_ORE } from '../../src/config';
 import { BUILDING_DEFINITIONS } from '../../src/data/buildings';
 import {
   createTestBuilding,
+  createManaWell,
   tickSimulation,
   resetIdCounter,
   startWithInputs,
@@ -146,8 +147,9 @@ describe('Transfer', () => {
         selectedRecipe: 'forge_cogwheel',
       });
       const forge = createTestBuilding('forge', { x: 2, y: 0, rotation: 0 });
+      const well = createManaWell(0, 3);
 
-      sim.setBuildings([workbench, forge]);
+      sim.setBuildings([workbench, forge, well]);
       startWithInputs(sim, workbench, [['arcane_ingot', 2]]);
 
       // Workbench crafts cogwheel (30 ticks), then tries to transfer

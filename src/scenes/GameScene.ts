@@ -3,7 +3,8 @@ import { TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, COLORS, CURSOR_JUMP_STEP } from '..
 import { Building, BuildingType, PlayerResources } from '../types';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
 import { getRecipesForBuilding } from '../data/recipes';
-import { getBuildingAt, addPlayerResource, getCursorInfo, setupCamera } from '../utils';
+import { getBuildingAt, addPlayerResource, getCursorInfo } from '../utils';
+import { setupCamera } from '../phaser-utils';
 import { Simulation } from '../Simulation';
 import { InputManager } from '../managers/InputManager';
 import { TerrainRenderer } from '../managers/TerrainRenderer';

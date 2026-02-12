@@ -2,7 +2,8 @@ import Phaser from 'phaser';
 import { TILE_SIZE } from '../config';
 import { Building } from '../types';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
-import { getBufferTotal, makeText } from '../utils';
+import { getBufferTotal } from '../utils';
+import { makeText } from '../phaser-utils';
 
 /**
  * Manages buffer indicator text overlays on buildings.

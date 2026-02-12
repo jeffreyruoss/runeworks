@@ -12,7 +12,8 @@ import { ObjectivesPanel } from '../managers/ObjectivesPanel';
 import { GuidePanel } from '../managers/GuidePanel';
 import { ResearchPanel } from '../managers/ResearchPanel';
 import { ResearchManager } from '../managers/ResearchManager';
-import { canAfford, makeText, setupCamera } from '../utils';
+import { canAfford } from '../utils';
+import { makeText, setupCamera } from '../phaser-utils';
 
 export class UIScene extends Phaser.Scene {
   private selectedText!: Phaser.GameObjects.Text;

@@ -12,7 +12,7 @@ import { RECIPES } from '../data/recipes';
 import { RESEARCH_RECIPES } from '../data/research';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
 import { BuildingType, ItemType, TerrainType } from '../types';
-import { makeText } from '../utils';
+import { makeText } from '../phaser-utils';
 
 /** Items that have 8×8 sprites in the atlas */
 const ITEM_SPRITES: Set<ItemType> = new Set([

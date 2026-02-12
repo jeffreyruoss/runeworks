@@ -71,6 +71,14 @@ export function startWithInputs(
 }
 
 /**
+ * Create a mana_well near a position to power adjacent buildings in tests.
+ * Place it 3 tiles to the right of the given position (within default radius of 5).
+ */
+export function createManaWell(x = 4, y = 0): Building {
+  return createTestBuilding('mana_well', { x, y });
+}
+
+/**
  * Place a resource patch as a rectangular area (replaces old placeCrystalVein).
  * Sets terrain and registers with the patch manager via addResourcePatch.
  */

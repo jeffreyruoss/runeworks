@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../config';
 import { GameUIState } from '../types';
 import { getStage, ITEM_DISPLAY_NAMES, PRODUCTION_CHAINS } from '../data/stages';
-import { makeText } from '../utils';
+import { makeText } from '../phaser-utils';
 
 /**
  * Manages the objectives panel and stage complete overlay in the UI.

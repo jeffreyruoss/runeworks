@@ -3,6 +3,7 @@ import { QUARRY_TICKS_PER_ORE } from '../../src/config';
 import { BUILDING_DEFINITIONS } from '../../src/data/buildings';
 import {
   createTestBuilding,
+  createManaWell,
   tickSimulation,
   resetIdCounter,
   startWithInputs,
@@ -158,7 +159,8 @@ describe('Production', () => {
         y: 0,
         selectedRecipe: 'forge_cogwheel',
       });
-      sim.setBuildings([workbench]);
+      const well = createManaWell();
+      sim.setBuildings([workbench, well]);
       startWithInputs(sim, workbench, [['arcane_ingot', 2]]);
 
       // forge_cogwheel takes 30 ticks
@@ -172,7 +174,8 @@ describe('Production', () => {
         y: 0,
         selectedRecipe: 'spin_thread',
       });
-      sim.setBuildings([workbench]);
+      const well = createManaWell();
+      sim.setBuildings([workbench, well]);
       startWithInputs(sim, workbench, [['sun_ingot', 1]]);
 
       // spin_thread takes 20 ticks
@@ -186,7 +189,8 @@ describe('Production', () => {
         y: 0,
         selectedRecipe: 'inscribe_rune',
       });
-      sim.setBuildings([workbench]);
+      const well = createManaWell();
+      sim.setBuildings([workbench, well]);
       startWithInputs(sim, workbench, [
         ['arcane_ingot', 1],
         ['thread', 3],

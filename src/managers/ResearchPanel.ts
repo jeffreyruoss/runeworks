@@ -3,7 +3,7 @@ import { CANVAS_WIDTH, CANVAS_HEIGHT, TICKS_PER_SECOND } from '../config';
 import { RESEARCH_NODES, RESEARCH_RECIPES, ResearchBranch, ResearchNode } from '../data/research';
 import { ITEM_DISPLAY_NAMES } from '../data/stages';
 import { ResearchManager } from './ResearchManager';
-import { makeText } from '../utils';
+import { makeText } from '../phaser-utils';
 
 interface NodeDisplay {
   node: ResearchNode;

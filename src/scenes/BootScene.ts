@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../config';
-import { makeText, setupCamera } from '../utils';
+import { makeText, setupCamera } from '../phaser-utils';
 
 export class BootScene extends Phaser.Scene {
   constructor() {
