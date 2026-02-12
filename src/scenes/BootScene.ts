@@ -1,4 +1,6 @@
 import Phaser from 'phaser';
+import { CANVAS_WIDTH, CANVAS_HEIGHT, DEFAULT_ZOOM } from '../config';
+import { makeText } from '../utils';
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -6,16 +8,20 @@ export class BootScene extends Phaser.Scene {
   }
 
   preload(): void {
-    // Show loading progress
-    const width = this.cameras.main.width;
-    const height = this.cameras.main.height;
+    // Zoom camera so world coords stay at 640x400
+    this.cameras.main.setZoom(DEFAULT_ZOOM);
+    this.cameras.main.setBounds(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    this.cameras.main.centerOn(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+
+    const width = CANVAS_WIDTH;
+    const height = CANVAS_HEIGHT;
 
     const progressBar = this.add.graphics();
     const progressBox = this.add.graphics();
     progressBox.fillStyle(0x222222, 0.8);
     progressBox.fillRect(width / 2 - 160, height / 2 - 25, 320, 50);
 
-    const loadingText = this.add.text(width / 2, height / 2 - 50, 'Loading...', {
+    const loadingText = makeText(this, width / 2, height / 2 - 50, 'Loading...', {
       fontFamily: 'monospace',
       fontSize: '16px',
       color: '#ffffff',

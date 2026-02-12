@@ -1,5 +1,14 @@
 import Phaser from 'phaser';
-import { TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, COLORS, CURSOR_JUMP_STEP } from '../config';
+import {
+  TILE_SIZE,
+  GRID_WIDTH,
+  GRID_HEIGHT,
+  COLORS,
+  CURSOR_JUMP_STEP,
+  DEFAULT_ZOOM,
+  CANVAS_WIDTH,
+  CANVAS_HEIGHT,
+} from '../config';
 import { Building, BuildingType, PlayerResources } from '../types';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
 import { getRecipesForBuilding } from '../data/recipes';
@@ -57,6 +66,11 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
+    // Zoom camera so world coords stay at 640x400 while canvas is at full resolution
+    this.cameras.main.setZoom(DEFAULT_ZOOM);
+    this.cameras.main.setBounds(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    this.cameras.main.centerOn(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+
     // Initialize simulation
     this.simulation = new Simulation();
     this.stageManager = new StageManager(this.simulation);

@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { TILE_SIZE } from '../config';
 import { Building } from '../types';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
-import { getBufferTotal } from '../utils';
+import { getBufferTotal, makeText } from '../utils';
 
 /**
  * Manages buffer indicator text overlays on buildings.
@@ -37,7 +37,7 @@ export class BufferIndicators {
         const text = `${inputCount}/${outputCount}`;
 
         if (!indicator) {
-          indicator = this.scene.add.text(x, y, text, {
+          indicator = makeText(this.scene, x, y, text, {
             fontFamily: 'monospace',
             fontSize: '8px',
             color: '#ffff00',
