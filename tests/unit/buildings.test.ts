@@ -41,8 +41,8 @@ describe('BUILDING_DEFINITIONS', () => {
         expect(building.inputBufferSize).toBeGreaterThanOrEqual(0);
       });
 
-      it('has positive output buffer size', () => {
-        expect(building.outputBufferSize).toBeGreaterThan(0);
+      it('has non-negative output buffer size', () => {
+        expect(building.outputBufferSize).toBeGreaterThanOrEqual(0);
       });
 
       it('has only valid input side directions', () => {
@@ -57,8 +57,14 @@ describe('BUILDING_DEFINITIONS', () => {
         }
       });
 
-      it('has at least one output side', () => {
-        expect(building.outputSides.length).toBeGreaterThan(0);
+      it('has output sides or is a sink building', () => {
+        // Sink buildings (arcane_study) produce meta-resources, not physical items
+        const sinkBuildings: BuildingType[] = ['arcane_study'];
+        if (sinkBuildings.includes(type)) {
+          expect(building.outputSides.length).toBe(0);
+        } else {
+          expect(building.outputSides.length).toBeGreaterThan(0);
+        }
       });
 
       it('has no duplicate input sides', () => {
@@ -121,6 +127,27 @@ describe('BUILDING_DEFINITIONS', () => {
 
     it('has positive input buffer', () => {
       expect(workbench.inputBufferSize).toBeGreaterThan(0);
+    });
+  });
+
+  describe('arcane_study specifics', () => {
+    const study = BUILDING_DEFINITIONS.arcane_study;
+
+    it('is 2x2', () => {
+      expect(study.width).toBe(2);
+      expect(study.height).toBe(2);
+    });
+
+    it('has input sides for receiving items', () => {
+      expect(study.inputSides.length).toBeGreaterThan(0);
+    });
+
+    it('has no output sides (produces RP, not items)', () => {
+      expect(study.outputSides).toHaveLength(0);
+    });
+
+    it('has zero output buffer (RP is a meta-resource)', () => {
+      expect(study.outputBufferSize).toBe(0);
     });
   });
 
