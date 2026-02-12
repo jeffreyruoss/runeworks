@@ -120,7 +120,6 @@ export class ResearchPanel {
 
     // Title
     const title = makeText(this.scene, 0, -panelH / 2 + 12, 'RESEARCH', {
-      fontFamily: 'monospace',
       fontSize: '14px',
       color: '#cc88ff',
     });
@@ -129,7 +128,6 @@ export class ResearchPanel {
 
     // RP display
     this.rpText = makeText(this.scene, 0, -panelH / 2 + 28, 'Research Points: 0', {
-      fontFamily: 'monospace',
       fontSize: '10px',
       color: '#ffaa00',
     });
@@ -138,7 +136,6 @@ export class ResearchPanel {
 
     // Selection indicator
     this.selectionIndicator = makeText(this.scene, 0, 0, '>', {
-      fontFamily: 'monospace',
       fontSize: '10px',
       color: '#ffff00',
     });
@@ -163,7 +160,6 @@ export class ResearchPanel {
       panelH / 2 - 12,
       'ESDF:Navigate  Space:Unlock  R/X/Esc:Close',
       {
-        fontFamily: 'monospace',
         fontSize: '8px',
         color: '#888888',
       }
@@ -180,7 +176,6 @@ export class ResearchPanel {
     color: string
   ): void {
     const header = makeText(this.scene, x, y, title, {
-      fontFamily: 'monospace',
       fontSize: '10px',
       color,
     });
@@ -196,14 +191,12 @@ export class ResearchPanel {
 
     for (const node of branchNodes) {
       const statusText = makeText(this.scene, x, rowY, '[-]', {
-        fontFamily: 'monospace',
         fontSize: '10px',
         color: '#666666',
       });
       this.container.add(statusText);
 
       const nameText = makeText(this.scene, x + 26, rowY, `${node.name} (${node.cost} RP)`, {
-        fontFamily: 'monospace',
         fontSize: '9px',
         color: '#aaaaaa',
       });
@@ -212,7 +205,6 @@ export class ResearchPanel {
       // Effect description
       const effectStr = this.getEffectDescription(node);
       const effectText = makeText(this.scene, x + 26, rowY + 12, effectStr, {
-        fontFamily: 'monospace',
         fontSize: '7px',
         color: '#555555',
       });
@@ -227,7 +219,6 @@ export class ResearchPanel {
           rowY + 20,
           `Requires: ${reqNode?.name || node.requires}`,
           {
-            fontFamily: 'monospace',
             fontSize: '7px',
             color: '#553333',
           }
@@ -247,7 +238,6 @@ export class ResearchPanel {
 
   private createRecipeReference(x: number, y: number): void {
     const header = makeText(this.scene, x, y, 'STUDY RECIPES (Arcane Study building)', {
-      fontFamily: 'monospace',
       fontSize: '9px',
       color: '#cc88ff',
     });
@@ -267,7 +257,6 @@ export class ResearchPanel {
         rowY,
         `${recipe.inputCount} ${ITEM_DISPLAY_NAMES[recipe.input] || recipe.input} -> ${recipe.rpYield} RP (${timeStr})`,
         {
-          fontFamily: 'monospace',
           fontSize: '8px',
           color: '#666666',
         }

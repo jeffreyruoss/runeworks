@@ -12,6 +12,7 @@ export const CANVAS_WIDTH = GRID_WIDTH * TILE_SIZE; // 640
 export const CANVAS_HEIGHT = GRID_HEIGHT * TILE_SIZE; // 400
 export const DEFAULT_ZOOM = 4;
 export const TEXT_RESOLUTION = DEFAULT_ZOOM;
+export const UI_FONT = "'Silkscreen', monospace";
 
 // Simulation
 export const TICKS_PER_SECOND = 20;

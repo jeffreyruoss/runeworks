@@ -60,14 +60,12 @@ export class UIScene extends Phaser.Scene {
 
     // Cursor info (top-left, shows what's under cursor)
     this.cursorInfoText = makeText(this, 4, 2, '', {
-      fontFamily: 'monospace',
       fontSize: '10px',
       color: '#ffffff',
     });
 
     // Simulation status with play icon (top-center)
     this.simStatusText = makeText(this, CANVAS_WIDTH / 2, 2, '► 1x', {
-      fontFamily: 'monospace',
       fontSize: '10px',
       color: '#00ffff',
     });
@@ -75,28 +73,24 @@ export class UIScene extends Phaser.Scene {
 
     // Resources (top-right area)
     this.resourcesText = makeText(this, CANVAS_WIDTH - 280, 2, '', {
-      fontFamily: 'monospace',
       fontSize: '10px',
       color: '#aaaaaa',
     });
 
     // Items produced (top, second row)
     this.itemsText = makeText(this, 4, 12, '', {
-      fontFamily: 'monospace',
       fontSize: '8px',
       color: '#ffff00',
     });
 
     // Hotbar (bottom) - dynamic based on build mode
     this.hotbarText = makeText(this, 4, CANVAS_HEIGHT - 24, '[B] Build', {
-      fontFamily: 'monospace',
       fontSize: '10px',
       color: '#aaaaaa',
     });
 
     // Selected building (bottom-right)
     this.selectedText = makeText(this, CANVAS_WIDTH - 4, CANVAS_HEIGHT - 24, 'None', {
-      fontFamily: 'monospace',
       fontSize: '10px',
       color: '#888888',
     });
@@ -109,7 +103,6 @@ export class UIScene extends Phaser.Scene {
       CANVAS_HEIGHT - 12,
       'ESDF:Move  Spc:Build  Del:Rmv  R:Rot/Research  P:Pause  H:Stats  O:Goals  G:Guide  M:Menu',
       {
-        fontFamily: 'monospace',
         fontSize: '8px',
         color: '#666666',
       }
@@ -153,7 +146,6 @@ export class UIScene extends Phaser.Scene {
 
     // Title
     const title = makeText(this, 0, -100, 'KEY COMMANDS', {
-      fontFamily: 'monospace',
       fontSize: '14px',
       color: '#ffffff',
     });
@@ -181,7 +173,6 @@ export class UIScene extends Phaser.Scene {
     let yPos = -70;
     for (const cmd of keyCommands) {
       const cmdText = makeText(this, 0, yPos, cmd, {
-        fontFamily: 'monospace',
         fontSize: '8px',
         color: '#888888',
       });
@@ -192,7 +183,6 @@ export class UIScene extends Phaser.Scene {
 
     // Close hint at bottom
     const closeHint = makeText(this, 0, 90, 'Press M or Esc to close', {
-      fontFamily: 'monospace',
       fontSize: '10px',
       color: '#666666',
     });
@@ -215,7 +205,6 @@ export class UIScene extends Phaser.Scene {
 
     // Title
     const invTitle = makeText(this, 0, -45, 'INVENTORY', {
-      fontFamily: 'monospace',
       fontSize: '12px',
       color: '#ffffff',
     });
@@ -224,7 +213,6 @@ export class UIScene extends Phaser.Scene {
 
     // Placeholder text
     const placeholder = makeText(this, 0, 0, 'Coming soon...', {
-      fontFamily: 'monospace',
       fontSize: '10px',
       color: '#666666',
     });
@@ -233,7 +221,6 @@ export class UIScene extends Phaser.Scene {
 
     // Close hint
     const hint = makeText(this, 0, 40, 'Press I, X, or Esc to close', {
-      fontFamily: 'monospace',
       fontSize: '8px',
       color: '#888888',
     });

@@ -8,7 +8,7 @@ import {
   TerrainType,
 } from './types';
 import { BUILDING_DEFINITIONS } from './data/buildings';
-import { TEXT_RESOLUTION } from './config';
+import { TEXT_RESOLUTION, UI_FONT } from './config';
 import { TERRAIN_DISPLAY_NAMES } from './data/terrain';
 import { getRecipe } from './data/recipes';
 import { getResearchRecipe } from './data/research';
@@ -152,7 +152,11 @@ export function makeText(
   text: string | string[],
   style?: Phaser.Types.GameObjects.Text.TextStyle
 ): Phaser.GameObjects.Text {
-  const t = scene.add.text(x, y, text, { ...style, resolution: TEXT_RESOLUTION });
+  const t = scene.add.text(x, y, text, {
+    fontFamily: UI_FONT,
+    ...style,
+    resolution: TEXT_RESOLUTION,
+  });
   t.texture.setFilter(Phaser.Textures.FilterMode.LINEAR);
   return t;
 }

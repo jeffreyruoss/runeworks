@@ -74,7 +74,6 @@ export class GuidePanel {
 
     // Title
     const title = makeText(this.scene, 0, -panelH / 2 + 12, 'GUIDE', {
-      fontFamily: 'monospace',
       fontSize: '14px',
       color: '#ffffff',
     });
@@ -92,7 +91,6 @@ export class GuidePanel {
 
     // Close hint
     const hint = makeText(this.scene, 0, panelH / 2 - 12, 'Press G, X, or Esc to close', {
-      fontFamily: 'monospace',
       fontSize: '8px',
       color: '#888888',
     });
@@ -102,7 +100,6 @@ export class GuidePanel {
 
   private createResourcesSection(x: number, y: number): void {
     const header = makeText(this.scene, x, y, 'RESOURCES', {
-      fontFamily: 'monospace',
       fontSize: '10px',
       color: '#88aaff',
     });
@@ -127,14 +124,12 @@ export class GuidePanel {
       this.container.add(thumb);
 
       const nameText = makeText(this.scene, x + 14, rowY, name, {
-        fontFamily: 'monospace',
         fontSize: '8px',
         color: '#cccccc',
       });
       this.container.add(nameText);
 
       const sourceText = makeText(this.scene, x + 14, rowY + 10, source, {
-        fontFamily: 'monospace',
         fontSize: '7px',
         color: '#666666',
       });
@@ -146,7 +141,6 @@ export class GuidePanel {
 
   private createItemsSection(x: number, y: number): void {
     const header = makeText(this.scene, x, y, 'CRAFTED ITEMS', {
-      fontFamily: 'monospace',
       fontSize: '10px',
       color: '#ffaa44',
     });
@@ -177,7 +171,6 @@ export class GuidePanel {
       }
 
       const nameText = makeText(this.scene, x + 14, rowY, name, {
-        fontFamily: 'monospace',
         fontSize: '8px',
         color: '#cccccc',
       });
@@ -192,7 +185,6 @@ export class GuidePanel {
       const recipeStr = `${inputStr} -> ${outputCount} (${timeStr}) [${buildingName}]`;
 
       const recipeText = makeText(this.scene, x + 14, rowY + 10, recipeStr, {
-        fontFamily: 'monospace',
         fontSize: '7px',
         color: '#666666',
       });
@@ -204,7 +196,6 @@ export class GuidePanel {
 
   private createBuildingsSection(x: number, y: number): void {
     const header = makeText(this.scene, x, y, 'BUILDINGS', {
-      fontFamily: 'monospace',
       fontSize: '10px',
       color: '#44ff88',
     });
@@ -241,7 +232,6 @@ export class GuidePanel {
       this.container.add(sprite);
 
       const nameText = makeText(this.scene, x + 18, rowY, name, {
-        fontFamily: 'monospace',
         fontSize: '8px',
         color: '#cccccc',
       });
@@ -255,7 +245,6 @@ export class GuidePanel {
       const sizeStr = `${def.width}x${def.height}`;
 
       const detailText = makeText(this.scene, x + 18, rowY + 10, `${sizeStr}  Cost: ${costStr}`, {
-        fontFamily: 'monospace',
         fontSize: '7px',
         color: '#666666',
       });
@@ -280,7 +269,6 @@ export class GuidePanel {
       }
 
       const ioText = makeText(this.scene, x + 18, rowY + 19, ioStr, {
-        fontFamily: 'monospace',
         fontSize: '7px',
         color: '#555555',
       });
@@ -292,7 +280,6 @@ export class GuidePanel {
 
   private createResearchRecipesSection(x: number, y: number): void {
     const header = makeText(this.scene, x, y, 'RESEARCH (Arcane Study)', {
-      fontFamily: 'monospace',
       fontSize: '10px',
       color: '#cc88ff',
     });
@@ -312,7 +299,6 @@ export class GuidePanel {
         rowY,
         `${recipe.inputCount} ${ITEM_DISPLAY_NAMES[recipe.input] || recipe.input} -> ${recipe.rpYield} RP (${timeStr})`,
         {
-          fontFamily: 'monospace',
           fontSize: '7px',
           color: '#666666',
         }

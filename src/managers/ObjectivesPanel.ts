@@ -44,7 +44,6 @@ export class ObjectivesPanel {
     this.objectivesContainer.add(bg);
 
     this.stageTitleText = makeText(this.scene, 0, -92, '', {
-      fontFamily: 'monospace',
       fontSize: '14px',
       color: '#ffffff',
     });
@@ -56,7 +55,6 @@ export class ObjectivesPanel {
       const y = startY + i * 40;
 
       const objText = makeText(this.scene, -145, y, '', {
-        fontFamily: 'monospace',
         fontSize: '10px',
         color: '#aaaaaa',
       });
@@ -64,7 +62,6 @@ export class ObjectivesPanel {
       this.objectivesContainer.add(objText);
 
       const chainText = makeText(this.scene, -133, y + 14, '', {
-        fontFamily: 'monospace',
         fontSize: '8px',
         color: '#666688',
       });
@@ -73,7 +70,6 @@ export class ObjectivesPanel {
     }
 
     this.stageCompleteText = makeText(this.scene, 0, 68, 'STAGE COMPLETE!', {
-      fontFamily: 'monospace',
       fontSize: '12px',
       color: '#00ff00',
     });
@@ -82,7 +78,6 @@ export class ObjectivesPanel {
     this.objectivesContainer.add(this.stageCompleteText);
 
     const hint = makeText(this.scene, 0, 95, 'Press O, X, or Esc to close', {
-      fontFamily: 'monospace',
       fontSize: '8px',
       color: '#888888',
     });
@@ -103,7 +98,6 @@ export class ObjectivesPanel {
     this.stageCompleteContainer.add(bg);
 
     const title = makeText(this.scene, 0, -35, 'STAGE COMPLETE!', {
-      fontFamily: 'monospace',
       fontSize: '14px',
       color: '#00ff00',
     });
@@ -111,7 +105,6 @@ export class ObjectivesPanel {
     this.stageCompleteContainer.add(title);
 
     this.stageCompleteNameText = makeText(this.scene, 0, -10, '', {
-      fontFamily: 'monospace',
       fontSize: '10px',
       color: '#ffffff',
     });
@@ -119,7 +112,6 @@ export class ObjectivesPanel {
     this.stageCompleteContainer.add(this.stageCompleteNameText);
 
     this.stageCompleteNextText = makeText(this.scene, 0, 25, '', {
-      fontFamily: 'monospace',
       fontSize: '10px',
       color: '#aaaaaa',
     });
@@ -127,7 +119,6 @@ export class ObjectivesPanel {
     this.stageCompleteContainer.add(this.stageCompleteNextText);
 
     const hint = makeText(this.scene, 0, 45, '[Space] Continue', {
-      fontFamily: 'monospace',
       fontSize: '10px',
       color: '#00ffff',
     });

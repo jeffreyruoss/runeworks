@@ -38,7 +38,6 @@ export class BufferIndicators {
 
         if (!indicator) {
           indicator = makeText(this.scene, x, y, text, {
-            fontFamily: 'monospace',
             fontSize: '8px',
             color: '#ffff00',
             backgroundColor: '#000000',
