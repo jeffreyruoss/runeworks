@@ -14,9 +14,7 @@ import { ResearchManager } from '../managers/ResearchManager';
 import { canAfford, makeText } from '../utils';
 
 export class UIScene extends Phaser.Scene {
-  private buildingCountText!: Phaser.GameObjects.Text;
   private selectedText!: Phaser.GameObjects.Text;
-  private cursorPosText!: Phaser.GameObjects.Text;
   private simStatusText!: Phaser.GameObjects.Text;
   private itemsText!: Phaser.GameObjects.Text;
   private resourcesText!: Phaser.GameObjects.Text;
@@ -73,13 +71,6 @@ export class UIScene extends Phaser.Scene {
       fontFamily: 'monospace',
       fontSize: '10px',
       color: '#aaaaaa',
-    });
-
-    // Cursor position (top-right)
-    this.cursorPosText = makeText(this, CANVAS_WIDTH - 60, 2, 'X:20 Y:12', {
-      fontFamily: 'monospace',
-      fontSize: '10px',
-      color: '#888888',
     });
 
     // Items produced (top, second row)
@@ -251,9 +242,6 @@ export class UIScene extends Phaser.Scene {
     } else {
       this.cursorInfoText.setText('');
     }
-
-    // Cursor position
-    this.cursorPosText.setText(`X:${state.cursorX} Y:${state.cursorY}`);
 
     // Resources - show all non-zero
     this.resourcesText.setText(this.formatResources(state.playerResources));

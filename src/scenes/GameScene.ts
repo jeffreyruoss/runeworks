@@ -468,10 +468,7 @@ export class GameScene extends Phaser.Scene {
   private emitUIUpdate(): void {
     const state = this.simulation.getState();
     this.events.emit('gameStateChanged', {
-      buildingCount: this.buildings.length,
       selectedBuilding: this.selectedBuilding,
-      cursorX: this.cursor.x,
-      cursorY: this.cursor.y,
       cursorInfo: this.getCursorInfo(),
       simRunning: state.running,
       simPaused: state.paused,

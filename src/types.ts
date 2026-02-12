@@ -101,10 +101,7 @@ export interface SimulationState {
  * UI state passed from GameScene to UIScene for HUD updates
  */
 export interface GameUIState {
-  buildingCount: number;
   selectedBuilding: BuildingType | null;
-  cursorX: number;
-  cursorY: number;
   cursorInfo: string | null; // What's under the cursor (terrain type or building)
   simRunning: boolean;
   simPaused: boolean;
