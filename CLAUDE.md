@@ -47,7 +47,8 @@ npm run sprites   # Regenerate sprite atlas from ASCII definitions
 
 ### Sprite Pipeline
 
-ASCII art in `assets/sprites/src/*.txt` → `tools/spritegen/generate.js` → PNG atlas in `assets/sprites/out/`
+**ASCII pipeline** (legacy): `assets/sprites/src/*.txt` → `tools/spritegen/generate.js` → `assets/sprites/out/`
+**AI pipeline** (active): `tools/spritegen-ai/generate.js` → `assets/sprites/ai-out/` (loaded by BootScene)
 
 ## Key Configuration (`src/config.ts`)
 

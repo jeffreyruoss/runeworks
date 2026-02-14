@@ -2,5 +2,6 @@ node_modules
 dist
 .DS_Store
 .claude
+assets/sprites/out/
 assets/sprites/ai-out/
 tools/spritegen-ai/.env

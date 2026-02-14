@@ -320,7 +320,8 @@ const PALETTE = {
    - Generates individual PNGs
    - Packs into spritesheet atlas
    - Outputs JSON atlas metadata
-3. `/assets/sprites/out/` — Generated PNG atlas + JSON
+3. `/assets/sprites/ai-out/` — Generated PNG atlas + JSON (active)
+4. `/assets/sprites/out/` — Legacy ASCII pipeline output
 
 ### Build integration
 
