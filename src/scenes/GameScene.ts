@@ -76,8 +76,7 @@ export class GameScene extends Phaser.Scene {
     this.cursorGraphics = this.add.graphics();
     this.cursorGraphics.setDepth(100);
 
-    // Draw grid and terrain
-    this.terrainRenderer.drawGrid();
+    // Draw terrain sprites
     this.setupTerrain();
 
     // Setup input (must be after other init so callbacks reference valid state)

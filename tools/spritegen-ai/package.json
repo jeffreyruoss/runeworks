@@ -1,0 +1,11 @@
+{
+  "name": "spritegen-ai",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "AI sprite generation using Google Gemini for Runeworks",
+  "dependencies": {
+    "@google/genai": "^1.0.0",
+    "sharp": "^0.33.0"
+  }
+}
