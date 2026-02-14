@@ -62,7 +62,7 @@ export const RESOURCE_DISPLAY_NAMES: Record<string, string> = {
 
 // Colors for UI
 export const COLORS = {
-  background: 0x1a1a1a,
+  background: 0x1a3a1a,
   gridLine: 0x333333,
   cursorValid: 0x00ff00,
   cursorInvalid: 0xff0000,

@@ -23,6 +23,11 @@ const ITEM_SPRITES: Set<ItemType> = new Set([
   'cogwheel',
   'thread',
   'rune',
+  'stone',
+  'wood',
+  'iron',
+  'clay',
+  'crystal_shard',
 ]);
 
 /** Resource entries: terrain type → item yielded, display name, source terrain name */

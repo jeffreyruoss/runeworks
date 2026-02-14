@@ -46,10 +46,12 @@ export class BuildingPlacer {
 
     if (!selectedBuilding) return;
 
+    const def = BUILDING_DEFINITIONS[selectedBuilding];
     this.ghostSprite = this.scene.add.sprite(0, 0, 'sprites', selectedBuilding);
     this.ghostSprite.setOrigin(0, 0);
     this.ghostSprite.setAlpha(0.6);
     this.ghostSprite.setDepth(50);
+    this.ghostSprite.setDisplaySize(def.width * TILE_SIZE, def.height * TILE_SIZE);
     this.ghostSprite.setAngle(this.ghostRotation * 90);
   }
 
@@ -201,6 +203,7 @@ export class BuildingPlacer {
       selectedBuilding
     );
     sprite.setOrigin(0.5, 0.5);
+    sprite.setDisplaySize(def.width * TILE_SIZE, def.height * TILE_SIZE);
     sprite.setAngle(building.rotation * 90);
     sprite.setDepth(10);
 

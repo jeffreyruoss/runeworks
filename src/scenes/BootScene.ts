@@ -39,8 +39,8 @@ export class BootScene extends Phaser.Scene {
     // Load spritesheet atlas
     this.load.atlas(
       'sprites',
-      'assets/sprites/out/spritesheet.png',
-      'assets/sprites/out/spritesheet.json'
+      'assets/sprites/ai-out/spritesheet.png',
+      'assets/sprites/ai-out/spritesheet.json'
     );
   }
 
