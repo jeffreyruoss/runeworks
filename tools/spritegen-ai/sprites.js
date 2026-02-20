@@ -229,11 +229,16 @@ export const SPRITES = [
     name: 'ground',
     width: 32,
     height: 32,
+    tileable: true,
     prompt:
       `${STYLE_PREFIX} The sprite should be 32x32 logical pixels shown at large scale. ` +
-      'A seamless top-down grass tile. Dark green grass with subtle blade texture variation. ' +
-      'A few slightly lighter green patches. Muted and not distracting since buildings sit on top. ' +
-      'Color scheme: dark muted greens, slightly desaturated forest floor.',
+      'IMPORTANT: This is a seamless tileable texture — the pattern must repeat seamlessly when tiled ' +
+      'in all directions. Content must extend fully to every edge with NO whitespace, NO border, ' +
+      'and NO empty margin. ' +
+      'A dark, subtle top-down grass tile. Dark muted green with very minimal texture variation. ' +
+      'Soft and understated — this is background terrain so resource patches and buildings must ' +
+      'stand out clearly against it. Very low contrast, almost flat. ' +
+      'Color scheme: dark desaturated green, like a shadowy forest floor. Avoid bright greens.',
   },
   {
     name: 'arcstone_vein',
@@ -261,21 +266,31 @@ export const SPRITES = [
     name: 'stone_terrain',
     width: 32,
     height: 32,
+    tileable: true,
     prompt:
       `${STYLE_PREFIX} The sprite should be 32x32 logical pixels shown at large scale. ` +
-      'A top-down terrain tile showing a stone outcrop. Large gray boulders and exposed bedrock ' +
-      'breaking through dark soil. Angular rock surfaces with cracks and shadows between them. ' +
-      'Color scheme: medium gray and dark gray stone with subtle lighter highlights.',
+      'IMPORTANT: This is a seamless tileable texture — the pattern must repeat seamlessly when tiled ' +
+      'in all directions. Content must extend fully to every edge with NO whitespace, NO border, ' +
+      'and NO empty margin. ' +
+      'A top-down terrain tile showing coarse, chunky stone ground. Large angular rock slabs and ' +
+      'big boulders packed together with visible cracks between them. Few but big stone pieces, ' +
+      'not fine gravel — think flagstone or broken bedrock. ' +
+      'Color scheme: light gray and medium gray stone with white highlights. Bright and readable.',
   },
   {
     name: 'iron_terrain',
     width: 32,
     height: 32,
+    tileable: true,
     prompt:
       `${STYLE_PREFIX} The sprite should be 32x32 logical pixels shown at large scale. ` +
-      'A top-down terrain tile showing an iron ore deposit. Dark rocky ground with veins of ' +
-      'metallic blue-gray iron ore embedded in the surface. Oxidized reddish-brown patches ' +
-      'around the ore veins. Color scheme: dark gray-blue rock with metallic silver-blue streaks.',
+      'IMPORTANT: This is a seamless tileable texture — the pattern must repeat seamlessly when tiled ' +
+      'in all directions. Content must extend fully to every edge with NO whitespace, NO border, ' +
+      'and NO empty margin. ' +
+      'A top-down terrain tile showing iron ore deposits in rocky ground. Dark stone surface with ' +
+      'thick veins of metallic silver-blue iron ore running through it. Pure iron — no rust, no ' +
+      'reddish-brown, no oxidation. Chunks of raw metallic ore embedded in the rock. ' +
+      'Color scheme: dark gray rock with metallic silver-blue iron streaks and steel-gray highlights.',
   },
   {
     name: 'forest_terrain',
@@ -292,11 +307,17 @@ export const SPRITES = [
     name: 'clay_terrain',
     width: 32,
     height: 32,
+    tileable: true,
     prompt:
       `${STYLE_PREFIX} The sprite should be 32x32 logical pixels shown at large scale. ` +
-      'A top-down terrain tile showing a clay pit. Wet reddish-brown clay earth with smooth ' +
-      'muddy patches and small puddles. Slightly cracked dried clay on the edges. ' +
-      'Color scheme: warm reddish-brown, orange-tan clay with darker wet patches.',
+      'IMPORTANT: This is a seamless tileable texture — the pattern must repeat seamlessly when tiled ' +
+      'in all directions. Content must extend fully to every edge with NO whitespace, NO border, ' +
+      'and NO empty margin. ' +
+      'A top-down terrain tile of smooth wet clay earth. Uniform reddish-brown terracotta surface ' +
+      'with subtle cracks and moisture variations spread evenly across the entire tile. No distinct ' +
+      'objects or circular shapes — just a continuous clay ground texture. Small drying cracks form ' +
+      'an organic network pattern. Slight sheen from moisture. ' +
+      'Color scheme: warm reddish-brown and orange-tan clay with subtle darker wet seams between patches.',
   },
   {
     name: 'crystal_shard_terrain',
