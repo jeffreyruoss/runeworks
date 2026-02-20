@@ -50,6 +50,11 @@ npm run sprites   # Regenerate sprite atlas from ASCII definitions
 **ASCII pipeline** (legacy): `assets/sprites/src/*.txt` → `tools/spritegen/generate.js` → `assets/sprites/out/`
 **AI pipeline** (active): `tools/spritegen-ai/generate.js` → `assets/sprites/ai-out/` (loaded by BootScene)
 
+The AI pipeline uses the **Google Gemini API** for image generation. After running sprite generation, remind the user to check API usage at:
+https://aistudio.google.com/usage?timeRange=last-28-days&project=gen-lang-client-0335300341&tab=billing
+
+**Tileable sprites**: Sprites with `tileable: true` in `sprites.js` get special post-processing: alpha is flattened onto black (kills Gemini's fake transparency checkerboard), then a 4px oversize+crop removes Gemini's lighter border pixels. Always set `tileable: true` for terrain tiles that must tile seamlessly.
+
 ## Key Configuration (`src/config.ts`)
 
 - Grid: 40×25 tiles at 16×16px (640×400 virtual resolution)
@@ -86,7 +91,7 @@ Reference `.claude/agents/` for domain-specific guidance:
 | --------------- | ---------------------------------------------------------- |
 | `simulation.md` | Tick engine, recipes, item flow, production/transfer logic |
 | `scene.md`      | Phaser scenes, input handling, rendering, events           |
-| `sprites.md`    | ASCII → PNG pipeline, adding/modifying sprites             |
+| `sprites.md`    | AI sprite generation, atlas packing, tileable textures     |
 | `content.md`    | New buildings, recipes, items, game balance                |
 | `types.md`      | TypeScript interfaces, type safety patterns                |
 | `debug.md`      | Troubleshooting, state inspection, profiling               |
@@ -205,7 +210,9 @@ Avoid these frequent mistakes:
 
 | Pitfall                        | Solution                                                                          |
 | ------------------------------ | --------------------------------------------------------------------------------- |
-| Sprites not updating           | Run `npm run sprites` after changing ASCII definitions                            |
+| Sprites not updating           | Run `pack-atlas.js` after changing PNGs, then hard-refresh browser                |
+| Gemini border artifacts        | Set `tileable: true` in sprites.js — flattens alpha + crops edges automatically   |
+| White edges on terrain tiles   | Ensure `tileable: true` is set; Gemini adds fake transparency checkerboard        |
 | Event listener not firing      | Check exact event name spelling (see Event API above)                             |
 | Items disappearing             | Check buffer capacity limits in `buildings.ts`                                    |
 | Transfer not working           | Verify rotation: output side must face adjacent input side                        |

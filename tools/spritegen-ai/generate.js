@@ -83,7 +83,27 @@ async function generateSprite(client, sprite) {
 
 // Downscale image to target size using nearest-neighbor.
 // Overshoots by a margin then crops the center to discard AI border artifacts.
-async function downscaleSprite(imageBuffer, targetWidth, targetHeight) {
+// For tileable sprites, skips the margin crop to preserve seamless edges.
+async function downscaleSprite(imageBuffer, targetWidth, targetHeight, tileable = false) {
+  if (tileable) {
+    // Flatten alpha onto black to kill Gemini's fake transparency checkerboard
+    // Then oversize + crop center to remove Gemini's lighter border pixels.
+    // Slightly breaks perfect tileability but eliminates visible edge seams.
+    const margin = 4;
+    const overshotW = targetWidth + 2 * margin;
+    const overshotH = targetHeight + 2 * margin;
+
+    return sharp(imageBuffer)
+      .flatten({ background: { r: 0, g: 0, b: 0 } })
+      .resize(overshotW, overshotH, {
+        kernel: sharp.kernel.nearest,
+        fit: 'fill',
+      })
+      .extract({ left: margin, top: margin, width: targetWidth, height: targetHeight })
+      .png()
+      .toBuffer();
+  }
+
   // Auto margin: 2px for 16px items, 4px for 32px+ sprites
   const minDim = Math.min(targetWidth, targetHeight);
   const margin = minDim <= 16 ? 2 : 4;
@@ -191,7 +211,12 @@ async function main() {
       const rawImage = await generateSprite(client, sprite);
 
       // Downscale to target size with nearest-neighbor
-      const finalImage = await downscaleSprite(rawImage, sprite.width, sprite.height);
+      const finalImage = await downscaleSprite(
+        rawImage,
+        sprite.width,
+        sprite.height,
+        sprite.tileable
+      );
 
       // Save
       const outPath = join(AI_OUT, `${sprite.name}.png`);
