@@ -68,4 +68,14 @@ export class BufferIndicators {
       this.indicators.delete(buildingId);
     }
   }
+
+  /**
+   * Destroy all indicators. Used during world reset.
+   */
+  clearAll(): void {
+    for (const [, indicator] of this.indicators) {
+      indicator.destroy();
+    }
+    this.indicators.clear();
+  }
 }

@@ -45,8 +45,6 @@ export class BootScene extends Phaser.Scene {
   }
 
   create(): void {
-    // Start the game scene and UI scene in parallel
-    this.scene.start('GameScene');
-    this.scene.start('UIScene');
+    this.scene.start('ModeSelectScene');
   }
 }

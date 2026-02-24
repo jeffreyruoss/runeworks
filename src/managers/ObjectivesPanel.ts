@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../config';
 import { GameUIState } from '../types';
 import { getStage, ITEM_DISPLAY_NAMES, PRODUCTION_CHAINS } from '../data/stages';
+import { TUTORIALS } from '../data/tutorials';
 import { makeText } from '../phaser-utils';
 
 /**
@@ -77,7 +78,7 @@ export class ObjectivesPanel {
     this.stageCompleteText.setVisible(false);
     this.objectivesContainer.add(this.stageCompleteText);
 
-    const hint = makeText(this.scene, 0, 95, 'Press O, X, or Esc to close', {
+    const hint = makeText(this.scene, 0, 95, 'Press O or X to close', {
       fontSize: '8px',
       color: '#888888',
     });
@@ -140,9 +141,8 @@ export class ObjectivesPanel {
   }
 
   private updateObjectivesContent(state: GameUIState): void {
-    const stage = getStage(state.currentStage);
-    const stageName = stage ? stage.name : `Stage ${state.currentStage}`;
-    this.stageTitleText.setText(`Stage ${state.currentStage}: ${stageName}`);
+    const label = state.gameMode === 'tutorial' ? 'Lesson' : 'Stage';
+    this.stageTitleText.setText(`${label} ${state.currentStage}: ${state.stageName}`);
 
     for (let i = 0; i < this.objectiveTexts.length; i++) {
       if (i < state.objectiveProgress.length) {
@@ -168,15 +168,22 @@ export class ObjectivesPanel {
   }
 
   private updateStageCompleteContent(state: GameUIState): void {
-    const stage = getStage(state.currentStage);
-    const stageName = stage ? stage.name : `Stage ${state.currentStage}`;
-    this.stageCompleteNameText.setText(stageName);
+    this.stageCompleteNameText.setText(state.stageName);
 
-    const nextStage = getStage(state.currentStage + 1);
-    if (nextStage) {
-      this.stageCompleteNextText.setText(`Next: Stage ${nextStage.id} - ${nextStage.name}`);
+    if (state.gameMode === 'tutorial') {
+      // Tutorial: generic "next lesson" or "tutorial complete"
+      if (state.currentStage < TUTORIALS.length) {
+        this.stageCompleteNextText.setText('Next lesson...');
+      } else {
+        this.stageCompleteNextText.setText('Tutorial complete!');
+      }
     } else {
-      this.stageCompleteNextText.setText('All stages complete!');
+      const nextStage = getStage(state.currentStage + 1);
+      if (nextStage) {
+        this.stageCompleteNextText.setText(`Next: Stage ${nextStage.id} - ${nextStage.name}`);
+      } else {
+        this.stageCompleteNextText.setText('All stages complete!');
+      }
     }
   }
 }

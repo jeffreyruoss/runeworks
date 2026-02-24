@@ -12,6 +12,7 @@ import { ObjectivesPanel } from '../managers/ObjectivesPanel';
 import { GuidePanel } from '../managers/GuidePanel';
 import { ResearchPanel } from '../managers/ResearchPanel';
 import { ResearchManager } from '../managers/ResearchManager';
+import { TutorialOverlay } from '../managers/TutorialOverlay';
 import { canAfford } from '../utils';
 import { makeText, setupCamera } from '../phaser-utils';
 
@@ -38,6 +39,9 @@ export class UIScene extends Phaser.Scene {
   // Research panel
   private researchPanel!: ResearchPanel;
   private researchManager!: ResearchManager;
+
+  // Tutorial overlay
+  private tutorialOverlay!: TutorialOverlay;
 
   constructor() {
     super({ key: 'UIScene' });
@@ -98,7 +102,7 @@ export class UIScene extends Phaser.Scene {
       this,
       4,
       CANVAS_HEIGHT - 12,
-      'ESDF:Move  Spc:Build  Del:Rmv  R:Rot/Research  P:Pause  H:Stats  O:Goals  G:Guide  M:Menu',
+      'ESDF:Move  Spc:Build  X:Cancel/Rmv  R:Rot/Research  P:Pause  H:Stats  O:Goals  G:Guide  K:Keys',
       {
         fontSize: '8px',
         color: '#666666',
@@ -120,6 +124,9 @@ export class UIScene extends Phaser.Scene {
     // Get shared research manager from GameScene via registry
     this.researchManager = this.registry.get('researchManager') as ResearchManager;
     this.researchPanel = new ResearchPanel(this);
+
+    // Create tutorial overlay
+    this.tutorialOverlay = new TutorialOverlay(this);
 
     // Listen for events from GameScene
     const gameScene = this.scene.get('GameScene');
@@ -181,7 +188,7 @@ export class UIScene extends Phaser.Scene {
       'ESDF - Move cursor',
       'Shift+ESDF - Jump 5 tiles',
       'Space/Enter - Gather/Build',
-      'Backspace - Demolish',
+      'X - Cancel / Deconstruct',
       'R - Rotate / Research',
       'C - Cycle recipe',
       'P - Pause/Resume',
@@ -189,8 +196,7 @@ export class UIScene extends Phaser.Scene {
       'H - Toggle stats',
       'O - Objectives',
       'G - Guide',
-      'M - Menu',
-      'X/Esc - Cancel/Back',
+      'K - Key Commands',
     ]);
 
     addColumn(colX[1], 'BUILD MODE', [
@@ -203,7 +209,7 @@ export class UIScene extends Phaser.Scene {
       'M - Mana Well',
       'O - Mana Obelisk',
       'T - Mana Tower',
-      'X/Esc - Exit build mode',
+      'X - Exit build mode',
     ]);
 
     // Divider line between columns
@@ -213,7 +219,7 @@ export class UIScene extends Phaser.Scene {
     this.menuPanel.add(divider);
 
     // Close hint at bottom
-    const closeHint = makeText(this, 0, panelH / 2 - 14, 'Press M or Esc to close', {
+    const closeHint = makeText(this, 0, panelH / 2 - 14, 'Press K or X to close', {
       fontSize: '10px',
       color: '#666666',
     });
@@ -251,7 +257,7 @@ export class UIScene extends Phaser.Scene {
     this.inventoryPanel.add(placeholder);
 
     // Close hint
-    const hint = makeText(this, 0, 40, 'Press I, X, or Esc to close', {
+    const hint = makeText(this, 0, 40, 'Press I or X to close', {
       fontSize: '8px',
       color: '#888888',
     });
@@ -285,8 +291,11 @@ export class UIScene extends Phaser.Scene {
         this.selectedText.setText(`${displayName} (${costStr})`);
         this.selectedText.setColor('#ff6666');
       }
+    } else if (state.cursorOverBuilding) {
+      this.selectedText.setText('[X] Deconstruct');
+      this.selectedText.setColor('#ff8888');
     } else {
-      this.selectedText.setText('None');
+      this.selectedText.setText('');
       this.selectedText.setColor('#888888');
     }
 
@@ -357,8 +366,15 @@ export class UIScene extends Phaser.Scene {
       this.researchPanel.update(this.researchManager);
     }
 
-    // Objectives and stage complete (delegated to manager)
-    this.objectivesPanel.update(state);
+    // Objectives and stage complete — hidden in sandbox mode
+    if (state.gameMode !== 'sandbox') {
+      this.objectivesPanel.update(state);
+    } else {
+      this.objectivesPanel.update({ ...state, objectivesOpen: false, stageCompleteShown: false });
+    }
+
+    // Tutorial overlay
+    this.tutorialOverlay.update(state.tutorialText);
   }
 
   private formatResources(res: PlayerResources): string {

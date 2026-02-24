@@ -158,7 +158,7 @@ export class ResearchPanel {
       this.scene,
       0,
       panelH / 2 - 12,
-      'ESDF:Navigate  Space:Unlock  R/X/Esc:Close',
+      'ESDF:Navigate  Space:Unlock  R/X:Close',
       {
         fontSize: '8px',
         color: '#888888',

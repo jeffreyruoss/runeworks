@@ -162,6 +162,20 @@ export class Simulation {
     this.onStateChanged?.(this.state);
   }
 
+  /** Full reset: tears down all state and re-initializes empty terrain grid. */
+  reset(): void {
+    this.stop();
+    this.state.tickCount = 0;
+    this.state.itemsProduced = new Map();
+    this.state.manaProduction = 0;
+    this.state.manaConsumption = 0;
+    this.accumulator = 0;
+    this.buildings = [];
+    this.transferSystem.reset();
+    this.patchManager.reset();
+    this.initTerrain();
+  }
+
   update(deltaMs: number): void {
     if (!this.state.running || this.state.paused) return;
 
@@ -381,5 +395,10 @@ export class Simulation {
     const current = this.state.itemsProduced.get(item) || 0;
     this.state.itemsProduced.set(item, current + count);
     this.onItemProduced?.(item, count);
+  }
+
+  /** Record a manually gathered resource (for tutorial objective tracking) */
+  recordGatheredItem(item: ItemType, count: number): void {
+    this.recordProduction(item, count);
   }
 }

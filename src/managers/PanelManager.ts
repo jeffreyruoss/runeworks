@@ -96,7 +96,7 @@ export class PanelManager {
     return null;
   }
 
-  private closeAll(): void {
+  closeAll(): void {
     this.menuOpen = false;
     this.inventoryOpen = false;
     this.guideOpen = false;

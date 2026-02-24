@@ -9,6 +9,24 @@ const STYLE_PREFIX =
   'dark fantasy aesthetic. Single isolated object on transparent background, no text or labels.';
 
 export const SPRITES = [
+  // === UI / Logo ===
+  {
+    name: 'logo_crest',
+    width: 64,
+    height: 64,
+    prompt:
+      `${STYLE_PREFIX} The sprite should be 64x64 logical pixels shown at large scale. ` +
+      'A front-facing heraldic crest or emblem, NOT top-down. A dark fantasy coat of arms or shield emblem. ' +
+      'Central motif: a glowing runic anvil or forge hammer crossed with a luminous crystal, ' +
+      'framed by an ornate gothic shield shape. Arcane rune symbols etched into the shield border. ' +
+      'Small gear/cog details in the corners representing crafting and machinery. ' +
+      'A faint magical aura radiating from the center. ' +
+      'Must look iconic and recognizable at small sizes — bold silhouette, high contrast. ' +
+      'Designed to display on a black background. ' +
+      'Color scheme: deep purple and indigo shield body, bright cyan-blue glowing runes and crystal, ' +
+      'orange-amber forge glow from the anvil/hammer, dark iron gray metallic trim.',
+  },
+
   // === Buildings (64x64, 2x2 tile) ===
   {
     name: 'quarry',
@@ -235,10 +253,13 @@ export const SPRITES = [
       'IMPORTANT: This is a seamless tileable texture — the pattern must repeat seamlessly when tiled ' +
       'in all directions. Content must extend fully to every edge with NO whitespace, NO border, ' +
       'and NO empty margin. ' +
-      'A dark, subtle top-down grass tile. Dark muted green with very minimal texture variation. ' +
-      'Soft and understated — this is background terrain so resource patches and buildings must ' +
-      'stand out clearly against it. Very low contrast, almost flat. ' +
-      'Color scheme: dark desaturated green, like a shadowy forest floor. Avoid bright greens.',
+      'A dark, flat top-down grass ground texture. NO distinct shapes, NO circles, NO bushes, NO objects. ' +
+      'Coarse, chunky texture — large clumps of dark grass, NOT fine-grain noise. Think big blocky pixel clusters ' +
+      'of 3-4 pixels each, not single-pixel noise. Visible but subtle variation between clumps. ' +
+      'Very dark overall so brighter resource tiles and buildings pop against it. ' +
+      'Extremely subtle and non-distracting — pure background filler. ' +
+      'Color scheme: very dark green, like shadowy moss-covered ground. Green hue, not brown. ' +
+      'NO bright colors, NO recognizable shapes. Coarse, chunky, low-contrast texture only.',
   },
   {
     name: 'arcstone_vein',

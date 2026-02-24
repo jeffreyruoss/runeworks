@@ -11,6 +11,7 @@ export interface GameKeys {
   W: Phaser.Input.Keyboard.Key;
   C: Phaser.Input.Keyboard.Key;
   T: Phaser.Input.Keyboard.Key;
+  K: Phaser.Input.Keyboard.Key;
   SPACE: Phaser.Input.Keyboard.Key;
   BACKSPACE: Phaser.Input.Keyboard.Key;
   R: Phaser.Input.Keyboard.Key;
@@ -22,7 +23,6 @@ export interface GameKeys {
   O: Phaser.Input.Keyboard.Key;
   G: Phaser.Input.Keyboard.Key;
   A: Phaser.Input.Keyboard.Key;
-  ESC: Phaser.Input.Keyboard.Key;
   SHIFT: Phaser.Input.Keyboard.Key;
   ENTER: Phaser.Input.Keyboard.Key;
   COMMA: Phaser.Input.Keyboard.Key;
@@ -39,7 +39,7 @@ export interface InputCallbacks {
   handleAction: () => void;
   deleteBuilding: () => void;
   rotate: () => void;
-  handleEsc: () => void;
+  handleCancel: () => void;
   togglePause: () => void;
   toggleInventory: () => void;
   toggleBufferDisplay: () => void;
@@ -49,6 +49,7 @@ export interface InputCallbacks {
   toggleMenu: () => void;
   toggleObjectives: () => void;
   toggleGuide: () => void;
+  handleMKey: () => void;
 }
 
 /**
@@ -71,6 +72,7 @@ export class InputManager {
       W: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
       C: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C),
       T: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.T),
+      K: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.K),
       SPACE: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
       BACKSPACE: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.BACKSPACE),
       R: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R),
@@ -82,7 +84,6 @@ export class InputManager {
       O: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O),
       G: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.G),
       A: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
-      ESC: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC),
       SHIFT: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT),
       ENTER: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER),
       COMMA: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.COMMA),
@@ -114,9 +115,9 @@ export class InputManager {
     this.keys.ENTER.on('down', () => cb.handleAction());
     this.keys.BACKSPACE.on('down', () => cb.deleteBuilding());
     this.keys.R.on('down', () => cb.rotate());
-    this.keys.ESC.on('down', () => cb.handleEsc());
-    this.keys.X.on('down', () => cb.handleEsc());
-    this.keys.M.on('down', () => cb.toggleMenu());
+    this.keys.X.on('down', () => cb.handleCancel());
+    this.keys.K.on('down', () => cb.toggleMenu());
+    this.keys.M.on('down', () => cb.handleMKey());
     this.keys.T.on('down', () => cb.selectBuilding('mana_tower'));
 
     // Toggle controls

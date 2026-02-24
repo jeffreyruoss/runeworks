@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { BootScene } from './scenes/BootScene';
+import { ModeSelectScene } from './scenes/ModeSelectScene';
 import { GameScene } from './scenes/GameScene';
 import { UIScene } from './scenes/UIScene';
 import { CANVAS_WIDTH, CANVAS_HEIGHT, DEFAULT_ZOOM, COLORS } from './config';
@@ -16,7 +17,7 @@ const config: Phaser.Types.Core.GameConfig = {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
-  scene: [BootScene, GameScene, UIScene],
+  scene: [BootScene, ModeSelectScene, GameScene, UIScene],
 };
 
 new Phaser.Game(config);

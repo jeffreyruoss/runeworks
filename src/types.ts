@@ -28,6 +28,8 @@ export type BuildingType =
 
 export type Direction = 'up' | 'down' | 'left' | 'right';
 
+export type GameMode = 'tutorial' | 'stages' | 'sandbox';
+
 export type TerrainType =
   | 'empty'
   | 'arcstone'
@@ -129,6 +131,7 @@ export interface GameUIState {
   objectivesOpen: boolean;
   guideOpen: boolean;
   currentStage: number;
+  stageName: string;
   stageComplete: boolean;
   stageCompleteShown: boolean;
   objectiveProgress: Array<{ item: ItemType; required: number; produced: number }>;
@@ -137,4 +140,7 @@ export interface GameUIState {
   manaProduction: number;
   manaConsumption: number;
   unlockedManaBuildings: BuildingType[];
+  cursorOverBuilding: boolean;
+  gameMode: GameMode;
+  tutorialText: string[] | null;
 }

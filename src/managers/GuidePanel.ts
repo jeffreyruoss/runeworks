@@ -95,7 +95,7 @@ export class GuidePanel {
     this.createResearchRecipesSection(colX[1], topY + 185);
 
     // Close hint
-    const hint = makeText(this.scene, 0, panelH / 2 - 12, 'Press G, X, or Esc to close', {
+    const hint = makeText(this.scene, 0, panelH / 2 - 12, 'Press G or X to close', {
       fontSize: '8px',
       color: '#888888',
     });

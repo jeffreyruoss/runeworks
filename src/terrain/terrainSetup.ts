@@ -8,7 +8,7 @@ const TERRAIN_SEED = 42;
 /**
  * Patch layout definition: terrain type, center position, target size, and resource pool.
  */
-interface PatchDef {
+export interface PatchDef {
   type: TerrainType;
   cx: number;
   cy: number;
@@ -17,7 +17,7 @@ interface PatchDef {
 }
 
 /** Default patch layout for the 40x25 grid */
-const PATCH_LAYOUT: PatchDef[] = [
+export const DEFAULT_PATCH_LAYOUT: PatchDef[] = [
   // 2 stone patches
   { type: 'stone', cx: 8, cy: 5, size: 25, pool: 500 },
   { type: 'stone', cx: 32, cy: 18, size: 25, pool: 500 },
@@ -39,12 +39,16 @@ const PATCH_LAYOUT: PatchDef[] = [
 /**
  * Generate all terrain patches using organic blob shapes and register
  * them with the simulation. Uses a seeded PRNG for deterministic layout.
+ *
+ * @param layout - Custom patch layout (defaults to DEFAULT_PATCH_LAYOUT)
+ * @param seed - Custom RNG seed (defaults to TERRAIN_SEED)
  */
-export function generateTerrain(simulation: Simulation): void {
-  const rng = mulberry32(TERRAIN_SEED);
+export function generateTerrain(simulation: Simulation, layout?: PatchDef[], seed?: number): void {
+  const rng = mulberry32(seed ?? TERRAIN_SEED);
+  const patches = layout ?? DEFAULT_PATCH_LAYOUT;
   const occupied = new Set<string>();
 
-  for (const def of PATCH_LAYOUT) {
+  for (const def of patches) {
     const tiles = generateBlob(def.cx, def.cy, def.size, rng, (x, y) => occupied.has(`${x},${y}`));
     for (const t of tiles) occupied.add(`${t.x},${t.y}`);
     simulation.addResourcePatch(def.type, tiles, def.pool);
