@@ -81,6 +81,59 @@ async function generateSprite(client, sprite) {
   throw new Error(`No image returned for sprite "${sprite.name}"`);
 }
 
+// Fix residual checkerboard edge pixels after tileable crop.
+// Nearest-neighbor sampling can land on Gemini's white or black checkerboard
+// cells, creating bright/dark outlier rows or columns at the sprite edges.
+// Detects outlier edges and replaces them with their inner neighbor.
+async function fixEdgeOutliers(buffer, width, height) {
+  const raw = await sharp(buffer).raw().toBuffer({ resolveWithObject: true });
+  const data = Buffer.from(raw.data);
+  const ch = raw.info.channels;
+  const THRESHOLD = 60; // brightness difference that triggers a fix
+
+  function avgBrightness(indices) {
+    let sum = 0;
+    for (const idx of indices) sum += (data[idx] + data[idx + 1] + data[idx + 2]) / 3;
+    return sum / indices.length;
+  }
+
+  function rowIndices(y) {
+    const out = [];
+    for (let x = 0; x < width; x++) out.push((y * width + x) * ch);
+    return out;
+  }
+
+  function colIndices(x) {
+    const out = [];
+    for (let y = 0; y < height; y++) out.push((y * width + x) * ch);
+    return out;
+  }
+
+  function copyPixels(srcIndices, dstIndices) {
+    for (let i = 0; i < srcIndices.length; i++) {
+      for (let c = 0; c < ch; c++) data[dstIndices[i] + c] = data[srcIndices[i] + c];
+    }
+  }
+
+  // Check each edge against its inner neighbor row/column
+  const edges = [
+    { edge: rowIndices(0), inner: rowIndices(1) },
+    { edge: rowIndices(height - 1), inner: rowIndices(height - 2) },
+    { edge: colIndices(0), inner: colIndices(1) },
+    { edge: colIndices(width - 1), inner: colIndices(width - 2) },
+  ];
+
+  for (const { edge, inner } of edges) {
+    if (Math.abs(avgBrightness(edge) - avgBrightness(inner)) > THRESHOLD) {
+      copyPixels(inner, edge);
+    }
+  }
+
+  return sharp(data, { raw: { width, height, channels: ch } })
+    .png()
+    .toBuffer();
+}
+
 // Downscale image to target size using nearest-neighbor.
 // Overshoots by a margin then crops the center to discard AI border artifacts.
 // For tileable sprites, skips the margin crop to preserve seamless edges.
@@ -93,7 +146,7 @@ async function downscaleSprite(imageBuffer, targetWidth, targetHeight, tileable 
     const overshotW = targetWidth + 2 * margin;
     const overshotH = targetHeight + 2 * margin;
 
-    return sharp(imageBuffer)
+    const cropped = await sharp(imageBuffer)
       .flatten({ background: { r: 0, g: 0, b: 0 } })
       .resize(overshotW, overshotH, {
         kernel: sharp.kernel.nearest,
@@ -102,6 +155,11 @@ async function downscaleSprite(imageBuffer, targetWidth, targetHeight, tileable 
       .extract({ left: margin, top: margin, width: targetWidth, height: targetHeight })
       .png()
       .toBuffer();
+
+    // Fix residual checkerboard pixels on edges. Nearest-neighbor sampling can
+    // land on white or black checkerboard cells that survive the margin crop.
+    // Detect outlier edge rows/columns and replace with their inner neighbor.
+    return fixEdgeOutliers(cropped, targetWidth, targetHeight);
   }
 
   // Auto margin: 2px for 16px items, 4px for 32px+ sprites
