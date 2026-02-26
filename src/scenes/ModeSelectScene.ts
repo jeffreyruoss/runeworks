@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { TILE_SIZE, CANVAS_WIDTH, CANVAS_HEIGHT } from '../config';
+import { TILE_SIZE, CANVAS_WIDTH, CANVAS_HEIGHT, THEME } from '../config';
 import { GameMode } from '../types';
 import { makeText, setupCamera } from '../phaser-utils';
 
@@ -33,9 +33,9 @@ export class ModeSelectScene extends Phaser.Scene {
   create(): void {
     setupCamera(this);
 
-    // Background (solid black)
+    // Background
     const bg = this.add.graphics();
-    bg.fillStyle(0x000000, 1);
+    bg.fillStyle(THEME.modeSelect.bg, 1);
     bg.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     // Logo crest
@@ -46,13 +46,13 @@ export class ModeSelectScene extends Phaser.Scene {
     // Title
     const title = makeText(this, CANVAS_WIDTH / 2, 95, 'RUNEWORKS', {
       fontSize: '24px',
-      color: '#ffffff',
+      color: THEME.text.primary,
     });
     title.setOrigin(0.5, 0.5);
 
     const subtitle = makeText(this, CANVAS_WIDTH / 2, 118, 'Micro-Factory Builder', {
       fontSize: '10px',
-      color: '#888888',
+      color: THEME.text.tertiary,
     });
     subtitle.setOrigin(0.5, 0.5);
 
@@ -68,14 +68,14 @@ export class ModeSelectScene extends Phaser.Scene {
 
       const label = makeText(this, CANVAS_WIDTH / 2, y, opt.label, {
         fontSize: '14px',
-        color: '#aaaaaa',
+        color: THEME.text.secondary,
       });
       label.setOrigin(0.5, 0.5);
       this.optionTexts.push(label);
 
       const desc = makeText(this, CANVAS_WIDTH / 2, y + 16, opt.description, {
         fontSize: '8px',
-        color: '#666666',
+        color: THEME.text.muted,
       });
       desc.setOrigin(0.5, 0.5);
       this.descTexts.push(desc);
@@ -84,7 +84,7 @@ export class ModeSelectScene extends Phaser.Scene {
     // Selection arrow
     this.arrowText = makeText(this, 0, 0, '>', {
       fontSize: '14px',
-      color: '#00ff00',
+      color: THEME.modeSelect.selected,
     });
     this.arrowText.setOrigin(0.5, 0.5);
 
@@ -98,7 +98,7 @@ export class ModeSelectScene extends Phaser.Scene {
       'E/D: Navigate    Space/Enter: Select',
       {
         fontSize: '10px',
-        color: '#666666',
+        color: THEME.text.muted,
       }
     );
     hint.setOrigin(0.5, 0.5);
@@ -127,8 +127,8 @@ export class ModeSelectScene extends Phaser.Scene {
   private updateSelection(): void {
     for (let i = 0; i < this.optionTexts.length; i++) {
       const selected = i === this.selectedIndex;
-      this.optionTexts[i].setColor(selected ? '#00ff00' : '#aaaaaa');
-      this.descTexts[i].setColor(selected ? '#88ff88' : '#666666');
+      this.optionTexts[i].setColor(selected ? THEME.modeSelect.selected : THEME.text.secondary);
+      this.descTexts[i].setColor(selected ? THEME.modeSelect.selectedDesc : THEME.text.muted);
     }
 
     const y = this.optionStartY + this.selectedIndex * this.optionSpacing;

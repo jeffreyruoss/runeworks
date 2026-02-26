@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../config';
+import { CANVAS_WIDTH, CANVAS_HEIGHT, THEME } from '../config';
 import { GameUIState } from '../types';
 import { getStage, ITEM_DISPLAY_NAMES, PRODUCTION_CHAINS } from '../data/stages';
 import { TUTORIALS } from '../data/tutorials';
@@ -36,17 +36,17 @@ export class ObjectivesPanel {
     this.objectivesContainer.setVisible(false);
 
     const bg = this.scene.add.graphics();
-    bg.fillStyle(0x000000, 0.9);
+    bg.fillStyle(THEME.panel.bg, 0.9);
     bg.fillRect(-160, -110, 320, 220);
-    bg.lineStyle(2, 0x666666);
+    bg.lineStyle(2, THEME.panel.border);
     bg.strokeRect(-160, -110, 320, 220);
-    bg.lineStyle(1, 0x444444);
+    bg.lineStyle(1, THEME.panel.divider);
     bg.lineBetween(-150, -78, 150, -78);
     this.objectivesContainer.add(bg);
 
     this.stageTitleText = makeText(this.scene, 0, -92, '', {
       fontSize: '14px',
-      color: '#ffffff',
+      color: THEME.text.primary,
     });
     this.stageTitleText.setOrigin(0.5, 0.5);
     this.objectivesContainer.add(this.stageTitleText);
@@ -57,7 +57,7 @@ export class ObjectivesPanel {
 
       const objText = makeText(this.scene, -145, y, '', {
         fontSize: '10px',
-        color: '#aaaaaa',
+        color: THEME.text.secondary,
       });
       this.objectiveTexts.push(objText);
       this.objectivesContainer.add(objText);
@@ -72,7 +72,7 @@ export class ObjectivesPanel {
 
     this.stageCompleteText = makeText(this.scene, 0, 68, 'STAGE COMPLETE!', {
       fontSize: '12px',
-      color: '#00ff00',
+      color: THEME.status.valid,
     });
     this.stageCompleteText.setOrigin(0.5, 0.5);
     this.stageCompleteText.setVisible(false);
@@ -80,7 +80,7 @@ export class ObjectivesPanel {
 
     const hint = makeText(this.scene, 0, 95, 'Press O or X to close', {
       fontSize: '8px',
-      color: '#888888',
+      color: THEME.text.tertiary,
     });
     hint.setOrigin(0.5, 0.5);
     this.objectivesContainer.add(hint);
@@ -92,36 +92,36 @@ export class ObjectivesPanel {
     this.stageCompleteContainer.setVisible(false);
 
     const bg = this.scene.add.graphics();
-    bg.fillStyle(0x000000, 0.9);
+    bg.fillStyle(THEME.panel.bg, 0.9);
     bg.fillRect(-120, -60, 240, 120);
-    bg.lineStyle(2, 0x00ff00);
+    bg.lineStyle(2, 0x44ff88);
     bg.strokeRect(-120, -60, 240, 120);
     this.stageCompleteContainer.add(bg);
 
     const title = makeText(this.scene, 0, -35, 'STAGE COMPLETE!', {
       fontSize: '14px',
-      color: '#00ff00',
+      color: THEME.status.valid,
     });
     title.setOrigin(0.5, 0.5);
     this.stageCompleteContainer.add(title);
 
     this.stageCompleteNameText = makeText(this.scene, 0, -10, '', {
       fontSize: '10px',
-      color: '#ffffff',
+      color: THEME.text.primary,
     });
     this.stageCompleteNameText.setOrigin(0.5, 0.5);
     this.stageCompleteContainer.add(this.stageCompleteNameText);
 
     this.stageCompleteNextText = makeText(this.scene, 0, 25, '', {
       fontSize: '10px',
-      color: '#aaaaaa',
+      color: THEME.text.secondary,
     });
     this.stageCompleteNextText.setOrigin(0.5, 0.5);
     this.stageCompleteContainer.add(this.stageCompleteNextText);
 
     const hint = makeText(this.scene, 0, 45, '[Space] Continue', {
       fontSize: '10px',
-      color: '#00ffff',
+      color: THEME.status.active,
     });
     hint.setOrigin(0.5, 0.5);
     this.stageCompleteContainer.add(hint);
@@ -151,7 +151,7 @@ export class ObjectivesPanel {
         const check = done ? '[x]' : '[ ]';
         const name = ITEM_DISPLAY_NAMES[obj.item] || obj.item;
         this.objectiveTexts[i].setText(`${check} ${name}: ${obj.produced}/${obj.required}`);
-        this.objectiveTexts[i].setColor(done ? '#00ff00' : '#aaaaaa');
+        this.objectiveTexts[i].setColor(done ? THEME.status.valid : THEME.text.secondary);
         this.objectiveTexts[i].setVisible(true);
 
         const chain = PRODUCTION_CHAINS[obj.item] || '';

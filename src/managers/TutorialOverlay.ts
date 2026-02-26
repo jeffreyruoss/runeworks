@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { CANVAS_WIDTH, CANVAS_HEIGHT } from '../config';
+import { CANVAS_WIDTH, CANVAS_HEIGHT, THEME } from '../config';
 import { makeText } from '../phaser-utils';
 
 /**
@@ -20,9 +20,9 @@ export class TutorialOverlay {
 
     // Background
     const bg = scene.add.graphics();
-    bg.fillStyle(0x000000, 0.8);
+    bg.fillStyle(THEME.panel.bg, 0.8);
     bg.fillRect(-200, -30, 400, 60);
-    bg.lineStyle(1, 0x00ff00, 0.5);
+    bg.lineStyle(1, THEME.tutorial.border, 0.5);
     bg.strokeRect(-200, -30, 400, 60);
     this.container.add(bg);
   }
@@ -58,7 +58,7 @@ export class TutorialOverlay {
     for (let i = 0; i < lines.length; i++) {
       const t = makeText(this.scene, 0, startY + i * lineHeight, lines[i], {
         fontSize: '9px',
-        color: i === 0 ? '#00ff00' : '#aaaaaa',
+        color: i === 0 ? THEME.tutorial.header : THEME.text.secondary,
       });
       t.setOrigin(0.5, 0.5);
       this.container.add(t);

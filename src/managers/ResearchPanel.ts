@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { CANVAS_WIDTH, CANVAS_HEIGHT, TICKS_PER_SECOND } from '../config';
+import { CANVAS_WIDTH, CANVAS_HEIGHT, THEME, TICKS_PER_SECOND } from '../config';
 import { RESEARCH_NODES, RESEARCH_RECIPES, ResearchBranch, ResearchNode } from '../data/research';
 import { ITEM_DISPLAY_NAMES } from '../data/stages';
 import { ResearchManager } from './ResearchManager';
@@ -76,21 +76,21 @@ export class ResearchPanel {
 
       if (state === 'unlocked') {
         display.statusText.setText('[x]');
-        display.statusText.setColor('#00ff00');
+        display.statusText.setColor(THEME.status.valid);
         display.text.setColor('#88ff88');
       } else if (state === 'available') {
         display.statusText.setText('[ ]');
-        display.statusText.setColor('#ffffff');
-        display.text.setColor('#ffffff');
+        display.statusText.setColor(THEME.text.primary);
+        display.text.setColor(THEME.text.primary);
       } else {
         display.statusText.setText('[-]');
-        display.statusText.setColor('#666666');
-        display.text.setColor('#666666');
+        display.statusText.setColor(THEME.text.muted);
+        display.text.setColor(THEME.text.muted);
       }
 
       // Highlight selected node
       if (i === this.selectedIndex) {
-        display.text.setColor(state === 'unlocked' ? '#88ffaa' : '#ffff00');
+        display.text.setColor(state === 'unlocked' ? '#88ffaa' : THEME.status.paused);
       }
     }
 
@@ -112,7 +112,7 @@ export class ResearchPanel {
 
     // Background
     const bg = this.scene.add.graphics();
-    bg.fillStyle(0x000000, 0.93);
+    bg.fillStyle(THEME.panel.bg, 0.93);
     bg.fillRect(-panelW / 2, -panelH / 2, panelW, panelH);
     bg.lineStyle(2, 0x8844aa);
     bg.strokeRect(-panelW / 2, -panelH / 2, panelW, panelH);
@@ -137,7 +137,7 @@ export class ResearchPanel {
     // Selection indicator
     this.selectionIndicator = makeText(this.scene, 0, 0, '>', {
       fontSize: '10px',
-      color: '#ffff00',
+      color: THEME.status.paused,
     });
     this.selectionIndicator.setVisible(false);
     this.container.add(this.selectionIndicator);
@@ -161,7 +161,7 @@ export class ResearchPanel {
       'ESDF:Navigate  Space:Unlock  R/X:Close',
       {
         fontSize: '8px',
-        color: '#888888',
+        color: THEME.text.tertiary,
       }
     );
     hint.setOrigin(0.5, 0.5);
@@ -192,13 +192,13 @@ export class ResearchPanel {
     for (const node of branchNodes) {
       const statusText = makeText(this.scene, x, rowY, '[-]', {
         fontSize: '10px',
-        color: '#666666',
+        color: THEME.text.muted,
       });
       this.container.add(statusText);
 
       const nameText = makeText(this.scene, x + 26, rowY, `${node.name} (${node.cost} RP)`, {
         fontSize: '9px',
-        color: '#aaaaaa',
+        color: THEME.text.secondary,
       });
       this.container.add(nameText);
 
@@ -206,7 +206,7 @@ export class ResearchPanel {
       const effectStr = this.getEffectDescription(node);
       const effectText = makeText(this.scene, x + 26, rowY + 12, effectStr, {
         fontSize: '7px',
-        color: '#555555',
+        color: THEME.text.muted,
       });
       this.container.add(effectText);
 
@@ -220,7 +220,7 @@ export class ResearchPanel {
           `Requires: ${reqNode?.name || node.requires}`,
           {
             fontSize: '7px',
-            color: '#553333',
+            color: '#553355',
           }
         );
         this.container.add(reqText);
@@ -258,7 +258,7 @@ export class ResearchPanel {
         `${recipe.inputCount} ${ITEM_DISPLAY_NAMES[recipe.input] || recipe.input} -> ${recipe.rpYield} RP (${timeStr})`,
         {
           fontSize: '8px',
-          color: '#666666',
+          color: THEME.text.muted,
         }
       );
       this.container.add(text);

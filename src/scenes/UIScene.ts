@@ -3,6 +3,7 @@ import {
   CANVAS_WIDTH,
   CANVAS_HEIGHT,
   COLORS,
+  THEME,
   BUILDING_COSTS,
   RESOURCE_DISPLAY_NAMES,
 } from '../config';
@@ -62,38 +63,38 @@ export class UIScene extends Phaser.Scene {
     // Cursor info (top-left, shows what's under cursor)
     this.cursorInfoText = makeText(this, 4, 2, '', {
       fontSize: '10px',
-      color: '#ffffff',
+      color: THEME.text.primary,
     });
 
     // Simulation status with play icon (top-center)
     this.simStatusText = makeText(this, CANVAS_WIDTH / 2, 2, '► 1x', {
       fontSize: '10px',
-      color: '#00ffff',
+      color: THEME.status.active,
     });
     this.simStatusText.setOrigin(0.5, 0);
 
     // Resources (top-right area)
     this.resourcesText = makeText(this, CANVAS_WIDTH - 280, 2, '', {
       fontSize: '10px',
-      color: '#aaaaaa',
+      color: THEME.text.secondary,
     });
 
     // Items produced (top, second row)
     this.itemsText = makeText(this, 4, 12, '', {
       fontSize: '8px',
-      color: '#ffff00',
+      color: THEME.status.paused,
     });
 
     // Hotbar (bottom) - dynamic based on build mode
     this.hotbarText = makeText(this, 4, CANVAS_HEIGHT - 24, '[B] Build', {
       fontSize: '10px',
-      color: '#aaaaaa',
+      color: THEME.text.secondary,
     });
 
     // Selected building (bottom-right)
     this.selectedText = makeText(this, CANVAS_WIDTH - 4, CANVAS_HEIGHT - 24, 'None', {
       fontSize: '10px',
-      color: '#888888',
+      color: THEME.text.tertiary,
     });
     this.selectedText.setOrigin(1, 0);
 
@@ -105,7 +106,7 @@ export class UIScene extends Phaser.Scene {
       'ESDF:Move  Spc:Build  X:Cancel/Rmv  R:Rot/Research  P:Pause  H:Stats  O:Goals  G:Guide  K:Keys',
       {
         fontSize: '8px',
-        color: '#666666',
+        color: THEME.text.muted,
       }
     );
 
@@ -144,16 +145,16 @@ export class UIScene extends Phaser.Scene {
     const panelW = 480;
     const panelH = 240;
     const bg = this.add.graphics();
-    bg.fillStyle(0x000000, 0.9);
+    bg.fillStyle(THEME.panel.bg, 0.9);
     bg.fillRect(-panelW / 2, -panelH / 2, panelW, panelH);
-    bg.lineStyle(2, 0x666666);
+    bg.lineStyle(2, THEME.panel.border);
     bg.strokeRect(-panelW / 2, -panelH / 2, panelW, panelH);
     this.menuPanel.add(bg);
 
     // Title
     const title = makeText(this, 0, -panelH / 2 + 14, 'KEY COMMANDS', {
       fontSize: '14px',
-      color: '#ffffff',
+      color: THEME.text.primary,
     });
     title.setOrigin(0.5, 0.5);
     this.menuPanel.add(title);
@@ -167,7 +168,7 @@ export class UIScene extends Phaser.Scene {
       let y = startY;
       const headerText = makeText(this, x, y, header, {
         fontSize: '9px',
-        color: '#aaaaaa',
+        color: THEME.text.secondary,
       });
       headerText.setOrigin(0.5, 0.5);
       this.menuPanel.add(headerText);
@@ -176,7 +177,7 @@ export class UIScene extends Phaser.Scene {
       for (const cmd of commands) {
         const cmdText = makeText(this, x, y, cmd, {
           fontSize: '8px',
-          color: '#888888',
+          color: THEME.text.tertiary,
         });
         cmdText.setOrigin(0.5, 0.5);
         this.menuPanel.add(cmdText);
@@ -214,14 +215,14 @@ export class UIScene extends Phaser.Scene {
 
     // Divider line between columns
     const divider = this.add.graphics();
-    divider.lineStyle(1, 0x444444);
+    divider.lineStyle(1, THEME.panel.divider);
     divider.lineBetween(0, startY - 6, 0, panelH / 2 - 30);
     this.menuPanel.add(divider);
 
     // Close hint at bottom
     const closeHint = makeText(this, 0, panelH / 2 - 14, 'Press K or X to close', {
       fontSize: '10px',
-      color: '#666666',
+      color: THEME.text.muted,
     });
     closeHint.setOrigin(0.5, 0.5);
     this.menuPanel.add(closeHint);
@@ -234,16 +235,16 @@ export class UIScene extends Phaser.Scene {
 
     // Background
     const bg = this.add.graphics();
-    bg.fillStyle(0x000000, 0.9);
+    bg.fillStyle(THEME.panel.bg, 0.9);
     bg.fillRect(-100, -60, 200, 120);
-    bg.lineStyle(2, 0x666666);
+    bg.lineStyle(2, THEME.panel.border);
     bg.strokeRect(-100, -60, 200, 120);
     this.inventoryPanel.add(bg);
 
     // Title
     const invTitle = makeText(this, 0, -45, 'INVENTORY', {
       fontSize: '12px',
-      color: '#ffffff',
+      color: THEME.text.primary,
     });
     invTitle.setOrigin(0.5, 0.5);
     this.inventoryPanel.add(invTitle);
@@ -251,7 +252,7 @@ export class UIScene extends Phaser.Scene {
     // Placeholder text
     const placeholder = makeText(this, 0, 0, 'Coming soon...', {
       fontSize: '10px',
-      color: '#666666',
+      color: THEME.text.muted,
     });
     placeholder.setOrigin(0.5, 0.5);
     this.inventoryPanel.add(placeholder);
@@ -259,7 +260,7 @@ export class UIScene extends Phaser.Scene {
     // Close hint
     const hint = makeText(this, 0, 40, 'Press I or X to close', {
       fontSize: '8px',
-      color: '#888888',
+      color: THEME.text.tertiary,
     });
     hint.setOrigin(0.5, 0.5);
     this.inventoryPanel.add(hint);
@@ -269,7 +270,7 @@ export class UIScene extends Phaser.Scene {
     // Cursor info (what's under cursor)
     if (state.cursorInfo) {
       this.cursorInfoText.setText(state.cursorInfo);
-      this.cursorInfoText.setColor('#ffffff');
+      this.cursorInfoText.setColor(THEME.text.primary);
     } else {
       this.cursorInfoText.setText('');
     }
@@ -286,17 +287,17 @@ export class UIScene extends Phaser.Scene {
       const displayName = state.selectedBuilding.replace(/_/g, ' ').toUpperCase();
       if (affordable) {
         this.selectedText.setText(`${displayName} (${costStr})`);
-        this.selectedText.setColor('#00ff00');
+        this.selectedText.setColor(THEME.status.affordable);
       } else {
         this.selectedText.setText(`${displayName} (${costStr})`);
-        this.selectedText.setColor('#ff6666');
+        this.selectedText.setColor(THEME.status.unaffordable);
       }
     } else if (state.cursorOverBuilding) {
       this.selectedText.setText('[X] Deconstruct');
-      this.selectedText.setColor('#ff8888');
+      this.selectedText.setColor(THEME.status.deconstructHint);
     } else {
       this.selectedText.setText('');
-      this.selectedText.setColor('#888888');
+      this.selectedText.setColor(THEME.text.tertiary);
     }
 
     // Hotbar - dynamic based on build mode
@@ -315,10 +316,10 @@ export class UIScene extends Phaser.Scene {
         entries.push('[T] Tower');
       }
       this.hotbarText.setText(entries.join('  '));
-      this.hotbarText.setColor('#ffffff');
+      this.hotbarText.setColor(THEME.text.primary);
     } else {
       this.hotbarText.setText('[B] Build');
-      this.hotbarText.setColor('#aaaaaa');
+      this.hotbarText.setColor(THEME.text.secondary);
     }
 
     // RP display (after sim status)
@@ -333,10 +334,10 @@ export class UIScene extends Phaser.Scene {
     // Simulation status with play/pause icon
     if (state.simPaused) {
       this.simStatusText.setText(`║ ${state.simSpeed}x${rpStr}${manaStr}`);
-      this.simStatusText.setColor('#ffff00');
+      this.simStatusText.setColor(THEME.status.paused);
     } else {
       this.simStatusText.setText(`► ${state.simSpeed}x${rpStr}${manaStr}`);
-      this.simStatusText.setColor('#00ffff');
+      this.simStatusText.setColor(THEME.status.active);
     }
 
     // Items produced

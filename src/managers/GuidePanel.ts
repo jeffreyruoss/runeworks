@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import {
   CANVAS_WIDTH,
   CANVAS_HEIGHT,
+  THEME,
   BUILDING_COSTS,
   TICKS_PER_SECOND,
   RESOURCE_DISPLAY_NAMES,
@@ -71,16 +72,16 @@ export class GuidePanel {
 
     // Background
     const bg = this.scene.add.graphics();
-    bg.fillStyle(0x000000, 0.93);
+    bg.fillStyle(THEME.panel.bg, 0.93);
     bg.fillRect(-panelW / 2, -panelH / 2, panelW, panelH);
-    bg.lineStyle(2, 0x666666);
+    bg.lineStyle(2, THEME.panel.border);
     bg.strokeRect(-panelW / 2, -panelH / 2, panelW, panelH);
     this.container.add(bg);
 
     // Title
     const title = makeText(this.scene, 0, -panelH / 2 + 12, 'GUIDE', {
       fontSize: '14px',
-      color: '#ffffff',
+      color: THEME.text.primary,
     });
     title.setOrigin(0.5, 0.5);
     this.container.add(title);
@@ -97,7 +98,7 @@ export class GuidePanel {
     // Close hint
     const hint = makeText(this.scene, 0, panelH / 2 - 12, 'Press G or X to close', {
       fontSize: '8px',
-      color: '#888888',
+      color: THEME.text.tertiary,
     });
     hint.setOrigin(0.5, 0.5);
     this.container.add(hint);
@@ -130,13 +131,13 @@ export class GuidePanel {
 
       const nameText = makeText(this.scene, x + 14, rowY, name, {
         fontSize: '8px',
-        color: '#cccccc',
+        color: THEME.text.content,
       });
       this.container.add(nameText);
 
       const sourceText = makeText(this.scene, x + 14, rowY + 10, source, {
         fontSize: '7px',
-        color: '#666666',
+        color: THEME.text.muted,
       });
       this.container.add(sourceText);
 
@@ -177,7 +178,7 @@ export class GuidePanel {
 
       const nameText = makeText(this.scene, x + 14, rowY, name, {
         fontSize: '8px',
-        color: '#cccccc',
+        color: THEME.text.content,
       });
       this.container.add(nameText);
 
@@ -191,7 +192,7 @@ export class GuidePanel {
 
       const recipeText = makeText(this.scene, x + 14, rowY + 10, recipeStr, {
         fontSize: '7px',
-        color: '#666666',
+        color: THEME.text.muted,
       });
       this.container.add(recipeText);
 
@@ -238,7 +239,7 @@ export class GuidePanel {
 
       const nameText = makeText(this.scene, x + 18, rowY, name, {
         fontSize: '8px',
-        color: '#cccccc',
+        color: THEME.text.content,
       });
       this.container.add(nameText);
 
@@ -251,7 +252,7 @@ export class GuidePanel {
 
       const detailText = makeText(this.scene, x + 18, rowY + 10, `${sizeStr}  Cost: ${costStr}`, {
         fontSize: '7px',
-        color: '#666666',
+        color: THEME.text.muted,
       });
       this.container.add(detailText);
 
@@ -275,7 +276,7 @@ export class GuidePanel {
 
       const ioText = makeText(this.scene, x + 18, rowY + 19, ioStr, {
         fontSize: '7px',
-        color: '#555555',
+        color: THEME.text.muted,
       });
       this.container.add(ioText);
 
@@ -305,7 +306,7 @@ export class GuidePanel {
         `${recipe.inputCount} ${ITEM_DISPLAY_NAMES[recipe.input] || recipe.input} -> ${recipe.rpYield} RP (${timeStr})`,
         {
           fontSize: '7px',
-          color: '#666666',
+          color: THEME.text.muted,
         }
       );
       this.container.add(text);

@@ -60,13 +60,72 @@ export const RESOURCE_DISPLAY_NAMES: Record<string, string> = {
   crystal_shard: 'Crystal',
 };
 
-// Colors for UI
+// Theme palette — logo crest inspired (deep indigo, cyan, amber, purple-gray)
+export const THEME = {
+  panel: {
+    bg: 0x0d0b1a,
+    border: 0x5a4a6e,
+    divider: 0x3a3050,
+  },
+  hud: {
+    bg: 0x0a0816,
+  },
+  world: {
+    bg: 0x141020,
+    gridLine: 0x2a2240,
+  },
+  text: {
+    primary: '#e8e0f0',
+    secondary: '#b0a8c0',
+    tertiary: '#8078a0',
+    muted: '#605880',
+    content: '#c8c0d8',
+  },
+  status: {
+    active: '#4af0ff',
+    valid: '#44ff88',
+    invalid: '#ff5566',
+    paused: '#ffdd44',
+    affordable: '#44ff88',
+    unaffordable: '#ff5566',
+    deconstructHint: '#ff8888',
+  },
+  ghost: {
+    valid: 0x00ff00,
+    invalid: 0xff0000,
+  },
+  buffer: {
+    text: '#ffdd44',
+    bg: '#0d0b1a',
+  },
+  boot: {
+    progressBox: 0x1a1830,
+    progressBar: 0x4af0ff,
+  },
+  modeSelect: {
+    bg: 0x0d0b1a,
+    selected: '#4af0ff',
+    selectedDesc: '#88d8e8',
+  },
+  tutorial: {
+    border: 0x4af0ff,
+    header: '#4af0ff',
+  },
+  section: {
+    resources: '#88aaff',
+    items: '#ffaa44',
+    buildings: '#44ff88',
+    research: '#cc88ff',
+  },
+} as const;
+
+// Colors for UI (backward-compat layer referencing THEME)
 export const COLORS = {
-  background: 0x1a3a1a,
-  gridLine: 0x333333,
+  background: THEME.world.bg,
+  gridLine: THEME.world.gridLine,
   cursorValid: 0x00ff00,
   cursorInvalid: 0xff0000,
   cursorNeutral: 0xffffff,
-  hudBackground: 0x000000,
+  hudBackground: THEME.hud.bg,
   hudText: 0xffffff,
 } as const;

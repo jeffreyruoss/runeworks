@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { TILE_SIZE } from '../config';
+import { TILE_SIZE, THEME } from '../config';
 import { Building } from '../types';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
 import { getBufferTotal } from '../utils';
@@ -40,8 +40,8 @@ export class BufferIndicators {
         if (!indicator) {
           indicator = makeText(this.scene, x, y, text, {
             fontSize: '8px',
-            color: '#ffff00',
-            backgroundColor: '#000000',
+            color: THEME.buffer.text,
+            backgroundColor: THEME.buffer.bg,
             padding: { x: 1, y: 0 },
           });
           indicator.setOrigin(0.5, 1);

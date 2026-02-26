@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, BUILDING_COSTS } from '../config';
+import { TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, BUILDING_COSTS, THEME } from '../config';
 import { Building, BuildingType, PlayerResources, TerrainType } from '../types';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
 import { QUARRIABLE_TERRAIN } from '../data/terrain';
@@ -72,7 +72,7 @@ export class BuildingPlacer {
 
     this.ghostSprite.setPosition(x + (def.width * TILE_SIZE) / 2, y + (def.height * TILE_SIZE) / 2);
     this.ghostSprite.setOrigin(0.5, 0.5);
-    this.ghostSprite.setTint(canPlace ? 0x00ff00 : 0xff0000);
+    this.ghostSprite.setTint(canPlace ? THEME.ghost.valid : THEME.ghost.invalid);
   }
 
   /**
