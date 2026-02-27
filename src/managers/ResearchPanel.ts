@@ -1,9 +1,9 @@
 import Phaser from 'phaser';
-import { CANVAS_WIDTH, CANVAS_HEIGHT, THEME, TICKS_PER_SECOND } from '../config';
+import { CANVAS_WIDTH, CANVAS_HEIGHT, THEME, TICKS_PER_SECOND, PANEL_INSET } from '../config';
 import { RESEARCH_NODES, RESEARCH_RECIPES, ResearchBranch, ResearchNode } from '../data/research';
 import { ITEM_DISPLAY_NAMES } from '../data/stages';
 import { ResearchManager } from './ResearchManager';
-import { makeText } from '../phaser-utils';
+import { makeText, createPanelFrame } from '../phaser-utils';
 
 interface NodeDisplay {
   node: ResearchNode;
@@ -107,31 +107,41 @@ export class ResearchPanel {
     this.container.setDepth(1000);
     this.container.setVisible(false);
 
-    const panelW = 540;
-    const panelH = 340;
+    // Content dimensions drive panel size
+    const contentW = 500;
+    const contentH = 310;
+    const panelW = contentW + 2 * PANEL_INSET;
+    const panelH = contentH + 2 * PANEL_INSET;
 
-    // Background
-    const bg = this.scene.add.graphics();
-    bg.fillStyle(THEME.panel.bg, 0.93);
-    bg.fillRect(-panelW / 2, -panelH / 2, panelW, panelH);
-    bg.lineStyle(2, 0x8844aa);
-    bg.strokeRect(-panelW / 2, -panelH / 2, panelW, panelH);
+    // Background — purple-tinted ornate frame
+    const bg = createPanelFrame(this.scene, panelW, panelH, 0.93);
+    bg.each((child: Phaser.GameObjects.GameObject) => {
+      if (
+        child instanceof Phaser.GameObjects.Image ||
+        child instanceof Phaser.GameObjects.TileSprite
+      ) {
+        child.setTint(0x8844aa);
+      }
+    });
     this.container.add(bg);
 
+    const left = -panelW / 2 + PANEL_INSET;
+    const top = -panelH / 2 + PANEL_INSET;
+
     // Title
-    const title = makeText(this.scene, 0, -panelH / 2 + 12, 'RESEARCH', {
+    const title = makeText(this.scene, 0, top, 'RESEARCH', {
       fontSize: '14px',
       color: '#cc88ff',
     });
-    title.setOrigin(0.5, 0.5);
+    title.setOrigin(0.5, 0);
     this.container.add(title);
 
     // RP display
-    this.rpText = makeText(this.scene, 0, -panelH / 2 + 28, 'Research Points: 0', {
+    this.rpText = makeText(this.scene, 0, top + 16, 'Research Points: 0', {
       fontSize: '10px',
       color: '#ffaa00',
     });
-    this.rpText.setOrigin(0.5, 0.5);
+    this.rpText.setOrigin(0.5, 0);
     this.container.add(this.rpText);
 
     // Selection indicator
@@ -143,28 +153,22 @@ export class ResearchPanel {
     this.container.add(this.selectionIndicator);
 
     // Three columns
-    const colX = [-panelW / 2 + 14, -panelW / 2 + 190, -panelW / 2 + 370];
-    const topY = -panelH / 2 + 44;
+    const colX = [left, left + 176, left + 356];
+    const topY = top + 32;
 
     this.createBranch(colX[0], topY, 'BUILDINGS', 'buildings', '#44ff88');
     this.createBranch(colX[1], topY, 'RECIPES', 'recipes', '#ffaa44');
     this.createBranch(colX[2], topY, 'UPGRADES', 'upgrades', '#88aaff');
 
     // Research recipes reference
-    this.createRecipeReference(-panelW / 2 + 14, topY + 180);
+    this.createRecipeReference(left, topY + 180);
 
     // Close hint
-    const hint = makeText(
-      this.scene,
-      0,
-      panelH / 2 - 12,
-      'ESDF:Navigate  Space:Unlock  R/X:Close',
-      {
-        fontSize: '8px',
-        color: THEME.text.tertiary,
-      }
-    );
-    hint.setOrigin(0.5, 0.5);
+    const hint = makeText(this.scene, 0, top + contentH, 'ESDF:Navigate  Space:Unlock  R/X:Close', {
+      fontSize: '8px',
+      color: THEME.text.tertiary,
+    });
+    hint.setOrigin(0.5, 1);
     this.container.add(hint);
   }
 

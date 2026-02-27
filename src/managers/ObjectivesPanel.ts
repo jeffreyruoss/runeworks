@@ -1,9 +1,9 @@
 import Phaser from 'phaser';
-import { CANVAS_WIDTH, CANVAS_HEIGHT, THEME } from '../config';
+import { CANVAS_WIDTH, CANVAS_HEIGHT, THEME, PANEL_INSET } from '../config';
 import { GameUIState } from '../types';
 import { getStage, ITEM_DISPLAY_NAMES, PRODUCTION_CHAINS } from '../data/stages';
 import { TUTORIALS } from '../data/tutorials';
-import { makeText } from '../phaser-utils';
+import { makeText, createPanelFrame } from '../phaser-utils';
 
 /**
  * Manages the objectives panel and stage complete overlay in the UI.
@@ -35,34 +35,53 @@ export class ObjectivesPanel {
     this.objectivesContainer.setDepth(1000);
     this.objectivesContainer.setVisible(false);
 
-    const bg = this.scene.add.graphics();
-    bg.fillStyle(THEME.panel.bg, 0.9);
-    bg.fillRect(-160, -110, 320, 220);
-    bg.lineStyle(2, THEME.panel.border);
-    bg.strokeRect(-160, -110, 320, 220);
-    bg.lineStyle(1, THEME.panel.divider);
-    bg.lineBetween(-150, -78, 150, -78);
+    // Content dimensions drive panel size
+    const titleH = 14;
+    const divGap = 8;
+    const objH = 40; // per objective row (text + chain + gap)
+    const maxObj = 3;
+    const completeH = 12;
+    const hintH = 8;
+
+    const contentW = 280;
+    const contentH = titleH + divGap + maxObj * objH + completeH + 4 + hintH;
+    const panelW = contentW + 2 * PANEL_INSET;
+    const panelH = contentH + 2 * PANEL_INSET;
+
+    const bg = createPanelFrame(this.scene, panelW, panelH);
     this.objectivesContainer.add(bg);
 
-    this.stageTitleText = makeText(this.scene, 0, -92, '', {
+    const left = -panelW / 2 + PANEL_INSET;
+    const top = -panelH / 2 + PANEL_INSET;
+
+    // Title
+    this.stageTitleText = makeText(this.scene, 0, top, '', {
       fontSize: '14px',
       color: THEME.text.primary,
     });
-    this.stageTitleText.setOrigin(0.5, 0.5);
+    this.stageTitleText.setOrigin(0.5, 0);
     this.objectivesContainer.add(this.stageTitleText);
 
-    const startY = -60;
-    for (let i = 0; i < 3; i++) {
-      const y = startY + i * 40;
+    // Divider below title
+    const dividerY = top + titleH + divGap / 2;
+    const divider = this.scene.add.graphics();
+    divider.lineStyle(1, THEME.panel.divider);
+    divider.lineBetween(-contentW / 2, dividerY, contentW / 2, dividerY);
+    this.objectivesContainer.add(divider);
 
-      const objText = makeText(this.scene, -145, y, '', {
+    // Objectives
+    const startY = top + titleH + divGap;
+    for (let i = 0; i < maxObj; i++) {
+      const y = startY + i * objH;
+
+      const objText = makeText(this.scene, left, y, '', {
         fontSize: '10px',
         color: THEME.text.secondary,
       });
       this.objectiveTexts.push(objText);
       this.objectivesContainer.add(objText);
 
-      const chainText = makeText(this.scene, -133, y + 14, '', {
+      const chainText = makeText(this.scene, left + 12, y + 14, '', {
         fontSize: '8px',
         color: '#666688',
       });
@@ -70,19 +89,21 @@ export class ObjectivesPanel {
       this.objectivesContainer.add(chainText);
     }
 
-    this.stageCompleteText = makeText(this.scene, 0, 68, 'STAGE COMPLETE!', {
+    // Stage complete indicator
+    this.stageCompleteText = makeText(this.scene, 0, startY + maxObj * objH, 'STAGE COMPLETE!', {
       fontSize: '12px',
       color: THEME.status.valid,
     });
-    this.stageCompleteText.setOrigin(0.5, 0.5);
+    this.stageCompleteText.setOrigin(0.5, 0);
     this.stageCompleteText.setVisible(false);
     this.objectivesContainer.add(this.stageCompleteText);
 
-    const hint = makeText(this.scene, 0, 95, 'Press O or X to close', {
+    // Close hint
+    const hint = makeText(this.scene, 0, top + contentH, 'Press O or X to close', {
       fontSize: '8px',
       color: THEME.text.tertiary,
     });
-    hint.setOrigin(0.5, 0.5);
+    hint.setOrigin(0.5, 1);
     this.objectivesContainer.add(hint);
   }
 
@@ -91,39 +112,59 @@ export class ObjectivesPanel {
     this.stageCompleteContainer.setDepth(1001);
     this.stageCompleteContainer.setVisible(false);
 
-    const bg = this.scene.add.graphics();
-    bg.fillStyle(THEME.panel.bg, 0.9);
-    bg.fillRect(-120, -60, 240, 120);
-    bg.lineStyle(2, 0x44ff88);
-    bg.strokeRect(-120, -60, 240, 120);
+    // Content dimensions drive panel size
+    const titleH = 14;
+    const nameH = 10;
+    const nextH = 10;
+    const hintH = 10;
+    const contentW = 200;
+    const contentH = titleH + 12 + nameH + 10 + nextH + 12 + hintH;
+    const panelW = contentW + 2 * PANEL_INSET;
+    const panelH = contentH + 2 * PANEL_INSET;
+
+    const bg = createPanelFrame(this.scene, panelW, panelH);
+    // Tint border sprites green for celebratory sheen
+    bg.each((child: Phaser.GameObjects.GameObject) => {
+      if (
+        child instanceof Phaser.GameObjects.Image ||
+        child instanceof Phaser.GameObjects.TileSprite
+      ) {
+        child.setTint(0x44ff88);
+      }
+    });
     this.stageCompleteContainer.add(bg);
 
-    const title = makeText(this.scene, 0, -35, 'STAGE COMPLETE!', {
+    const top = -panelH / 2 + PANEL_INSET;
+    let y = top;
+
+    const title = makeText(this.scene, 0, y, 'STAGE COMPLETE!', {
       fontSize: '14px',
       color: THEME.status.valid,
     });
-    title.setOrigin(0.5, 0.5);
+    title.setOrigin(0.5, 0);
     this.stageCompleteContainer.add(title);
+    y += titleH + 12;
 
-    this.stageCompleteNameText = makeText(this.scene, 0, -10, '', {
+    this.stageCompleteNameText = makeText(this.scene, 0, y, '', {
       fontSize: '10px',
       color: THEME.text.primary,
     });
-    this.stageCompleteNameText.setOrigin(0.5, 0.5);
+    this.stageCompleteNameText.setOrigin(0.5, 0);
     this.stageCompleteContainer.add(this.stageCompleteNameText);
+    y += nameH + 10;
 
-    this.stageCompleteNextText = makeText(this.scene, 0, 25, '', {
+    this.stageCompleteNextText = makeText(this.scene, 0, y, '', {
       fontSize: '10px',
       color: THEME.text.secondary,
     });
-    this.stageCompleteNextText.setOrigin(0.5, 0.5);
+    this.stageCompleteNextText.setOrigin(0.5, 0);
     this.stageCompleteContainer.add(this.stageCompleteNextText);
 
-    const hint = makeText(this.scene, 0, 45, '[Space] Continue', {
+    const hint = makeText(this.scene, 0, top + contentH, '[Space] Continue', {
       fontSize: '10px',
       color: THEME.status.active,
     });
-    hint.setOrigin(0.5, 0.5);
+    hint.setOrigin(0.5, 1);
     this.stageCompleteContainer.add(hint);
   }
 

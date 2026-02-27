@@ -6,6 +6,7 @@ import {
   BUILDING_COSTS,
   TICKS_PER_SECOND,
   RESOURCE_DISPLAY_NAMES,
+  PANEL_INSET,
 } from '../config';
 import { ITEM_DISPLAY_NAMES } from '../data/stages';
 import { TERRAIN_DISPLAY_NAMES, TERRAIN_COLORS } from '../data/terrain';
@@ -13,7 +14,7 @@ import { RECIPES } from '../data/recipes';
 import { RESEARCH_RECIPES } from '../data/research';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
 import { BuildingType, ItemType, TerrainType } from '../types';
-import { makeText } from '../phaser-utils';
+import { makeText, createPanelFrame } from '../phaser-utils';
 
 /** Items that have 8×8 sprites in the atlas */
 const ITEM_SPRITES: Set<ItemType> = new Set([
@@ -67,28 +68,30 @@ export class GuidePanel {
     this.container.setDepth(1000);
     this.container.setVisible(false);
 
-    const panelW = 580;
-    const panelH = 370;
+    // Content dimensions drive panel size
+    const contentW = 540;
+    const contentH = 340;
+    const panelW = contentW + 2 * PANEL_INSET;
+    const panelH = contentH + 2 * PANEL_INSET;
 
     // Background
-    const bg = this.scene.add.graphics();
-    bg.fillStyle(THEME.panel.bg, 0.93);
-    bg.fillRect(-panelW / 2, -panelH / 2, panelW, panelH);
-    bg.lineStyle(2, THEME.panel.border);
-    bg.strokeRect(-panelW / 2, -panelH / 2, panelW, panelH);
+    const bg = createPanelFrame(this.scene, panelW, panelH, 0.93);
     this.container.add(bg);
 
+    const left = -panelW / 2 + PANEL_INSET;
+    const top = -panelH / 2 + PANEL_INSET;
+
     // Title
-    const title = makeText(this.scene, 0, -panelH / 2 + 12, 'GUIDE', {
+    const title = makeText(this.scene, 0, top, 'GUIDE', {
       fontSize: '14px',
       color: THEME.text.primary,
     });
-    title.setOrigin(0.5, 0.5);
+    title.setOrigin(0.5, 0);
     this.container.add(title);
 
     // Three columns layout
-    const colX = [-panelW / 2 + 14, -panelW / 2 + 200, -panelW / 2 + 380];
-    const topY = -panelH / 2 + 28;
+    const colX = [left, left + 186, left + 366];
+    const topY = top + 20;
 
     this.createResourcesSection(colX[0], topY);
     this.createItemsSection(colX[1], topY);
@@ -96,11 +99,11 @@ export class GuidePanel {
     this.createResearchRecipesSection(colX[1], topY + 185);
 
     // Close hint
-    const hint = makeText(this.scene, 0, panelH / 2 - 12, 'Press G or X to close', {
+    const hint = makeText(this.scene, 0, top + contentH, 'Press G or X to close', {
       fontSize: '8px',
       color: THEME.text.tertiary,
     });
-    hint.setOrigin(0.5, 0.5);
+    hint.setOrigin(0.5, 1);
     this.container.add(hint);
   }
 

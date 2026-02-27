@@ -119,6 +119,13 @@ export const THEME = {
   },
 } as const;
 
+// UI layout constants
+export const UI_PADDING = 15;
+export const PANEL_BORDER = 8;
+export const PANEL_INSET = PANEL_BORDER + UI_PADDING; // 23 — distance from panel edge to content
+export const BAR_VPAD = 4; // Padding inside thin HUD bars (all sides, from inner border edge)
+export const PANEL_FILL = 0x06050f;
+
 // Colors for UI (backward-compat layer referencing THEME)
 export const COLORS = {
   background: THEME.world.bg,

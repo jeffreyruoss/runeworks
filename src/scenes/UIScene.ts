@@ -2,10 +2,11 @@ import Phaser from 'phaser';
 import {
   CANVAS_WIDTH,
   CANVAS_HEIGHT,
-  COLORS,
   THEME,
   BUILDING_COSTS,
   RESOURCE_DISPLAY_NAMES,
+  PANEL_BORDER,
+  BAR_VPAD,
 } from '../config';
 import { GameUIState, PlayerResources } from '../types';
 
@@ -14,8 +15,10 @@ import { GuidePanel } from '../managers/GuidePanel';
 import { ResearchPanel } from '../managers/ResearchPanel';
 import { ResearchManager } from '../managers/ResearchManager';
 import { TutorialOverlay } from '../managers/TutorialOverlay';
+import { MenuPanel } from '../managers/MenuPanel';
+import { InventoryPanel } from '../managers/InventoryPanel';
 import { canAfford } from '../utils';
-import { makeText, setupCamera } from '../phaser-utils';
+import { makeText, createPanelFrame, setupCamera } from '../phaser-utils';
 
 export class UIScene extends Phaser.Scene {
   private selectedText!: Phaser.GameObjects.Text;
@@ -25,23 +28,13 @@ export class UIScene extends Phaser.Scene {
   private cursorInfoText!: Phaser.GameObjects.Text;
   private hotbarText!: Phaser.GameObjects.Text;
 
-  // Menu panel
-  private menuPanel!: Phaser.GameObjects.Container;
-
-  // Inventory panel
-  private inventoryPanel!: Phaser.GameObjects.Container;
-
-  // Objectives (delegated to manager)
+  // Panels (delegated to managers)
+  private menuPanel!: MenuPanel;
+  private inventoryPanel!: InventoryPanel;
   private objectivesPanel!: ObjectivesPanel;
-
-  // Guide panel
   private guidePanel!: GuidePanel;
-
-  // Research panel
   private researchPanel!: ResearchPanel;
   private researchManager!: ResearchManager;
-
-  // Tutorial overlay
   private tutorialOverlay!: TutorialOverlay;
 
   constructor() {
@@ -51,58 +44,67 @@ export class UIScene extends Phaser.Scene {
   create(): void {
     setupCamera(this);
 
-    const graphics = this.add.graphics();
+    const barPad = PANEL_BORDER + BAR_VPAD; // 12 — equal on all sides for bars
+    const rightX = CANVAS_WIDTH - barPad;
+    const row1Y = barPad;
+    const row2Y = row1Y + 12;
 
     // Top bar
-    graphics.fillStyle(COLORS.hudBackground, 0.7);
-    graphics.fillRect(0, 0, CANVAS_WIDTH, 20);
+    const topBarH = 2 * PANEL_BORDER + 2 * BAR_VPAD + 20; // 48
+    const topBar = createPanelFrame(this, CANVAS_WIDTH, topBarH, 0.8);
+    topBar.setPosition(CANVAS_WIDTH / 2, topBarH / 2);
 
     // Bottom bar
-    graphics.fillRect(0, CANVAS_HEIGHT - 28, CANVAS_WIDTH, 28);
+    const botBarH = 2 * PANEL_BORDER + 2 * BAR_VPAD + 20; // 48
+    const bottomBar = createPanelFrame(this, CANVAS_WIDTH, botBarH, 0.8);
+    bottomBar.setPosition(CANVAS_WIDTH / 2, CANVAS_HEIGHT - botBarH / 2);
+
+    const botRow1Y = CANVAS_HEIGHT - botBarH + row1Y;
+    const botRow2Y = botRow1Y + 12;
 
     // Cursor info (top-left, shows what's under cursor)
-    this.cursorInfoText = makeText(this, 4, 2, '', {
+    this.cursorInfoText = makeText(this, barPad, row1Y, '', {
       fontSize: '10px',
       color: THEME.text.primary,
     });
 
     // Simulation status with play icon (top-center)
-    this.simStatusText = makeText(this, CANVAS_WIDTH / 2, 2, '► 1x', {
+    this.simStatusText = makeText(this, CANVAS_WIDTH / 2, row1Y, '► 1x', {
       fontSize: '10px',
       color: THEME.status.active,
     });
     this.simStatusText.setOrigin(0.5, 0);
 
     // Resources (top-right area)
-    this.resourcesText = makeText(this, CANVAS_WIDTH - 280, 2, '', {
+    this.resourcesText = makeText(this, CANVAS_WIDTH - 280, row1Y, '', {
       fontSize: '10px',
       color: THEME.text.secondary,
     });
 
     // Items produced (top, second row)
-    this.itemsText = makeText(this, 4, 12, '', {
+    this.itemsText = makeText(this, barPad, row2Y, '', {
       fontSize: '8px',
       color: THEME.status.paused,
     });
 
-    // Hotbar (bottom) - dynamic based on build mode
-    this.hotbarText = makeText(this, 4, CANVAS_HEIGHT - 24, '[B] Build', {
+    // Hotbar (bottom row 1)
+    this.hotbarText = makeText(this, barPad, botRow1Y, '[B] Build', {
       fontSize: '10px',
       color: THEME.text.secondary,
     });
 
-    // Selected building (bottom-right)
-    this.selectedText = makeText(this, CANVAS_WIDTH - 4, CANVAS_HEIGHT - 24, 'None', {
+    // Selected building (bottom-right row 1)
+    this.selectedText = makeText(this, rightX, botRow1Y, 'None', {
       fontSize: '10px',
       color: THEME.text.tertiary,
     });
     this.selectedText.setOrigin(1, 0);
 
-    // Help text
+    // Help text (bottom row 2)
     makeText(
       this,
-      4,
-      CANVAS_HEIGHT - 12,
+      barPad,
+      botRow2Y,
       'ESDF:Move  Spc:Build  X:Cancel/Rmv  R:Rot/Research  P:Pause  H:Stats  O:Goals  G:Guide  K:Keys',
       {
         fontSize: '8px',
@@ -110,16 +112,10 @@ export class UIScene extends Phaser.Scene {
       }
     );
 
-    // Create menu panel (hidden by default)
-    this.createMenuPanel();
-
-    // Create inventory panel (hidden by default)
-    this.createInventoryPanel();
-
-    // Create objectives panels (delegated to manager)
+    // Create panels (all delegated to manager classes)
+    this.menuPanel = new MenuPanel(this);
+    this.inventoryPanel = new InventoryPanel(this);
     this.objectivesPanel = new ObjectivesPanel(this);
-
-    // Create guide panel
     this.guidePanel = new GuidePanel(this);
 
     // Get shared research manager from GameScene via registry
@@ -134,136 +130,6 @@ export class UIScene extends Phaser.Scene {
     gameScene.events.on('gameStateChanged', this.onGameStateChanged, this);
     gameScene.events.on('researchNavigate', this.onResearchNavigate, this);
     gameScene.events.on('researchUnlock', this.onResearchUnlock, this);
-  }
-
-  private createMenuPanel(): void {
-    this.menuPanel = this.add.container(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
-    this.menuPanel.setDepth(1000);
-    this.menuPanel.setVisible(false);
-
-    // Background
-    const panelW = 480;
-    const panelH = 240;
-    const bg = this.add.graphics();
-    bg.fillStyle(THEME.panel.bg, 0.9);
-    bg.fillRect(-panelW / 2, -panelH / 2, panelW, panelH);
-    bg.lineStyle(2, THEME.panel.border);
-    bg.strokeRect(-panelW / 2, -panelH / 2, panelW, panelH);
-    this.menuPanel.add(bg);
-
-    // Title
-    const title = makeText(this, 0, -panelH / 2 + 14, 'KEY COMMANDS', {
-      fontSize: '14px',
-      color: THEME.text.primary,
-    });
-    title.setOrigin(0.5, 0.5);
-    this.menuPanel.add(title);
-
-    // Column layout helper
-    const colX = [-panelW / 4, panelW / 4];
-    const startY = -panelH / 2 + 40;
-    const lineH = 13;
-
-    const addColumn = (x: number, header: string, commands: string[]): void => {
-      let y = startY;
-      const headerText = makeText(this, x, y, header, {
-        fontSize: '9px',
-        color: THEME.text.secondary,
-      });
-      headerText.setOrigin(0.5, 0.5);
-      this.menuPanel.add(headerText);
-      y += lineH + 2;
-
-      for (const cmd of commands) {
-        const cmdText = makeText(this, x, y, cmd, {
-          fontSize: '8px',
-          color: THEME.text.tertiary,
-        });
-        cmdText.setOrigin(0.5, 0.5);
-        this.menuPanel.add(cmdText);
-        y += lineH;
-      }
-    };
-
-    addColumn(colX[0], 'REGULAR MODE', [
-      'ESDF - Move cursor',
-      'Shift+ESDF - Jump 5 tiles',
-      'Space/Enter - Gather/Build',
-      'X - Cancel / Deconstruct',
-      'R - Rotate / Research',
-      'C - Cycle recipe',
-      'P - Pause/Resume',
-      '</> - Speed down/up',
-      'H - Toggle stats',
-      'O - Objectives',
-      'G - Guide',
-      'K - Key Commands',
-    ]);
-
-    addColumn(colX[1], 'BUILD MODE', [
-      'B - Toggle build menu',
-      'Q - Quarry',
-      'F - Forge',
-      'W - Workbench',
-      'C - Chest',
-      'A - Arcane Study',
-      'M - Mana Well',
-      'O - Mana Obelisk',
-      'T - Mana Tower',
-      'X - Exit build mode',
-    ]);
-
-    // Divider line between columns
-    const divider = this.add.graphics();
-    divider.lineStyle(1, THEME.panel.divider);
-    divider.lineBetween(0, startY - 6, 0, panelH / 2 - 30);
-    this.menuPanel.add(divider);
-
-    // Close hint at bottom
-    const closeHint = makeText(this, 0, panelH / 2 - 14, 'Press K or X to close', {
-      fontSize: '10px',
-      color: THEME.text.muted,
-    });
-    closeHint.setOrigin(0.5, 0.5);
-    this.menuPanel.add(closeHint);
-  }
-
-  private createInventoryPanel(): void {
-    this.inventoryPanel = this.add.container(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
-    this.inventoryPanel.setDepth(1000);
-    this.inventoryPanel.setVisible(false);
-
-    // Background
-    const bg = this.add.graphics();
-    bg.fillStyle(THEME.panel.bg, 0.9);
-    bg.fillRect(-100, -60, 200, 120);
-    bg.lineStyle(2, THEME.panel.border);
-    bg.strokeRect(-100, -60, 200, 120);
-    this.inventoryPanel.add(bg);
-
-    // Title
-    const invTitle = makeText(this, 0, -45, 'INVENTORY', {
-      fontSize: '12px',
-      color: THEME.text.primary,
-    });
-    invTitle.setOrigin(0.5, 0.5);
-    this.inventoryPanel.add(invTitle);
-
-    // Placeholder text
-    const placeholder = makeText(this, 0, 0, 'Coming soon...', {
-      fontSize: '10px',
-      color: THEME.text.muted,
-    });
-    placeholder.setOrigin(0.5, 0.5);
-    this.inventoryPanel.add(placeholder);
-
-    // Close hint
-    const hint = makeText(this, 0, 40, 'Press I or X to close', {
-      fontSize: '8px',
-      color: THEME.text.tertiary,
-    });
-    hint.setOrigin(0.5, 0.5);
-    this.inventoryPanel.add(hint);
   }
 
   private onGameStateChanged(state: GameUIState): void {
@@ -352,13 +218,9 @@ export class UIScene extends Phaser.Scene {
 
     this.itemsText.setText(itemStrings.join('  '));
 
-    // Menu visibility
+    // Panel visibility
     this.menuPanel.setVisible(state.menuOpen);
-
-    // Inventory visibility
     this.inventoryPanel.setVisible(state.inventoryOpen);
-
-    // Guide panel visibility
     this.guidePanel.setVisible(state.guideOpen);
 
     // Research panel visibility
