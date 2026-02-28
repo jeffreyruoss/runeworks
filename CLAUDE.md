@@ -2,9 +2,15 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Branch Reminder
+
+At the end of every response, check the current git branch. If it is NOT `main`, append a reminder like:
+
+> **Branch: `<branch-name>`** — remember to switch back to `main` when done.
+
 ## Project Overview
 
-Runeworks is a keyboard-only, stage-based micro-factory builder game built with Phaser 3 and TypeScript. Set in the realm of Eldoria, players operate a Runeforge - extracting mystical ores from crystal veins, purifying them in enchanted forges, and crafting runic artifacts. Players place production machines on a 40×25 grid and run tick-based simulations to meet quest quotas.
+Runeworks is a keyboard-only, stage-based micro-factory builder game built with Phaser 4 and TypeScript. Set in the realm of Eldoria, players operate a Runeforge - extracting mystical ores from crystal veins, purifying them in enchanted forges, and crafting runic artifacts. Players place production machines on a 40×25 grid and run tick-based simulations to meet quest quotas.
 
 ## Commands
 
