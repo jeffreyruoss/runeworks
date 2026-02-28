@@ -62,6 +62,26 @@ async function packAtlas() {
     });
   }
 
+  // Auto-generate panel_edge_v by rotating panel_edge_h 90° clockwise
+  const edgeH = entries.find((e) => e.name === 'panel_edge_h');
+  const edgeVIdx = entries.findIndex((e) => e.name === 'panel_edge_v');
+  if (edgeH) {
+    const rotatedPath = path.join(AI_DIR, 'panel_edge_v.png');
+    await sharp(edgeH.path).rotate(90).png().toFile(rotatedPath);
+    const meta = await sharp(rotatedPath).metadata();
+    const rotatedEntry = {
+      name: 'panel_edge_v',
+      path: rotatedPath,
+      width: meta.width,
+      height: meta.height,
+    };
+    if (edgeVIdx >= 0) {
+      entries[edgeVIdx] = rotatedEntry;
+    } else {
+      entries.push(rotatedEntry);
+    }
+  }
+
   // Sort by height descending, then width descending for efficient packing
   entries.sort((a, b) => b.height - a.height || b.width - a.width);
 

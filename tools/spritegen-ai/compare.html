@@ -1,0 +1,397 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Runeworks Sprite Comparison</title>
+    <style>
+      body {
+        background: #1a1a2e;
+        color: #e0e0e0;
+        font-family: monospace;
+        padding: 20px;
+      }
+      h1 {
+        color: #9b59b6;
+      }
+      table {
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 12px 20px;
+        border: 1px solid #333;
+        text-align: center;
+        vertical-align: middle;
+      }
+      th {
+        background: #16213e;
+        color: #9b59b6;
+      }
+      td {
+        background: #0f3460;
+      }
+      img {
+        display: block;
+        margin: 0 auto;
+      }
+      code {
+        color: #00d2ff;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Runeworks Sprite Comparison (2x canvas)</h1>
+    <p>
+      Existing (ASCII pipeline) vs AI-generated (Gemini, 16-bit style, doubled canvas) at 4x
+      magnification
+    </p>
+    <table>
+      <tr>
+        <th>Sprite</th>
+        <th>Existing</th>
+        <th>AI Generated</th>
+      </tr>
+      <tr>
+        <td><code>quarry</code><br />64x64</td>
+        <td>
+          <img
+            src="../../assets/sprites/out/quarry.png"
+            width="256"
+            height="256"
+            style="image-rendering: pixelated"
+          />
+        </td>
+        <td>
+          <img
+            src="../../assets/sprites/ai-out/quarry.png"
+            width="256"
+            height="256"
+            style="image-rendering: pixelated"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td><code>forge</code><br />64x64</td>
+        <td>
+          <img
+            src="../../assets/sprites/out/forge.png"
+            width="256"
+            height="256"
+            style="image-rendering: pixelated"
+          />
+        </td>
+        <td>
+          <img
+            src="../../assets/sprites/ai-out/forge.png"
+            width="256"
+            height="256"
+            style="image-rendering: pixelated"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td><code>workbench</code><br />64x64</td>
+        <td>
+          <img
+            src="../../assets/sprites/out/workbench.png"
+            width="256"
+            height="256"
+            style="image-rendering: pixelated"
+          />
+        </td>
+        <td>
+          <img
+            src="../../assets/sprites/ai-out/workbench.png"
+            width="256"
+            height="256"
+            style="image-rendering: pixelated"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td><code>arcane_study</code><br />64x64</td>
+        <td>
+          <img
+            src="../../assets/sprites/out/arcane_study.png"
+            width="256"
+            height="256"
+            style="image-rendering: pixelated"
+          />
+        </td>
+        <td>
+          <img
+            src="../../assets/sprites/ai-out/arcane_study.png"
+            width="256"
+            height="256"
+            style="image-rendering: pixelated"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td><code>mana_obelisk</code><br />64x64</td>
+        <td>
+          <img
+            src="../../assets/sprites/out/mana_obelisk.png"
+            width="256"
+            height="256"
+            style="image-rendering: pixelated"
+          />
+        </td>
+        <td>
+          <img
+            src="../../assets/sprites/ai-out/mana_obelisk.png"
+            width="256"
+            height="256"
+            style="image-rendering: pixelated"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td><code>chest</code><br />32x32</td>
+        <td>
+          <img
+            src="../../assets/sprites/out/chest.png"
+            width="128"
+            height="128"
+            style="image-rendering: pixelated"
+          />
+        </td>
+        <td>
+          <img
+            src="../../assets/sprites/ai-out/chest.png"
+            width="128"
+            height="128"
+            style="image-rendering: pixelated"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td><code>mana_well</code><br />32x32</td>
+        <td>
+          <img
+            src="../../assets/sprites/out/mana_well.png"
+            width="128"
+            height="128"
+            style="image-rendering: pixelated"
+          />
+        </td>
+        <td>
+          <img
+            src="../../assets/sprites/ai-out/mana_well.png"
+            width="128"
+            height="128"
+            style="image-rendering: pixelated"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td><code>mana_tower</code><br />32x32</td>
+        <td>
+          <img
+            src="../../assets/sprites/out/mana_tower.png"
+            width="128"
+            height="128"
+            style="image-rendering: pixelated"
+          />
+        </td>
+        <td>
+          <img
+            src="../../assets/sprites/ai-out/mana_tower.png"
+            width="128"
+            height="128"
+            style="image-rendering: pixelated"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td><code>arcstone</code><br />16x16</td>
+        <td>
+          <img
+            src="../../assets/sprites/out/arcstone.png"
+            width="64"
+            height="64"
+            style="image-rendering: pixelated"
+          />
+        </td>
+        <td>
+          <img
+            src="../../assets/sprites/ai-out/arcstone.png"
+            width="64"
+            height="64"
+            style="image-rendering: pixelated"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td><code>sunite</code><br />16x16</td>
+        <td>
+          <img
+            src="../../assets/sprites/out/sunite.png"
+            width="64"
+            height="64"
+            style="image-rendering: pixelated"
+          />
+        </td>
+        <td>
+          <img
+            src="../../assets/sprites/ai-out/sunite.png"
+            width="64"
+            height="64"
+            style="image-rendering: pixelated"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td><code>arcane_ingot</code><br />16x16</td>
+        <td>
+          <img
+            src="../../assets/sprites/out/arcane_ingot.png"
+            width="64"
+            height="64"
+            style="image-rendering: pixelated"
+          />
+        </td>
+        <td>
+          <img
+            src="../../assets/sprites/ai-out/arcane_ingot.png"
+            width="64"
+            height="64"
+            style="image-rendering: pixelated"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td><code>sun_ingot</code><br />16x16</td>
+        <td>
+          <img
+            src="../../assets/sprites/out/sun_ingot.png"
+            width="64"
+            height="64"
+            style="image-rendering: pixelated"
+          />
+        </td>
+        <td>
+          <img
+            src="../../assets/sprites/ai-out/sun_ingot.png"
+            width="64"
+            height="64"
+            style="image-rendering: pixelated"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td><code>cogwheel</code><br />16x16</td>
+        <td>
+          <img
+            src="../../assets/sprites/out/cogwheel.png"
+            width="64"
+            height="64"
+            style="image-rendering: pixelated"
+          />
+        </td>
+        <td>
+          <img
+            src="../../assets/sprites/ai-out/cogwheel.png"
+            width="64"
+            height="64"
+            style="image-rendering: pixelated"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td><code>thread</code><br />16x16</td>
+        <td>
+          <img
+            src="../../assets/sprites/out/thread.png"
+            width="64"
+            height="64"
+            style="image-rendering: pixelated"
+          />
+        </td>
+        <td>
+          <img
+            src="../../assets/sprites/ai-out/thread.png"
+            width="64"
+            height="64"
+            style="image-rendering: pixelated"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td><code>rune</code><br />16x16</td>
+        <td>
+          <img
+            src="../../assets/sprites/out/rune.png"
+            width="64"
+            height="64"
+            style="image-rendering: pixelated"
+          />
+        </td>
+        <td>
+          <img
+            src="../../assets/sprites/ai-out/rune.png"
+            width="64"
+            height="64"
+            style="image-rendering: pixelated"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td><code>ground</code><br />32x32</td>
+        <td>
+          <img
+            src="../../assets/sprites/out/ground.png"
+            width="128"
+            height="128"
+            style="image-rendering: pixelated"
+          />
+        </td>
+        <td>
+          <img
+            src="../../assets/sprites/ai-out/ground.png"
+            width="128"
+            height="128"
+            style="image-rendering: pixelated"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td><code>arcstone_vein</code><br />32x32</td>
+        <td>
+          <img
+            src="../../assets/sprites/out/arcstone_vein.png"
+            width="128"
+            height="128"
+            style="image-rendering: pixelated"
+          />
+        </td>
+        <td>
+          <img
+            src="../../assets/sprites/ai-out/arcstone_vein.png"
+            width="128"
+            height="128"
+            style="image-rendering: pixelated"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td><code>sunite_vein</code><br />32x32</td>
+        <td>
+          <img
+            src="../../assets/sprites/out/sunite_vein.png"
+            width="128"
+            height="128"
+            style="image-rendering: pixelated"
+          />
+        </td>
+        <td>
+          <img
+            src="../../assets/sprites/ai-out/sunite_vein.png"
+            width="128"
+            height="128"
+            style="image-rendering: pixelated"
+          />
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

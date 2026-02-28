@@ -137,17 +137,34 @@ async function fixEdgeOutliers(buffer, width, height) {
 // Downscale image to target size using nearest-neighbor.
 // Overshoots by a margin then crops the center to discard AI border artifacts.
 // For tileable sprites, skips the margin crop to preserve seamless edges.
-async function downscaleSprite(imageBuffer, targetWidth, targetHeight, tileable = false) {
+async function downscaleSprite(
+  imageBuffer,
+  targetWidth,
+  targetHeight,
+  tileable = false,
+  flatten = null
+) {
   if (tileable) {
-    // Flatten alpha onto black to kill Gemini's fake transparency checkerboard
+    // Flatten alpha to kill Gemini's fake transparency checkerboard.
+    // Uses custom flatten color if provided, otherwise black.
     // Then oversize + crop center to remove Gemini's lighter border pixels.
     // Slightly breaks perfect tileability but eliminates visible edge seams.
     const margin = 4;
     const overshotW = targetWidth + 2 * margin;
     const overshotH = targetHeight + 2 * margin;
 
+    let flatBg = { r: 0, g: 0, b: 0 };
+    if (flatten) {
+      const hex = flatten.replace('#', '');
+      flatBg = {
+        r: parseInt(hex.slice(0, 2), 16),
+        g: parseInt(hex.slice(2, 4), 16),
+        b: parseInt(hex.slice(4, 6), 16),
+      };
+    }
+
     const cropped = await sharp(imageBuffer)
-      .flatten({ background: { r: 0, g: 0, b: 0 } })
+      .flatten({ background: flatBg })
       .resize(overshotW, overshotH, {
         kernel: sharp.kernel.nearest,
         fit: 'fill',
@@ -170,7 +187,18 @@ async function downscaleSprite(imageBuffer, targetWidth, targetHeight, tileable 
   const overshotH = targetHeight + 2 * margin;
 
   // Downscale to overshot size, then crop center to discard border contamination
-  return sharp(imageBuffer)
+  let pipeline = sharp(imageBuffer);
+
+  // Flatten alpha onto a solid background color (kills semi-transparent gray halos)
+  if (flatten) {
+    const hex = flatten.replace('#', '');
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    pipeline = pipeline.flatten({ background: { r, g, b } });
+  }
+
+  return pipeline
     .resize(overshotW, overshotH, {
       kernel: sharp.kernel.nearest,
       fit: 'fill',
@@ -273,7 +301,8 @@ async function main() {
         rawImage,
         sprite.width,
         sprite.height,
-        sprite.tileable
+        sprite.tileable,
+        sprite.flatten
       );
 
       // Save
