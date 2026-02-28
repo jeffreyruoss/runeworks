@@ -21,7 +21,7 @@
     "*.{ts,js,json,html,css,md}": "prettier --write"
   },
   "dependencies": {
-    "phaser": "^3.80.1"
+    "phaser": "^4.0.0-rc.6"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.18",
