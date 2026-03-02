@@ -1,10 +1,18 @@
 import Phaser from 'phaser';
-import { TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, COLORS, CURSOR_JUMP_STEP } from '../config';
+import { ResponsiveScene, ConstraintMode } from 'phaser-pixui';
+import {
+  TILE_SIZE,
+  GRID_WIDTH,
+  GRID_HEIGHT,
+  CANVAS_WIDTH,
+  CANVAS_HEIGHT,
+  COLORS,
+  CURSOR_JUMP_STEP,
+} from '../config';
 import { Building, BuildingType, GameMode, PlayerResources } from '../types';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
 import { getRecipesForBuilding } from '../data/recipes';
 import { getBuildingAt, addPlayerResource, getCursorInfo } from '../utils';
-import { setupCamera } from '../phaser-utils';
 import { Simulation } from '../Simulation';
 import { InputManager } from '../managers/InputManager';
 import { TerrainRenderer } from '../managers/TerrainRenderer';
@@ -20,7 +28,7 @@ import { QUARRIABLE_TERRAIN } from '../data/terrain';
 import { RESEARCH_RECIPES } from '../data/research';
 import { getTutorialStage } from '../data/tutorials';
 
-export class GameScene extends Phaser.Scene {
+export class GameScene extends ResponsiveScene {
   // Cursor state
   private cursor = { x: 0, y: 0 };
   private selectedBuilding: BuildingType | null = null;
@@ -57,7 +65,15 @@ export class GameScene extends Phaser.Scene {
   };
 
   constructor() {
-    super({ key: 'GameScene' });
+    super({
+      key: 'GameScene',
+      viewportConstraints: {
+        mode: ConstraintMode.Maximum,
+        width: CANVAS_WIDTH,
+        height: CANVAS_HEIGHT,
+      },
+      getWorldSize: () => ({ width: CANVAS_WIDTH, height: CANVAS_HEIGHT }),
+    });
   }
 
   init(data?: { mode?: GameMode }): void {
@@ -66,7 +82,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
-    setupCamera(this);
+    super.create();
 
     // Initialize simulation
     this.simulation = new Simulation();

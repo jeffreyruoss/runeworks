@@ -3,21 +3,28 @@ import { BootScene } from './scenes/BootScene';
 import { ModeSelectScene } from './scenes/ModeSelectScene';
 import { GameScene } from './scenes/GameScene';
 import { UIScene } from './scenes/UIScene';
-import { CANVAS_WIDTH, CANVAS_HEIGHT, DEFAULT_ZOOM, COLORS } from './config';
+import { COLORS } from './config';
+
+const dpr = window.devicePixelRatio || 1;
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   parent: 'game-container',
-  width: CANVAS_WIDTH * DEFAULT_ZOOM,
-  height: CANVAS_HEIGHT * DEFAULT_ZOOM,
+  width: window.innerWidth * dpr,
+  height: window.innerHeight * dpr,
   pixelArt: true,
   roundPixels: true,
   backgroundColor: COLORS.background,
   scale: {
-    mode: Phaser.Scale.FIT,
+    mode: Phaser.Scale.NONE,
+    zoom: 1 / dpr,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   scene: [BootScene, ModeSelectScene, GameScene, UIScene],
 };
 
-new Phaser.Game(config);
+const game = new Phaser.Game(config);
+
+window.addEventListener('resize', () => {
+  game.scale.resize(window.innerWidth * dpr, window.innerHeight * dpr);
+});

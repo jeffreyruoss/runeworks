@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
-import { CANVAS_WIDTH, CANVAS_HEIGHT, THEME } from '../config';
-import { makeText } from '../phaser-utils';
+import { THEME } from '../config';
+import { FONT_SM } from '../ui-theme';
 
 /**
  * Bottom-center overlay that displays tutorial instruction text.
@@ -8,13 +8,14 @@ import { makeText } from '../phaser-utils';
  */
 export class TutorialOverlay {
   private container: Phaser.GameObjects.Container;
-  private textObjects: Phaser.GameObjects.Text[] = [];
+  private textObjects: Phaser.GameObjects.BitmapText[] = [];
   private scene: Phaser.Scene;
   private currentKey: string | null = null;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
-    this.container = scene.add.container(CANVAS_WIDTH / 2, CANVAS_HEIGHT - 80);
+    const vp = (scene as any).viewport as { width: number; height: number };
+    this.container = scene.add.container(Math.floor(vp.width / 2), vp.height - 80);
     this.container.setDepth(900);
     this.container.setVisible(false);
 
@@ -27,10 +28,6 @@ export class TutorialOverlay {
     this.container.add(bg);
   }
 
-  /**
-   * Update the overlay with tutorial text lines, or hide if null.
-   * Skips recreation if the text hasn't changed.
-   */
   update(lines: string[] | null): void {
     if (!lines || lines.length === 0) {
       this.container.setVisible(false);
@@ -40,27 +37,20 @@ export class TutorialOverlay {
 
     this.container.setVisible(true);
 
-    // Cache check: skip if text is unchanged
     const key = lines.join('\n');
     if (key === this.currentKey) return;
     this.currentKey = key;
 
-    // Destroy old text objects
-    for (const t of this.textObjects) {
-      t.destroy();
-    }
+    for (const t of this.textObjects) t.destroy();
     this.textObjects = [];
 
-    // Create new text lines
-    const lineHeight = 12;
+    const lineHeight = 14;
     const startY = -((lines.length - 1) * lineHeight) / 2;
 
     for (let i = 0; i < lines.length; i++) {
-      const t = makeText(this.scene, 0, startY + i * lineHeight, lines[i], {
-        fontSize: '9px',
-        color: i === 0 ? THEME.tutorial.header : THEME.text.secondary,
-      });
+      const t = this.scene.add.bitmapText(0, startY + i * lineHeight, FONT_SM, lines[i]);
       t.setOrigin(0.5, 0.5);
+      t.setTint(i === 0 ? 0x4af0ff : 0xb0a8c0);
       this.container.add(t);
       this.textObjects.push(t);
     }

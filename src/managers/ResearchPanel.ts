@@ -1,14 +1,14 @@
 import Phaser from 'phaser';
-import { CANVAS_WIDTH, CANVAS_HEIGHT, THEME, TICKS_PER_SECOND, PANEL_INSET } from '../config';
+import { TICKS_PER_SECOND } from '../config';
 import { RESEARCH_NODES, RESEARCH_RECIPES, ResearchBranch, ResearchNode } from '../data/research';
 import { ITEM_DISPLAY_NAMES } from '../data/stages';
 import { ResearchManager } from './ResearchManager';
-import { makeText, createPanelFrame } from '../phaser-utils';
+import { FONT_SM, UI_ATLAS } from '../ui-theme';
 
 interface NodeDisplay {
   node: ResearchNode;
-  text: Phaser.GameObjects.Text;
-  statusText: Phaser.GameObjects.Text;
+  text: Phaser.GameObjects.BitmapText;
+  statusText: Phaser.GameObjects.BitmapText;
 }
 
 /**
@@ -18,10 +18,10 @@ interface NodeDisplay {
 export class ResearchPanel {
   private scene: Phaser.Scene;
   private container!: Phaser.GameObjects.Container;
-  private rpText!: Phaser.GameObjects.Text;
+  private rpText!: Phaser.GameObjects.BitmapText;
   private nodeDisplays: NodeDisplay[] = [];
   private selectedIndex = 0;
-  private selectionIndicator!: Phaser.GameObjects.Text;
+  private selectionIndicator!: Phaser.GameObjects.BitmapText;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
@@ -32,35 +32,27 @@ export class ResearchPanel {
     this.container.setVisible(visible);
   }
 
-  /** Navigate the tech tree selection. Returns true if input was consumed. */
   navigate(dx: number, dy: number): boolean {
     if (this.nodeDisplays.length === 0) return false;
 
     if (dy !== 0) {
-      // Move within a branch (up/down)
       this.selectedIndex = Math.max(
         0,
         Math.min(this.nodeDisplays.length - 1, this.selectedIndex + dy)
       );
     } else if (dx !== 0) {
-      // Move between branches (left/right)
       const currentNode = this.nodeDisplays[this.selectedIndex].node;
       const branches: ResearchBranch[] = ['buildings', 'recipes', 'upgrades'];
       const currentBranchIdx = branches.indexOf(currentNode.branch);
       const newBranchIdx = Math.max(0, Math.min(branches.length - 1, currentBranchIdx + dx));
       const targetBranch = branches[newBranchIdx];
-
-      // Find first node in target branch
       const targetIdx = this.nodeDisplays.findIndex((d) => d.node.branch === targetBranch);
-      if (targetIdx >= 0) {
-        this.selectedIndex = targetIdx;
-      }
+      if (targetIdx >= 0) this.selectedIndex = targetIdx;
     }
 
     return true;
   }
 
-  /** Attempt to unlock the selected node. Returns true if unlocked. */
   tryUnlock(researchManager: ResearchManager): boolean {
     if (this.selectedIndex >= this.nodeDisplays.length) return false;
     const node = this.nodeDisplays[this.selectedIndex].node;
@@ -76,25 +68,23 @@ export class ResearchPanel {
 
       if (state === 'unlocked') {
         display.statusText.setText('[x]');
-        display.statusText.setColor(THEME.status.valid);
-        display.text.setColor('#88ff88');
+        display.statusText.setTint(0x44ff88);
+        display.text.setTint(0x88ff88);
       } else if (state === 'available') {
         display.statusText.setText('[ ]');
-        display.statusText.setColor(THEME.text.primary);
-        display.text.setColor(THEME.text.primary);
+        display.statusText.setTint(0xe8e0f0);
+        display.text.setTint(0xe8e0f0);
       } else {
         display.statusText.setText('[-]');
-        display.statusText.setColor(THEME.text.muted);
-        display.text.setColor(THEME.text.muted);
+        display.statusText.setTint(0x605880);
+        display.text.setTint(0x605880);
       }
 
-      // Highlight selected node
       if (i === this.selectedIndex) {
-        display.text.setColor(state === 'unlocked' ? '#88ffaa' : THEME.status.paused);
+        display.text.setTint(state === 'unlocked' ? 0x88ffaa : 0xffdd44);
       }
     }
 
-    // Position selection indicator
     if (this.nodeDisplays.length > 0) {
       const display = this.nodeDisplays[this.selectedIndex];
       this.selectionIndicator.setPosition(display.statusText.x - 12, display.statusText.y);
@@ -103,72 +93,58 @@ export class ResearchPanel {
   }
 
   private createPanel(): void {
-    this.container = this.scene.add.container(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+    const vp = (this.scene as any).viewport as { width: number; height: number };
+    this.container = this.scene.add.container(Math.floor(vp.width / 2), Math.floor(vp.height / 2));
     this.container.setDepth(1000);
     this.container.setVisible(false);
 
-    // Content dimensions drive panel size
+    const padX = 20;
+    const padY = 16;
     const contentW = 500;
     const contentH = 310;
-    const panelW = contentW + 2 * PANEL_INSET;
-    const panelH = contentH + 2 * PANEL_INSET;
+    const panelW = contentW + 2 * padX;
+    const panelH = contentH + 2 * padY;
 
-    // Background — purple-tinted ornate frame
-    const bg = createPanelFrame(this.scene, panelW, panelH, 0.93);
-    bg.each((child: Phaser.GameObjects.GameObject) => {
-      if (
-        child instanceof Phaser.GameObjects.Image ||
-        child instanceof Phaser.GameObjects.TileSprite
-      ) {
-        child.setTint(0x8844aa);
-      }
-    });
+    const bg = this.scene.add.nineslice(0, 0, UI_ATLAS, 'frame_dark', panelW, panelH);
+    bg.setOrigin(0.5, 0.5);
+    bg.setAlpha(0.93);
+    bg.setTint(0x8844aa);
     this.container.add(bg);
 
-    const left = -panelW / 2 + PANEL_INSET;
-    const top = -panelH / 2 + PANEL_INSET;
+    const left = -panelW / 2 + padX;
+    const top = -panelH / 2 + padY;
 
-    // Title
-    const title = makeText(this.scene, 0, top, 'RESEARCH', {
-      fontSize: '14px',
-      color: '#cc88ff',
-    });
+    const title = this.scene.add.bitmapText(0, top, FONT_SM, 'RESEARCH');
     title.setOrigin(0.5, 0);
+    title.setTint(0xcc88ff);
     this.container.add(title);
 
-    // RP display
-    this.rpText = makeText(this.scene, 0, top + 16, 'Research Points: 0', {
-      fontSize: '10px',
-      color: '#ffaa00',
-    });
+    this.rpText = this.scene.add.bitmapText(0, top + 16, FONT_SM, 'Research Points: 0');
     this.rpText.setOrigin(0.5, 0);
+    this.rpText.setTint(0xffaa00);
     this.container.add(this.rpText);
 
-    // Selection indicator
-    this.selectionIndicator = makeText(this.scene, 0, 0, '>', {
-      fontSize: '10px',
-      color: THEME.status.paused,
-    });
+    this.selectionIndicator = this.scene.add.bitmapText(0, 0, FONT_SM, '>');
+    this.selectionIndicator.setTint(0xffdd44);
     this.selectionIndicator.setVisible(false);
     this.container.add(this.selectionIndicator);
 
-    // Three columns
     const colX = [left, left + 176, left + 356];
     const topY = top + 32;
 
-    this.createBranch(colX[0], topY, 'BUILDINGS', 'buildings', '#44ff88');
-    this.createBranch(colX[1], topY, 'RECIPES', 'recipes', '#ffaa44');
-    this.createBranch(colX[2], topY, 'UPGRADES', 'upgrades', '#88aaff');
-
-    // Research recipes reference
+    this.createBranch(colX[0], topY, 'BUILDINGS', 'buildings', 0x44ff88);
+    this.createBranch(colX[1], topY, 'RECIPES', 'recipes', 0xffaa44);
+    this.createBranch(colX[2], topY, 'UPGRADES', 'upgrades', 0x88aaff);
     this.createRecipeReference(left, topY + 180);
 
-    // Close hint
-    const hint = makeText(this.scene, 0, top + contentH, 'ESDF:Navigate  Space:Unlock  R/X:Close', {
-      fontSize: '8px',
-      color: THEME.text.tertiary,
-    });
+    const hint = this.scene.add.bitmapText(
+      0,
+      top + contentH,
+      FONT_SM,
+      'ESDF:Navigate  Space:Unlock  R/X:Close'
+    );
     hint.setOrigin(0.5, 1);
+    hint.setTint(0x8078a0);
     this.container.add(hint);
   }
 
@@ -177,96 +153,83 @@ export class ResearchPanel {
     y: number,
     title: string,
     branch: ResearchBranch,
-    color: string
+    color: number
   ): void {
-    const header = makeText(this.scene, x, y, title, {
-      fontSize: '10px',
-      color,
-    });
+    const header = this.scene.add.bitmapText(x, y, FONT_SM, title);
+    header.setTint(color);
     this.container.add(header);
 
     const divider = this.scene.add.graphics();
     divider.lineStyle(1, 0x444466);
-    divider.lineBetween(x, y + 12, x + 160, y + 12);
+    divider.lineBetween(x, y + 14, x + 160, y + 14);
     this.container.add(divider);
 
     const branchNodes = RESEARCH_NODES.filter((n) => n.branch === branch);
     let rowY = y + 18;
 
     for (const node of branchNodes) {
-      const statusText = makeText(this.scene, x, rowY, '[-]', {
-        fontSize: '10px',
-        color: THEME.text.muted,
-      });
+      const statusText = this.scene.add.bitmapText(x, rowY, FONT_SM, '[-]');
+      statusText.setTint(0x605880);
       this.container.add(statusText);
 
-      const nameText = makeText(this.scene, x + 26, rowY, `${node.name} (${node.cost} RP)`, {
-        fontSize: '9px',
-        color: THEME.text.secondary,
-      });
+      const nameText = this.scene.add.bitmapText(
+        x + 26,
+        rowY,
+        FONT_SM,
+        `${node.name} (${node.cost} RP)`
+      );
+      nameText.setTint(0xb0a8c0);
       this.container.add(nameText);
 
-      // Effect description
       const effectStr = this.getEffectDescription(node);
-      const effectText = makeText(this.scene, x + 26, rowY + 12, effectStr, {
-        fontSize: '7px',
-        color: THEME.text.muted,
-      });
+      const effectText = this.scene.add.bitmapText(x + 26, rowY + 14, FONT_SM, effectStr);
+      effectText.setTint(0x605880);
       this.container.add(effectText);
 
-      // Requirement
       if (node.requires) {
         const reqNode = RESEARCH_NODES.find((n) => n.id === node.requires);
-        const reqText = makeText(
-          this.scene,
+        const reqText = this.scene.add.bitmapText(
           x + 26,
-          rowY + 20,
-          `Requires: ${reqNode?.name || node.requires}`,
-          {
-            fontSize: '7px',
-            color: '#553355',
-          }
+          rowY + 24,
+          FONT_SM,
+          `Requires: ${reqNode?.name || node.requires}`
         );
+        reqText.setTint(0x553355);
         this.container.add(reqText);
       }
 
-      this.nodeDisplays.push({
-        node,
-        text: nameText,
-        statusText,
-      });
-
-      rowY += node.requires ? 34 : 28;
+      this.nodeDisplays.push({ node, text: nameText, statusText });
+      rowY += node.requires ? 38 : 30;
     }
   }
 
   private createRecipeReference(x: number, y: number): void {
-    const header = makeText(this.scene, x, y, 'STUDY RECIPES (Arcane Study building)', {
-      fontSize: '9px',
-      color: '#cc88ff',
-    });
+    const header = this.scene.add.bitmapText(
+      x,
+      y,
+      FONT_SM,
+      'STUDY RECIPES (Arcane Study building)'
+    );
+    header.setTint(0xcc88ff);
     this.container.add(header);
 
     const divider = this.scene.add.graphics();
     divider.lineStyle(1, 0x442266);
-    divider.lineBetween(x, y + 12, x + 500, y + 12);
+    divider.lineBetween(x, y + 14, x + 500, y + 14);
     this.container.add(divider);
 
-    let rowY = y + 16;
+    let rowY = y + 18;
     for (const recipe of RESEARCH_RECIPES) {
       const timeStr = `${recipe.craftTimeTicks / TICKS_PER_SECOND}s`;
-      const text = makeText(
-        this.scene,
+      const text = this.scene.add.bitmapText(
         x,
         rowY,
-        `${recipe.inputCount} ${ITEM_DISPLAY_NAMES[recipe.input] || recipe.input} -> ${recipe.rpYield} RP (${timeStr})`,
-        {
-          fontSize: '8px',
-          color: THEME.text.muted,
-        }
+        FONT_SM,
+        `${recipe.inputCount} ${ITEM_DISPLAY_NAMES[recipe.input] || recipe.input} -> ${recipe.rpYield} RP (${timeStr})`
       );
+      text.setTint(0x605880);
       this.container.add(text);
-      rowY += 12;
+      rowY += 14;
     }
   }
 
