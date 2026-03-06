@@ -110,6 +110,7 @@ export class GameScene extends ResponsiveScene {
       moveCursor: (dx, dy) => this.handleMoveCursor(dx, dy),
       selectBuilding: (type) => this.handleSelectBuilding(type),
       handleAction: () => this.handleAction(),
+      handleEnter: () => this.handleEnter(),
       deleteBuilding: () => this.deleteBuilding(),
       rotate: () => this.handleRotateOrResearch(),
       handleCancel: () => this.handleCancel(),
@@ -406,13 +407,17 @@ export class GameScene extends ResponsiveScene {
     this.emitUIUpdate();
   }
 
+  private handleEnter(): void {
+    if (this.stageManager.isStageCompleteShown()) {
+      this.handleStageAdvance();
+      return;
+    }
+    this.handleAction();
+  }
+
   private handleAction(): void {
     if (this.panelManager.isResearchOpen()) {
       this.events.emit('researchUnlock');
-      return;
-    }
-    if (this.stageManager.isStageCompleteShown()) {
-      this.handleStageAdvance();
       return;
     }
     if (this.selectedBuilding) {
@@ -547,7 +552,7 @@ export class GameScene extends ResponsiveScene {
 
     // Show completion message when all objectives are met
     if (this.stageManager.isStageComplete()) {
-      return [`${tutorial.name} — Complete!`, 'Press Space to continue.'];
+      return [`${tutorial.name} — Complete!`, 'Press Enter to continue.'];
     }
 
     const lines = [...tutorial.instructionText];

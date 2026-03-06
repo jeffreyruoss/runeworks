@@ -49,6 +49,7 @@ export interface InputCallbacks {
   toggleMenu: () => void;
   toggleObjectives: () => void;
   toggleGuide: () => void;
+  handleEnter: () => void;
   handleMKey: () => void;
 }
 
@@ -112,7 +113,7 @@ export class InputManager {
 
     // Actions
     this.keys.SPACE.on('down', () => cb.handleAction());
-    this.keys.ENTER.on('down', () => cb.handleAction());
+    this.keys.ENTER.on('down', () => cb.handleEnter());
     this.keys.BACKSPACE.on('down', () => cb.deleteBuilding());
     this.keys.R.on('down', () => cb.rotate());
     this.keys.X.on('down', () => cb.handleCancel());

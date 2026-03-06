@@ -131,7 +131,7 @@ export class ObjectivesPanel {
     this.stageCompleteNextText.setTint(0xb0a8c0);
     this.stageCompleteContainer.add(this.stageCompleteNextText);
 
-    const hint = this.scene.add.bitmapText(0, top + contentH, FONT_SM, '[Space] Continue');
+    const hint = this.scene.add.bitmapText(0, top + contentH, FONT_SM, '[Enter] Continue');
     hint.setOrigin(0.5, 1);
     hint.setTint(0x4af0ff);
     this.stageCompleteContainer.add(hint);
