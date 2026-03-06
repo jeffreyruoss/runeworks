@@ -70,22 +70,6 @@ export const THEME = {
     bg: 0x141020,
     gridLine: 0x2a2240,
   },
-  text: {
-    primary: '#e8e0f0',
-    secondary: '#b0a8c0',
-    tertiary: '#8078a0',
-    muted: '#605880',
-    content: '#c8c0d8',
-  },
-  status: {
-    active: '#4af0ff',
-    valid: '#44ff88',
-    invalid: '#ff5566',
-    paused: '#ffdd44',
-    affordable: '#44ff88',
-    unaffordable: '#ff5566',
-    deconstructHint: '#ff8888',
-  },
   ghost: {
     valid: 0x00ff00,
     invalid: 0xff0000,
@@ -100,18 +84,9 @@ export const THEME = {
   },
   modeSelect: {
     bg: 0x0d0b1a,
-    selected: '#4af0ff',
-    selectedDesc: '#88d8e8',
   },
   tutorial: {
     border: 0x4af0ff,
-    header: '#4af0ff',
-  },
-  section: {
-    resources: '#88aaff',
-    items: '#ffaa44',
-    buildings: '#44ff88',
-    research: '#cc88ff',
   },
 } as const;
 

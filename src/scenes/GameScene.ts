@@ -22,9 +22,9 @@ import { BuildingManager } from '../managers/BuildingManager';
 import { StageManager } from '../managers/StageManager';
 import { PanelManager } from '../managers/PanelManager';
 import { ResearchManager } from '../managers/ResearchManager';
-import { generateTerrain } from '../terrain/terrainSetup';
-import { PatchDef } from '../terrain/terrainSetup';
+import { generateTerrain, PatchDef } from '../terrain/terrainSetup';
 import { QUARRIABLE_TERRAIN } from '../data/terrain';
+import { ITEM_DISPLAY_NAMES } from '../data/stages';
 import { RESEARCH_RECIPES } from '../data/research';
 import { getTutorialStage } from '../data/tutorials';
 
@@ -134,8 +134,8 @@ export class GameScene extends ResponsiveScene {
     this.simulation.setBuildings(this.buildingManager.getBuildings());
     this.simulation.start();
 
-    // Defer initial UI update so UIScene has time to subscribe to events
-    this.time.delayedCall(0, () => this.emitUIUpdate());
+    // UIScene requests initial state after it subscribes
+    this.events.once('uiReady', () => this.emitUIUpdate());
   }
 
   private initializeMode(): void {
@@ -201,6 +201,7 @@ export class GameScene extends ResponsiveScene {
     this.cursor = { x: Math.floor(GRID_WIDTH / 2), y: Math.floor(GRID_HEIGHT / 2) };
     this.selectedBuilding = null;
     this.buildModeActive = false;
+    this.showAllBuffers = false;
     this.buildingPlacer.clearSelection();
     this.panelManager.closeAll();
     this.simulation.setBuildings(this.buildingManager.getBuildings());
@@ -542,7 +543,22 @@ export class GameScene extends ResponsiveScene {
   private getTutorialText(): string[] | null {
     if (this.gameMode !== 'tutorial') return null;
     const tutorial = this.stageManager.getTutorialStage();
-    return tutorial?.instructionText ?? null;
+    if (!tutorial) return null;
+
+    // Show completion message when all objectives are met
+    if (this.stageManager.isStageComplete()) {
+      return [`${tutorial.name} — Complete!`, 'Press Space to continue.'];
+    }
+
+    const lines = [...tutorial.instructionText];
+    const progress = this.stageManager.getObjectiveProgress();
+    for (const obj of progress) {
+      const name = ITEM_DISPLAY_NAMES[obj.item] || obj.item;
+      const done = obj.produced >= obj.required;
+      const check = done ? '[x]' : '[ ]';
+      lines.push(`${check} ${name}: ${obj.produced}/${obj.required}`);
+    }
+    return lines;
   }
 
   private emitUIUpdate(): void {

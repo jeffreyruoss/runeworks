@@ -25,6 +25,9 @@ export class UIScene extends UiScene {
   private topBarBg!: Phaser.GameObjects.Rectangle;
   private bottomBarBg!: Phaser.GameObjects.Rectangle;
 
+  // Bound listener reference for cleanup
+  private boundRepositionBars = this.repositionBars.bind(this);
+
   // Panels (delegated to managers)
   private menuPanel!: MenuPanel;
   private inventoryPanel!: InventoryPanel;
@@ -49,6 +52,8 @@ export class UIScene extends UiScene {
     this.createHudBars();
     this.createPanels();
     this.listenToGameScene();
+
+    this.events.on('shutdown', this.cleanup, this);
   }
 
   /** Create top and bottom HUD bars with bitmap text */
@@ -146,7 +151,7 @@ export class UIScene extends UiScene {
     });
 
     // Update bar positions on resize
-    this.scale.on('resize', () => this.repositionBars());
+    this.scale.on('resize', this.boundRepositionBars);
   }
 
   private repositionBars(): void {
@@ -166,7 +171,13 @@ export class UIScene extends UiScene {
     this.objectivesPanel = new ObjectivesPanel(this);
     this.guidePanel = new GuidePanel(this);
 
-    this.researchManager = this.registry.get('researchManager') as ResearchManager;
+    const rm = this.registry.get('researchManager');
+    if (!rm) {
+      throw new Error(
+        'ResearchManager not found in registry — ensure GameScene sets it before UIScene creates'
+      );
+    }
+    this.researchManager = rm as ResearchManager;
     this.researchPanel = new ResearchPanel(this);
     this.tutorialOverlay = new TutorialOverlay(this);
   }
@@ -176,6 +187,8 @@ export class UIScene extends UiScene {
     gameScene.events.on('gameStateChanged', this.onGameStateChanged, this);
     gameScene.events.on('researchNavigate', this.onResearchNavigate, this);
     gameScene.events.on('researchUnlock', this.onResearchUnlock, this);
+    // Request initial state now that we're subscribed
+    gameScene.events.emit('uiReady');
   }
 
   private onGameStateChanged(state: GameUIState): void {
@@ -248,11 +261,11 @@ export class UIScene extends UiScene {
     this.researchPanel.setVisible(state.researchOpen);
     if (state.researchOpen) this.researchPanel.update(this.researchManager);
 
-    // Objectives
-    if (state.gameMode !== 'sandbox') {
-      this.objectivesPanel.update(state);
-    } else {
+    // Objectives panel (only used in stages mode — tutorial/sandbox hide it)
+    if (state.gameMode !== 'stages') {
       this.objectivesPanel.update({ ...state, objectivesOpen: false, stageCompleteShown: false });
+    } else {
+      this.objectivesPanel.update(state);
     }
 
     // Tutorial overlay
@@ -286,10 +299,11 @@ export class UIScene extends UiScene {
     this.researchPanel.update(this.researchManager);
   }
 
-  shutdown(): void {
+  private cleanup(): void {
     const gameScene = this.scene.get('GameScene');
     gameScene.events.off('gameStateChanged', this.onGameStateChanged, this);
     gameScene.events.off('researchNavigate', this.onResearchNavigate, this);
     gameScene.events.off('researchUnlock', this.onResearchUnlock, this);
+    this.scale.off('resize', this.boundRepositionBars);
   }
 }

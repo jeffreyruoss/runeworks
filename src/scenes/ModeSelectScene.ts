@@ -5,7 +5,7 @@ import { GameMode } from '../types';
 import { uiTheme, FONT_SM, FONT_MD, FONT_LG } from '../ui-theme';
 
 interface ModeOption {
-  mode: GameMode;
+  mode: GameMode | 'pixui_demo';
   label: string;
   description: string;
 }
@@ -14,6 +14,7 @@ const MODE_OPTIONS: ModeOption[] = [
   { mode: 'tutorial', label: 'TUTORIAL', description: 'Learn the basics step by step' },
   { mode: 'stages', label: 'STAGES', description: '10-stage progression challenge' },
   { mode: 'sandbox', label: 'SANDBOX', description: 'All buildings unlocked, no objectives' },
+  { mode: 'pixui_demo', label: 'UI DEMO', description: 'Preview all pixUI components' },
 ];
 
 /**
@@ -139,6 +140,10 @@ export class ModeSelectScene extends UiScene {
   private selectMode(): void {
     const mode = MODE_OPTIONS[this.selectedIndex].mode;
     this.input.keyboard!.off('keydown', this.handleKey, this);
+    if (mode === 'pixui_demo') {
+      this.scene.start('PixuiDemoScene');
+      return;
+    }
     this.scene.start('GameScene', { mode });
     this.scene.start('UIScene', { mode });
   }

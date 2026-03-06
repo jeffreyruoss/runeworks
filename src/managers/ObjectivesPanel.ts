@@ -5,6 +5,14 @@ import { getStage, ITEM_DISPLAY_NAMES, PRODUCTION_CHAINS } from '../data/stages'
 import { TUTORIALS } from '../data/tutorials';
 import { FONT_SM, UI_ATLAS } from '../ui-theme';
 
+const PAD_X = 20;
+const PAD_Y = 16;
+const LINE_H = 14;
+const OBJ_H = 40;
+const MAX_OBJ = 3;
+const DIV_GAP = 8;
+const MIN_CONTENT_W = 200;
+
 /**
  * Manages the objectives panel and stage complete overlay in the UI.
  */
@@ -13,10 +21,13 @@ export class ObjectivesPanel {
 
   // Objectives panel
   private objectivesContainer!: Phaser.GameObjects.Container;
+  private bg!: Phaser.GameObjects.NineSlice;
   private stageTitleText!: Phaser.GameObjects.BitmapText;
+  private divider!: Phaser.GameObjects.Graphics;
   private objectiveTexts: Phaser.GameObjects.BitmapText[] = [];
   private objectiveChainTexts: Phaser.GameObjects.BitmapText[] = [];
   private stageCompleteText!: Phaser.GameObjects.BitmapText;
+  private closeHint!: Phaser.GameObjects.BitmapText;
 
   // Stage complete overlay
   private stageCompleteContainer!: Phaser.GameObjects.Container;
@@ -38,72 +49,47 @@ export class ObjectivesPanel {
     this.objectivesContainer.setDepth(1000);
     this.objectivesContainer.setVisible(false);
 
-    const padX = 20;
-    const padY = 16;
-    const titleH = 16;
-    const divGap = 8;
-    const objH = 40;
-    const maxObj = 3;
-    const completeH = 14;
+    // Background (sized dynamically in updateObjectivesContent)
+    this.bg = this.scene.add.nineslice(0, 0, UI_ATLAS, 'frame_dark', 100, 100);
+    this.bg.setOrigin(0.5, 0.5);
+    this.bg.setAlpha(0.93);
+    this.objectivesContainer.add(this.bg);
 
-    const contentW = 280;
-    const contentH = titleH + divGap + maxObj * objH + completeH + 14;
-    const panelW = contentW + 2 * padX;
-    const panelH = contentH + 2 * padY;
-
-    const bg = this.scene.add.nineslice(0, 0, UI_ATLAS, 'frame_dark', panelW, panelH);
-    bg.setOrigin(0.5, 0.5);
-    bg.setAlpha(0.93);
-    this.objectivesContainer.add(bg);
-
-    const left = -panelW / 2 + padX;
-    const top = -panelH / 2 + padY;
-
-    this.stageTitleText = this.scene.add.bitmapText(0, top, FONT_SM, '');
+    // Title
+    this.stageTitleText = this.scene.add.bitmapText(0, 0, FONT_SM, '');
     this.stageTitleText.setOrigin(0.5, 0);
     this.stageTitleText.setTint(0xe8e0f0);
     this.objectivesContainer.add(this.stageTitleText);
 
-    // Divider below title
-    const dividerY = top + titleH + divGap / 2;
-    const divider = this.scene.add.graphics();
-    divider.lineStyle(1, THEME.panel.divider);
-    divider.lineBetween(-contentW / 2, dividerY, contentW / 2, dividerY);
-    this.objectivesContainer.add(divider);
+    // Divider
+    this.divider = this.scene.add.graphics();
+    this.objectivesContainer.add(this.divider);
 
-    // Objectives
-    const startY = top + titleH + divGap;
-    for (let i = 0; i < maxObj; i++) {
-      const y = startY + i * objH;
-
-      const objText = this.scene.add.bitmapText(left, y, FONT_SM, '');
+    // Objective rows
+    for (let i = 0; i < MAX_OBJ; i++) {
+      const objText = this.scene.add.bitmapText(0, 0, FONT_SM, '');
       objText.setTint(0xb0a8c0);
       this.objectiveTexts.push(objText);
       this.objectivesContainer.add(objText);
 
-      const chainText = this.scene.add.bitmapText(left + 12, y + 14, FONT_SM, '');
+      const chainText = this.scene.add.bitmapText(0, 0, FONT_SM, '');
       chainText.setTint(0x666688);
       this.objectiveChainTexts.push(chainText);
       this.objectivesContainer.add(chainText);
     }
 
     // Stage complete indicator
-    this.stageCompleteText = this.scene.add.bitmapText(
-      0,
-      startY + maxObj * objH,
-      FONT_SM,
-      'STAGE COMPLETE!'
-    );
+    this.stageCompleteText = this.scene.add.bitmapText(0, 0, FONT_SM, 'STAGE COMPLETE!');
     this.stageCompleteText.setOrigin(0.5, 0);
     this.stageCompleteText.setTint(0x44ff88);
     this.stageCompleteText.setVisible(false);
     this.objectivesContainer.add(this.stageCompleteText);
 
     // Close hint
-    const hint = this.scene.add.bitmapText(0, top + contentH, FONT_SM, 'Press O or X to close');
-    hint.setOrigin(0.5, 1);
-    hint.setTint(0x8078a0);
-    this.objectivesContainer.add(hint);
+    this.closeHint = this.scene.add.bitmapText(0, 0, FONT_SM, 'Press O or X to close');
+    this.closeHint.setOrigin(0.5, 1);
+    this.closeHint.setTint(0x8078a0);
+    this.objectivesContainer.add(this.closeHint);
   }
 
   private createStageCompletePanel(): void {
@@ -115,19 +101,17 @@ export class ObjectivesPanel {
     this.stageCompleteContainer.setDepth(1001);
     this.stageCompleteContainer.setVisible(false);
 
-    const padX = 20;
-    const padY = 16;
     const contentW = 200;
     const contentH = 80;
-    const panelW = contentW + 2 * padX;
-    const panelH = contentH + 2 * padY;
+    const panelW = contentW + 2 * PAD_X;
+    const panelH = contentH + 2 * PAD_Y;
 
     const bg = this.scene.add.nineslice(0, 0, UI_ATLAS, 'frame_bright', panelW, panelH);
     bg.setOrigin(0.5, 0.5);
     bg.setTint(0x44ff88);
     this.stageCompleteContainer.add(bg);
 
-    const top = -panelH / 2 + padY;
+    const top = -panelH / 2 + PAD_Y;
     let y = top;
 
     const title = this.scene.add.bitmapText(0, y, FONT_SM, 'STAGE COMPLETE!');
@@ -163,10 +147,14 @@ export class ObjectivesPanel {
 
   private updateObjectivesContent(state: GameUIState): void {
     const label = state.gameMode === 'tutorial' ? 'Lesson' : 'Stage';
+    const objCount = Math.min(state.objectiveProgress.length, MAX_OBJ);
+
+    // --- Pass 1: set all text content so we can measure widths ---
+
     this.stageTitleText.setText(`${label} ${state.currentStage}: ${state.stageName}`);
 
-    for (let i = 0; i < this.objectiveTexts.length; i++) {
-      if (i < state.objectiveProgress.length) {
+    for (let i = 0; i < MAX_OBJ; i++) {
+      if (i < objCount) {
         const obj = state.objectiveProgress[i];
         const done = obj.produced >= obj.required;
         const check = done ? '[x]' : '[ ]';
@@ -178,7 +166,7 @@ export class ObjectivesPanel {
         const chain = PRODUCTION_CHAINS[obj.item] || '';
         this.objectiveChainTexts[i].setText(chain);
         this.objectiveChainTexts[i].setTint(done ? 0x448844 : 0x666688);
-        this.objectiveChainTexts[i].setVisible(true);
+        this.objectiveChainTexts[i].setVisible(chain.length > 0);
       } else {
         this.objectiveTexts[i].setVisible(false);
         this.objectiveChainTexts[i].setVisible(false);
@@ -186,6 +174,53 @@ export class ObjectivesPanel {
     }
 
     this.stageCompleteText.setVisible(state.stageComplete);
+
+    // --- Pass 2: measure widest text to determine panel width ---
+
+    let maxW = this.stageTitleText.width;
+    for (let i = 0; i < objCount; i++) {
+      maxW = Math.max(maxW, this.objectiveTexts[i].width);
+      if (this.objectiveChainTexts[i].visible) {
+        maxW = Math.max(maxW, this.objectiveChainTexts[i].width + 12);
+      }
+    }
+    maxW = Math.max(maxW, this.closeHint.width);
+    const contentW = Math.max(maxW, MIN_CONTENT_W);
+
+    // --- Pass 3: compute height and position everything ---
+
+    const titleH = 16;
+    const objsH = objCount * OBJ_H;
+    const completeH = state.stageComplete ? LINE_H + 4 : 0;
+    const hintH = LINE_H + 4;
+    const contentH = titleH + DIV_GAP + objsH + completeH + hintH;
+
+    const panelW = contentW + 2 * PAD_X;
+    const panelH = contentH + 2 * PAD_Y;
+    this.bg.setSize(panelW, panelH);
+
+    const left = -contentW / 2;
+    const top = -panelH / 2 + PAD_Y;
+    let y = top;
+
+    this.stageTitleText.setPosition(0, y);
+    y += titleH;
+
+    this.divider.clear();
+    this.divider.lineStyle(1, THEME.panel.divider);
+    this.divider.lineBetween(-contentW / 2, y + DIV_GAP / 2, contentW / 2, y + DIV_GAP / 2);
+    y += DIV_GAP;
+
+    for (let i = 0; i < objCount; i++) {
+      this.objectiveTexts[i].setPosition(left, y);
+      this.objectiveChainTexts[i].setPosition(left + 12, y + LINE_H);
+      y += OBJ_H;
+    }
+
+    this.stageCompleteText.setPosition(0, y);
+    if (state.stageComplete) y += LINE_H + 4;
+
+    this.closeHint.setPosition(0, y + hintH);
   }
 
   private updateStageCompleteContent(state: GameUIState): void {
