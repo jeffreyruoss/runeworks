@@ -7,6 +7,8 @@
 
 ## misc
 
+Indicate build mode one and show "x to cancel" or something
+
 Code review for the new global padding system
 
 Code review for UI design/images/etc

@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
-import { CANVAS_WIDTH, CANVAS_HEIGHT, THEME, PANEL_INSET } from '../config';
-import { makeText, createPanelFrame } from '../phaser-utils';
+import { FONT_SM, UI_ATLAS } from '../ui-theme';
 
 /**
  * Inventory modal panel. Currently a placeholder.
@@ -18,46 +17,38 @@ export class InventoryPanel {
   }
 
   private createPanel(scene: Phaser.Scene): Phaser.GameObjects.Container {
-    const container = scene.add.container(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+    const vp = (scene as any).viewport as { width: number; height: number };
+    const container = scene.add.container(Math.floor(vp.width / 2), Math.floor(vp.height / 2));
     container.setDepth(1000);
     container.setVisible(false);
 
-    // Content dimensions drive panel size
-    const titleH = 12;
-    const placeholderH = 10;
-    const hintH = 8;
+    const padX = 20;
+    const padY = 16;
     const contentW = 160;
-    const contentH = titleH + 16 + placeholderH + 16 + hintH;
-    const panelW = contentW + 2 * PANEL_INSET;
-    const panelH = contentH + 2 * PANEL_INSET;
+    const contentH = 60;
+    const panelW = contentW + 2 * padX;
+    const panelH = contentH + 2 * padY;
 
-    const bg = createPanelFrame(scene, panelW, panelH);
+    const bg = scene.add.nineslice(0, 0, UI_ATLAS, 'frame_dark', panelW, panelH);
+    bg.setOrigin(0.5, 0.5);
+    bg.setAlpha(0.93);
     container.add(bg);
 
-    const top = -panelH / 2 + PANEL_INSET;
+    const top = -panelH / 2 + padY;
 
-    // Title
-    const title = makeText(scene, 0, top, 'INVENTORY', {
-      fontSize: '12px',
-      color: THEME.text.primary,
-    });
+    const title = scene.add.bitmapText(0, top, FONT_SM, 'INVENTORY');
     title.setOrigin(0.5, 0);
+    title.setTint(0xe8e0f0);
     container.add(title);
 
-    // Placeholder text
-    const placeholder = makeText(scene, 0, top + titleH + 16, 'Coming soon...', {
-      fontSize: '10px',
-      color: THEME.text.muted,
-    });
+    const placeholder = scene.add.bitmapText(0, top + 20, FONT_SM, 'Coming soon...');
     placeholder.setOrigin(0.5, 0);
+    placeholder.setTint(0x605880);
     container.add(placeholder);
 
-    // Close hint
-    const hint = makeText(scene, 0, top + contentH, 'Press I or X to close', {
-      fontSize: '8px',
-      color: THEME.text.tertiary,
-    });
+    const hint = scene.add.bitmapText(0, top + contentH, FONT_SM, 'Press I or X to close');
     hint.setOrigin(0.5, 1);
+    hint.setTint(0x8078a0);
     container.add(hint);
 
     return container;

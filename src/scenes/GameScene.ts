@@ -1,10 +1,18 @@
 import Phaser from 'phaser';
-import { TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, COLORS, CURSOR_JUMP_STEP } from '../config';
+import { ResponsiveScene, ConstraintMode } from 'phaser-pixui';
+import {
+  TILE_SIZE,
+  GRID_WIDTH,
+  GRID_HEIGHT,
+  CANVAS_WIDTH,
+  CANVAS_HEIGHT,
+  COLORS,
+  CURSOR_JUMP_STEP,
+} from '../config';
 import { Building, BuildingType, GameMode, PlayerResources } from '../types';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
 import { getRecipesForBuilding } from '../data/recipes';
 import { getBuildingAt, addPlayerResource, getCursorInfo } from '../utils';
-import { setupCamera } from '../phaser-utils';
 import { Simulation } from '../Simulation';
 import { InputManager } from '../managers/InputManager';
 import { TerrainRenderer } from '../managers/TerrainRenderer';
@@ -14,13 +22,13 @@ import { BuildingManager } from '../managers/BuildingManager';
 import { StageManager } from '../managers/StageManager';
 import { PanelManager } from '../managers/PanelManager';
 import { ResearchManager } from '../managers/ResearchManager';
-import { generateTerrain } from '../terrain/terrainSetup';
-import { PatchDef } from '../terrain/terrainSetup';
+import { generateTerrain, PatchDef } from '../terrain/terrainSetup';
 import { QUARRIABLE_TERRAIN } from '../data/terrain';
+import { ITEM_DISPLAY_NAMES } from '../data/stages';
 import { RESEARCH_RECIPES } from '../data/research';
 import { getTutorialStage } from '../data/tutorials';
 
-export class GameScene extends Phaser.Scene {
+export class GameScene extends ResponsiveScene {
   // Cursor state
   private cursor = { x: 0, y: 0 };
   private selectedBuilding: BuildingType | null = null;
@@ -57,7 +65,15 @@ export class GameScene extends Phaser.Scene {
   };
 
   constructor() {
-    super({ key: 'GameScene' });
+    super({
+      key: 'GameScene',
+      viewportConstraints: {
+        mode: ConstraintMode.Maximum,
+        width: CANVAS_WIDTH,
+        height: CANVAS_HEIGHT,
+      },
+      getWorldSize: () => ({ width: CANVAS_WIDTH, height: CANVAS_HEIGHT }),
+    });
   }
 
   init(data?: { mode?: GameMode }): void {
@@ -66,7 +82,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
-    setupCamera(this);
+    super.create();
 
     // Initialize simulation
     this.simulation = new Simulation();
@@ -118,8 +134,8 @@ export class GameScene extends Phaser.Scene {
     this.simulation.setBuildings(this.buildingManager.getBuildings());
     this.simulation.start();
 
-    // Defer initial UI update so UIScene has time to subscribe to events
-    this.time.delayedCall(0, () => this.emitUIUpdate());
+    // UIScene requests initial state after it subscribes
+    this.events.once('uiReady', () => this.emitUIUpdate());
   }
 
   private initializeMode(): void {
@@ -185,6 +201,7 @@ export class GameScene extends Phaser.Scene {
     this.cursor = { x: Math.floor(GRID_WIDTH / 2), y: Math.floor(GRID_HEIGHT / 2) };
     this.selectedBuilding = null;
     this.buildModeActive = false;
+    this.showAllBuffers = false;
     this.buildingPlacer.clearSelection();
     this.panelManager.closeAll();
     this.simulation.setBuildings(this.buildingManager.getBuildings());
@@ -526,7 +543,22 @@ export class GameScene extends Phaser.Scene {
   private getTutorialText(): string[] | null {
     if (this.gameMode !== 'tutorial') return null;
     const tutorial = this.stageManager.getTutorialStage();
-    return tutorial?.instructionText ?? null;
+    if (!tutorial) return null;
+
+    // Show completion message when all objectives are met
+    if (this.stageManager.isStageComplete()) {
+      return [`${tutorial.name} — Complete!`, 'Press Space to continue.'];
+    }
+
+    const lines = [...tutorial.instructionText];
+    const progress = this.stageManager.getObjectiveProgress();
+    for (const obj of progress) {
+      const name = ITEM_DISPLAY_NAMES[obj.item] || obj.item;
+      const done = obj.produced >= obj.required;
+      const check = done ? '[x]' : '[ ]';
+      lines.push(`${check} ${name}: ${obj.produced}/${obj.required}`);
+    }
+    return lines;
   }
 
   private emitUIUpdate(): void {

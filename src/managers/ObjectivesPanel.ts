@@ -1,28 +1,38 @@
 import Phaser from 'phaser';
-import { CANVAS_WIDTH, CANVAS_HEIGHT, THEME, PANEL_INSET } from '../config';
+import { THEME } from '../config';
 import { GameUIState } from '../types';
 import { getStage, ITEM_DISPLAY_NAMES, PRODUCTION_CHAINS } from '../data/stages';
 import { TUTORIALS } from '../data/tutorials';
-import { makeText, createPanelFrame } from '../phaser-utils';
+import { FONT_SM, UI_ATLAS } from '../ui-theme';
+
+const PAD_X = 20;
+const PAD_Y = 16;
+const LINE_H = 14;
+const OBJ_H = 40;
+const MAX_OBJ = 3;
+const DIV_GAP = 8;
+const MIN_CONTENT_W = 200;
 
 /**
  * Manages the objectives panel and stage complete overlay in the UI.
- * Extracted from UIScene to keep it under the 300-line target.
  */
 export class ObjectivesPanel {
   private scene: Phaser.Scene;
 
   // Objectives panel
   private objectivesContainer!: Phaser.GameObjects.Container;
-  private stageTitleText!: Phaser.GameObjects.Text;
-  private objectiveTexts: Phaser.GameObjects.Text[] = [];
-  private objectiveChainTexts: Phaser.GameObjects.Text[] = [];
-  private stageCompleteText!: Phaser.GameObjects.Text;
+  private bg!: Phaser.GameObjects.NineSlice;
+  private stageTitleText!: Phaser.GameObjects.BitmapText;
+  private divider!: Phaser.GameObjects.Graphics;
+  private objectiveTexts: Phaser.GameObjects.BitmapText[] = [];
+  private objectiveChainTexts: Phaser.GameObjects.BitmapText[] = [];
+  private stageCompleteText!: Phaser.GameObjects.BitmapText;
+  private closeHint!: Phaser.GameObjects.BitmapText;
 
   // Stage complete overlay
   private stageCompleteContainer!: Phaser.GameObjects.Container;
-  private stageCompleteNameText!: Phaser.GameObjects.Text;
-  private stageCompleteNextText!: Phaser.GameObjects.Text;
+  private stageCompleteNameText!: Phaser.GameObjects.BitmapText;
+  private stageCompleteNextText!: Phaser.GameObjects.BitmapText;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
@@ -31,174 +41,132 @@ export class ObjectivesPanel {
   }
 
   private createObjectivesPanel(): void {
-    this.objectivesContainer = this.scene.add.container(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+    const vp = (this.scene as any).viewport as { width: number; height: number };
+    this.objectivesContainer = this.scene.add.container(
+      Math.floor(vp.width / 2),
+      Math.floor(vp.height / 2)
+    );
     this.objectivesContainer.setDepth(1000);
     this.objectivesContainer.setVisible(false);
 
-    // Content dimensions drive panel size
-    const titleH = 14;
-    const divGap = 8;
-    const objH = 40; // per objective row (text + chain + gap)
-    const maxObj = 3;
-    const completeH = 12;
-    const hintH = 8;
-
-    const contentW = 280;
-    const contentH = titleH + divGap + maxObj * objH + completeH + 4 + hintH;
-    const panelW = contentW + 2 * PANEL_INSET;
-    const panelH = contentH + 2 * PANEL_INSET;
-
-    const bg = createPanelFrame(this.scene, panelW, panelH);
-    this.objectivesContainer.add(bg);
-
-    const left = -panelW / 2 + PANEL_INSET;
-    const top = -panelH / 2 + PANEL_INSET;
+    // Background (sized dynamically in updateObjectivesContent)
+    this.bg = this.scene.add.nineslice(0, 0, UI_ATLAS, 'frame_dark', 100, 100);
+    this.bg.setOrigin(0.5, 0.5);
+    this.bg.setAlpha(0.93);
+    this.objectivesContainer.add(this.bg);
 
     // Title
-    this.stageTitleText = makeText(this.scene, 0, top, '', {
-      fontSize: '14px',
-      color: THEME.text.primary,
-    });
+    this.stageTitleText = this.scene.add.bitmapText(0, 0, FONT_SM, '');
     this.stageTitleText.setOrigin(0.5, 0);
+    this.stageTitleText.setTint(0xe8e0f0);
     this.objectivesContainer.add(this.stageTitleText);
 
-    // Divider below title
-    const dividerY = top + titleH + divGap / 2;
-    const divider = this.scene.add.graphics();
-    divider.lineStyle(1, THEME.panel.divider);
-    divider.lineBetween(-contentW / 2, dividerY, contentW / 2, dividerY);
-    this.objectivesContainer.add(divider);
+    // Divider
+    this.divider = this.scene.add.graphics();
+    this.objectivesContainer.add(this.divider);
 
-    // Objectives
-    const startY = top + titleH + divGap;
-    for (let i = 0; i < maxObj; i++) {
-      const y = startY + i * objH;
-
-      const objText = makeText(this.scene, left, y, '', {
-        fontSize: '10px',
-        color: THEME.text.secondary,
-      });
+    // Objective rows
+    for (let i = 0; i < MAX_OBJ; i++) {
+      const objText = this.scene.add.bitmapText(0, 0, FONT_SM, '');
+      objText.setTint(0xb0a8c0);
       this.objectiveTexts.push(objText);
       this.objectivesContainer.add(objText);
 
-      const chainText = makeText(this.scene, left + 12, y + 14, '', {
-        fontSize: '8px',
-        color: '#666688',
-      });
+      const chainText = this.scene.add.bitmapText(0, 0, FONT_SM, '');
+      chainText.setTint(0x666688);
       this.objectiveChainTexts.push(chainText);
       this.objectivesContainer.add(chainText);
     }
 
     // Stage complete indicator
-    this.stageCompleteText = makeText(this.scene, 0, startY + maxObj * objH, 'STAGE COMPLETE!', {
-      fontSize: '12px',
-      color: THEME.status.valid,
-    });
+    this.stageCompleteText = this.scene.add.bitmapText(0, 0, FONT_SM, 'STAGE COMPLETE!');
     this.stageCompleteText.setOrigin(0.5, 0);
+    this.stageCompleteText.setTint(0x44ff88);
     this.stageCompleteText.setVisible(false);
     this.objectivesContainer.add(this.stageCompleteText);
 
     // Close hint
-    const hint = makeText(this.scene, 0, top + contentH, 'Press O or X to close', {
-      fontSize: '8px',
-      color: THEME.text.tertiary,
-    });
-    hint.setOrigin(0.5, 1);
-    this.objectivesContainer.add(hint);
+    this.closeHint = this.scene.add.bitmapText(0, 0, FONT_SM, 'Press O or X to close');
+    this.closeHint.setOrigin(0.5, 1);
+    this.closeHint.setTint(0x8078a0);
+    this.objectivesContainer.add(this.closeHint);
   }
 
   private createStageCompletePanel(): void {
-    this.stageCompleteContainer = this.scene.add.container(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+    const vp = (this.scene as any).viewport as { width: number; height: number };
+    this.stageCompleteContainer = this.scene.add.container(
+      Math.floor(vp.width / 2),
+      Math.floor(vp.height / 2)
+    );
     this.stageCompleteContainer.setDepth(1001);
     this.stageCompleteContainer.setVisible(false);
 
-    // Content dimensions drive panel size
-    const titleH = 14;
-    const nameH = 10;
-    const nextH = 10;
-    const hintH = 10;
     const contentW = 200;
-    const contentH = titleH + 12 + nameH + 10 + nextH + 12 + hintH;
-    const panelW = contentW + 2 * PANEL_INSET;
-    const panelH = contentH + 2 * PANEL_INSET;
+    const contentH = 80;
+    const panelW = contentW + 2 * PAD_X;
+    const panelH = contentH + 2 * PAD_Y;
 
-    const bg = createPanelFrame(this.scene, panelW, panelH);
-    // Tint border sprites green for celebratory sheen
-    bg.each((child: Phaser.GameObjects.GameObject) => {
-      if (
-        child instanceof Phaser.GameObjects.Image ||
-        child instanceof Phaser.GameObjects.TileSprite
-      ) {
-        child.setTint(0x44ff88);
-      }
-    });
+    const bg = this.scene.add.nineslice(0, 0, UI_ATLAS, 'frame_bright', panelW, panelH);
+    bg.setOrigin(0.5, 0.5);
+    bg.setTint(0x44ff88);
     this.stageCompleteContainer.add(bg);
 
-    const top = -panelH / 2 + PANEL_INSET;
+    const top = -panelH / 2 + PAD_Y;
     let y = top;
 
-    const title = makeText(this.scene, 0, y, 'STAGE COMPLETE!', {
-      fontSize: '14px',
-      color: THEME.status.valid,
-    });
+    const title = this.scene.add.bitmapText(0, y, FONT_SM, 'STAGE COMPLETE!');
     title.setOrigin(0.5, 0);
+    title.setTint(0x44ff88);
     this.stageCompleteContainer.add(title);
-    y += titleH + 12;
+    y += 26;
 
-    this.stageCompleteNameText = makeText(this.scene, 0, y, '', {
-      fontSize: '10px',
-      color: THEME.text.primary,
-    });
+    this.stageCompleteNameText = this.scene.add.bitmapText(0, y, FONT_SM, '');
     this.stageCompleteNameText.setOrigin(0.5, 0);
+    this.stageCompleteNameText.setTint(0xe8e0f0);
     this.stageCompleteContainer.add(this.stageCompleteNameText);
-    y += nameH + 10;
+    y += 20;
 
-    this.stageCompleteNextText = makeText(this.scene, 0, y, '', {
-      fontSize: '10px',
-      color: THEME.text.secondary,
-    });
+    this.stageCompleteNextText = this.scene.add.bitmapText(0, y, FONT_SM, '');
     this.stageCompleteNextText.setOrigin(0.5, 0);
+    this.stageCompleteNextText.setTint(0xb0a8c0);
     this.stageCompleteContainer.add(this.stageCompleteNextText);
 
-    const hint = makeText(this.scene, 0, top + contentH, '[Space] Continue', {
-      fontSize: '10px',
-      color: THEME.status.active,
-    });
+    const hint = this.scene.add.bitmapText(0, top + contentH, FONT_SM, '[Space] Continue');
     hint.setOrigin(0.5, 1);
+    hint.setTint(0x4af0ff);
     this.stageCompleteContainer.add(hint);
   }
 
-  /** Update panel visibility and content based on game state. */
   update(state: GameUIState): void {
     this.objectivesContainer.setVisible(state.objectivesOpen);
-    if (state.objectivesOpen) {
-      this.updateObjectivesContent(state);
-    }
+    if (state.objectivesOpen) this.updateObjectivesContent(state);
 
     this.stageCompleteContainer.setVisible(state.stageCompleteShown);
-    if (state.stageCompleteShown) {
-      this.updateStageCompleteContent(state);
-    }
+    if (state.stageCompleteShown) this.updateStageCompleteContent(state);
   }
 
   private updateObjectivesContent(state: GameUIState): void {
     const label = state.gameMode === 'tutorial' ? 'Lesson' : 'Stage';
+    const objCount = Math.min(state.objectiveProgress.length, MAX_OBJ);
+
+    // --- Pass 1: set all text content so we can measure widths ---
+
     this.stageTitleText.setText(`${label} ${state.currentStage}: ${state.stageName}`);
 
-    for (let i = 0; i < this.objectiveTexts.length; i++) {
-      if (i < state.objectiveProgress.length) {
+    for (let i = 0; i < MAX_OBJ; i++) {
+      if (i < objCount) {
         const obj = state.objectiveProgress[i];
         const done = obj.produced >= obj.required;
         const check = done ? '[x]' : '[ ]';
         const name = ITEM_DISPLAY_NAMES[obj.item] || obj.item;
         this.objectiveTexts[i].setText(`${check} ${name}: ${obj.produced}/${obj.required}`);
-        this.objectiveTexts[i].setColor(done ? THEME.status.valid : THEME.text.secondary);
+        this.objectiveTexts[i].setTint(done ? 0x44ff88 : 0xb0a8c0);
         this.objectiveTexts[i].setVisible(true);
 
         const chain = PRODUCTION_CHAINS[obj.item] || '';
         this.objectiveChainTexts[i].setText(chain);
-        this.objectiveChainTexts[i].setColor(done ? '#448844' : '#666688');
-        this.objectiveChainTexts[i].setVisible(true);
+        this.objectiveChainTexts[i].setTint(done ? 0x448844 : 0x666688);
+        this.objectiveChainTexts[i].setVisible(chain.length > 0);
       } else {
         this.objectiveTexts[i].setVisible(false);
         this.objectiveChainTexts[i].setVisible(false);
@@ -206,13 +174,59 @@ export class ObjectivesPanel {
     }
 
     this.stageCompleteText.setVisible(state.stageComplete);
+
+    // --- Pass 2: measure widest text to determine panel width ---
+
+    let maxW = this.stageTitleText.width;
+    for (let i = 0; i < objCount; i++) {
+      maxW = Math.max(maxW, this.objectiveTexts[i].width);
+      if (this.objectiveChainTexts[i].visible) {
+        maxW = Math.max(maxW, this.objectiveChainTexts[i].width + 12);
+      }
+    }
+    maxW = Math.max(maxW, this.closeHint.width);
+    const contentW = Math.max(maxW, MIN_CONTENT_W);
+
+    // --- Pass 3: compute height and position everything ---
+
+    const titleH = 16;
+    const objsH = objCount * OBJ_H;
+    const completeH = state.stageComplete ? LINE_H + 4 : 0;
+    const hintH = LINE_H + 4;
+    const contentH = titleH + DIV_GAP + objsH + completeH + hintH;
+
+    const panelW = contentW + 2 * PAD_X;
+    const panelH = contentH + 2 * PAD_Y;
+    this.bg.setSize(panelW, panelH);
+
+    const left = -contentW / 2;
+    const top = -panelH / 2 + PAD_Y;
+    let y = top;
+
+    this.stageTitleText.setPosition(0, y);
+    y += titleH;
+
+    this.divider.clear();
+    this.divider.lineStyle(1, THEME.panel.divider);
+    this.divider.lineBetween(-contentW / 2, y + DIV_GAP / 2, contentW / 2, y + DIV_GAP / 2);
+    y += DIV_GAP;
+
+    for (let i = 0; i < objCount; i++) {
+      this.objectiveTexts[i].setPosition(left, y);
+      this.objectiveChainTexts[i].setPosition(left + 12, y + LINE_H);
+      y += OBJ_H;
+    }
+
+    this.stageCompleteText.setPosition(0, y);
+    if (state.stageComplete) y += LINE_H + 4;
+
+    this.closeHint.setPosition(0, y + hintH);
   }
 
   private updateStageCompleteContent(state: GameUIState): void {
     this.stageCompleteNameText.setText(state.stageName);
 
     if (state.gameMode === 'tutorial') {
-      // Tutorial: generic "next lesson" or "tutorial complete"
       if (state.currentStage < TUTORIALS.length) {
         this.stageCompleteNextText.setText('Next lesson...');
       } else {

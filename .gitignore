@@ -5,3 +5,4 @@ dist
 assets/sprites/out/
 assets/sprites/ai-out/
 tools/spritegen-ai/.env
+public/packed_assets/

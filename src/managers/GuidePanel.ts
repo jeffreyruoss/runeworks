@@ -1,22 +1,14 @@
 import Phaser from 'phaser';
-import {
-  CANVAS_WIDTH,
-  CANVAS_HEIGHT,
-  THEME,
-  BUILDING_COSTS,
-  TICKS_PER_SECOND,
-  RESOURCE_DISPLAY_NAMES,
-  PANEL_INSET,
-} from '../config';
+import { BUILDING_COSTS, TICKS_PER_SECOND, RESOURCE_DISPLAY_NAMES } from '../config';
 import { ITEM_DISPLAY_NAMES } from '../data/stages';
 import { TERRAIN_DISPLAY_NAMES, TERRAIN_COLORS } from '../data/terrain';
 import { RECIPES } from '../data/recipes';
 import { RESEARCH_RECIPES } from '../data/research';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
 import { BuildingType, ItemType, TerrainType } from '../types';
-import { makeText, createPanelFrame } from '../phaser-utils';
+import { FONT_SM, UI_ATLAS } from '../ui-theme';
 
-/** Items that have 8×8 sprites in the atlas */
+/** Items that have 8x8 sprites in the atlas */
 const ITEM_SPRITES: Set<ItemType> = new Set([
   'arcstone',
   'sunite',
@@ -32,11 +24,8 @@ const ITEM_SPRITES: Set<ItemType> = new Set([
   'crystal_shard',
 ]);
 
-/** Resource entries: terrain type → item yielded, display name, source terrain name */
-const RESOURCE_ENTRIES: Array<{
-  item: ItemType;
-  terrain: Exclude<TerrainType, 'empty'>;
-}> = [
+/** Resource entries: terrain type -> item yielded */
+const RESOURCE_ENTRIES: Array<{ item: ItemType; terrain: Exclude<TerrainType, 'empty'> }> = [
   { item: 'stone', terrain: 'stone' },
   { item: 'wood', terrain: 'forest' },
   { item: 'iron', terrain: 'iron' },
@@ -64,32 +53,31 @@ export class GuidePanel {
   }
 
   private createPanel(): void {
-    this.container = this.scene.add.container(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+    const vp = (this.scene as any).viewport as { width: number; height: number };
+    this.container = this.scene.add.container(Math.floor(vp.width / 2), Math.floor(vp.height / 2));
     this.container.setDepth(1000);
     this.container.setVisible(false);
 
-    // Content dimensions drive panel size
+    const padX = 20;
+    const padY = 16;
     const contentW = 540;
     const contentH = 340;
-    const panelW = contentW + 2 * PANEL_INSET;
-    const panelH = contentH + 2 * PANEL_INSET;
+    const panelW = contentW + 2 * padX;
+    const panelH = contentH + 2 * padY;
 
-    // Background
-    const bg = createPanelFrame(this.scene, panelW, panelH, 0.93);
+    const bg = this.scene.add.nineslice(0, 0, UI_ATLAS, 'frame_dark', panelW, panelH);
+    bg.setOrigin(0.5, 0.5);
+    bg.setAlpha(0.93);
     this.container.add(bg);
 
-    const left = -panelW / 2 + PANEL_INSET;
-    const top = -panelH / 2 + PANEL_INSET;
+    const left = -panelW / 2 + padX;
+    const top = -panelH / 2 + padY;
 
-    // Title
-    const title = makeText(this.scene, 0, top, 'GUIDE', {
-      fontSize: '14px',
-      color: THEME.text.primary,
-    });
+    const title = this.scene.add.bitmapText(0, top, FONT_SM, 'GUIDE');
     title.setOrigin(0.5, 0);
+    title.setTint(0xe8e0f0);
     this.container.add(title);
 
-    // Three columns layout
     const colX = [left, left + 186, left + 366];
     const topY = top + 20;
 
@@ -98,26 +86,20 @@ export class GuidePanel {
     this.createBuildingsSection(colX[2], topY);
     this.createResearchRecipesSection(colX[1], topY + 185);
 
-    // Close hint
-    const hint = makeText(this.scene, 0, top + contentH, 'Press G or X to close', {
-      fontSize: '8px',
-      color: THEME.text.tertiary,
-    });
+    const hint = this.scene.add.bitmapText(0, top + contentH, FONT_SM, 'Press G or X to close');
     hint.setOrigin(0.5, 1);
+    hint.setTint(0x8078a0);
     this.container.add(hint);
   }
 
   private createResourcesSection(x: number, y: number): void {
-    const header = makeText(this.scene, x, y, 'RESOURCES', {
-      fontSize: '10px',
-      color: '#88aaff',
-    });
+    const header = this.scene.add.bitmapText(x, y, FONT_SM, 'RESOURCES');
+    header.setTint(0x88aaff);
     this.container.add(header);
 
-    // Divider
     const divider = this.scene.add.graphics();
     divider.lineStyle(1, 0x444466);
-    divider.lineBetween(x, y + 12, x + 170, y + 12);
+    divider.lineBetween(x, y + 14, x + 170, y + 14);
     this.container.add(divider);
 
     let rowY = y + 18;
@@ -125,23 +107,18 @@ export class GuidePanel {
       const name = ITEM_DISPLAY_NAMES[entry.item] || entry.item;
       const source = TERRAIN_DISPLAY_NAMES[entry.terrain];
 
-      // Thumbnail: colored rectangle from terrain colors
       const thumb = this.scene.add.graphics();
       const colors = TERRAIN_COLORS[entry.terrain];
       thumb.fillStyle(colors.highlight, 1);
       thumb.fillRect(x, rowY, 10, 10);
       this.container.add(thumb);
 
-      const nameText = makeText(this.scene, x + 14, rowY, name, {
-        fontSize: '8px',
-        color: THEME.text.content,
-      });
+      const nameText = this.scene.add.bitmapText(x + 14, rowY, FONT_SM, name);
+      nameText.setTint(0xc8c0d8);
       this.container.add(nameText);
 
-      const sourceText = makeText(this.scene, x + 14, rowY + 10, source, {
-        fontSize: '7px',
-        color: THEME.text.muted,
-      });
+      const sourceText = this.scene.add.bitmapText(x + 14, rowY + 12, FONT_SM, source);
+      sourceText.setTint(0x605880);
       this.container.add(sourceText);
 
       rowY += 22;
@@ -149,25 +126,21 @@ export class GuidePanel {
   }
 
   private createItemsSection(x: number, y: number): void {
-    const header = makeText(this.scene, x, y, 'CRAFTED ITEMS', {
-      fontSize: '10px',
-      color: '#ffaa44',
-    });
+    const header = this.scene.add.bitmapText(x, y, FONT_SM, 'CRAFTED ITEMS');
+    header.setTint(0xffaa44);
     this.container.add(header);
 
     const divider = this.scene.add.graphics();
     divider.lineStyle(1, 0x664422);
-    divider.lineBetween(x, y + 12, x + 170, y + 12);
+    divider.lineBetween(x, y + 14, x + 170, y + 14);
     this.container.add(divider);
 
     let rowY = y + 18;
     for (const recipe of RECIPES) {
-      // Get the first output item for display
       const outputItem = [...recipe.outputs.keys()][0];
       const outputCount = recipe.outputs.get(outputItem)!;
       const name = ITEM_DISPLAY_NAMES[outputItem] || outputItem;
 
-      // Thumbnail: sprite if available
       if (ITEM_SPRITES.has(outputItem)) {
         const sprite = this.scene.add.sprite(x + 5, rowY + 5, 'sprites', outputItem);
         sprite.setDisplaySize(10, 10);
@@ -179,13 +152,10 @@ export class GuidePanel {
         this.container.add(thumb);
       }
 
-      const nameText = makeText(this.scene, x + 14, rowY, name, {
-        fontSize: '8px',
-        color: THEME.text.content,
-      });
+      const nameText = this.scene.add.bitmapText(x + 14, rowY, FONT_SM, name);
+      nameText.setTint(0xc8c0d8);
       this.container.add(nameText);
 
-      // Recipe line: inputs → output (time) | building
       const inputStr = [...recipe.inputs.entries()]
         .map(([item, count]) => `${count} ${ITEM_DISPLAY_NAMES[item] || item}`)
         .join(' + ');
@@ -193,10 +163,8 @@ export class GuidePanel {
       const buildingName = recipe.building.charAt(0).toUpperCase() + recipe.building.slice(1);
       const recipeStr = `${inputStr} -> ${outputCount} (${timeStr}) [${buildingName}]`;
 
-      const recipeText = makeText(this.scene, x + 14, rowY + 10, recipeStr, {
-        fontSize: '7px',
-        color: THEME.text.muted,
-      });
+      const recipeText = this.scene.add.bitmapText(x + 14, rowY + 12, FONT_SM, recipeStr);
+      recipeText.setTint(0x605880);
       this.container.add(recipeText);
 
       rowY += 24;
@@ -204,15 +172,13 @@ export class GuidePanel {
   }
 
   private createBuildingsSection(x: number, y: number): void {
-    const header = makeText(this.scene, x, y, 'BUILDINGS', {
-      fontSize: '10px',
-      color: '#44ff88',
-    });
+    const header = this.scene.add.bitmapText(x, y, FONT_SM, 'BUILDINGS');
+    header.setTint(0x44ff88);
     this.container.add(header);
 
     const divider = this.scene.add.graphics();
     divider.lineStyle(1, 0x226644);
-    divider.lineBetween(x, y + 12, x + 170, y + 12);
+    divider.lineBetween(x, y + 14, x + 170, y + 14);
     this.container.add(divider);
 
     const buildings: BuildingType[] = [
@@ -235,31 +201,29 @@ export class GuidePanel {
         .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
         .join(' ');
 
-      // Thumbnail: building sprite scaled down
       const sprite = this.scene.add.sprite(x + 7, rowY + 7, 'sprites', bType);
       sprite.setDisplaySize(14, 14);
       this.container.add(sprite);
 
-      const nameText = makeText(this.scene, x + 18, rowY, name, {
-        fontSize: '8px',
-        color: THEME.text.content,
-      });
+      const nameText = this.scene.add.bitmapText(x + 18, rowY, FONT_SM, name);
+      nameText.setTint(0xc8c0d8);
       this.container.add(nameText);
 
-      // Size + cost
       const costStr = Object.entries(cost)
         .filter(([, v]) => v && v > 0)
         .map(([k, v]) => `${v} ${RESOURCE_DISPLAY_NAMES[k] || k}`)
         .join(' ');
       const sizeStr = `${def.width}x${def.height}`;
 
-      const detailText = makeText(this.scene, x + 18, rowY + 10, `${sizeStr}  Cost: ${costStr}`, {
-        fontSize: '7px',
-        color: THEME.text.muted,
-      });
+      const detailText = this.scene.add.bitmapText(
+        x + 18,
+        rowY + 12,
+        FONT_SM,
+        `${sizeStr}  Cost: ${costStr}`
+      );
+      detailText.setTint(0x605880);
       this.container.add(detailText);
 
-      // I/O description
       let ioStr = '';
       if (bType === 'quarry') {
         ioStr = 'Extracts from veins -> output';
@@ -277,10 +241,8 @@ export class GuidePanel {
         ioStr = `In:${inSides} -> Out:${outSides}`;
       }
 
-      const ioText = makeText(this.scene, x + 18, rowY + 19, ioStr, {
-        fontSize: '7px',
-        color: THEME.text.muted,
-      });
+      const ioText = this.scene.add.bitmapText(x + 18, rowY + 22, FONT_SM, ioStr);
+      ioText.setTint(0x605880);
       this.container.add(ioText);
 
       rowY += 34;
@@ -288,32 +250,27 @@ export class GuidePanel {
   }
 
   private createResearchRecipesSection(x: number, y: number): void {
-    const header = makeText(this.scene, x, y, 'RESEARCH (Arcane Study)', {
-      fontSize: '10px',
-      color: '#cc88ff',
-    });
+    const header = this.scene.add.bitmapText(x, y, FONT_SM, 'RESEARCH (Arcane Study)');
+    header.setTint(0xcc88ff);
     this.container.add(header);
 
     const divider = this.scene.add.graphics();
     divider.lineStyle(1, 0x442266);
-    divider.lineBetween(x, y + 12, x + 170, y + 12);
+    divider.lineBetween(x, y + 14, x + 170, y + 14);
     this.container.add(divider);
 
-    let rowY = y + 16;
+    let rowY = y + 18;
     for (const recipe of RESEARCH_RECIPES) {
       const timeStr = `${recipe.craftTimeTicks / TICKS_PER_SECOND}s`;
-      const text = makeText(
-        this.scene,
+      const text = this.scene.add.bitmapText(
         x,
         rowY,
-        `${recipe.inputCount} ${ITEM_DISPLAY_NAMES[recipe.input] || recipe.input} -> ${recipe.rpYield} RP (${timeStr})`,
-        {
-          fontSize: '7px',
-          color: THEME.text.muted,
-        }
+        FONT_SM,
+        `${recipe.inputCount} ${ITEM_DISPLAY_NAMES[recipe.input] || recipe.input} -> ${recipe.rpYield} RP (${timeStr})`
       );
+      text.setTint(0x605880);
       this.container.add(text);
-      rowY += 12;
+      rowY += 14;
     }
   }
 }

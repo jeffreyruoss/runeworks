@@ -1,15 +1,19 @@
-import Phaser from 'phaser';
+import { ResponsiveScene, ConstraintMode } from 'phaser-pixui';
 import { CANVAS_WIDTH, CANVAS_HEIGHT, THEME } from '../config';
-import { makeText, setupCamera } from '../phaser-utils';
 
-export class BootScene extends Phaser.Scene {
+export class BootScene extends ResponsiveScene {
   constructor() {
-    super({ key: 'BootScene' });
+    super({
+      key: 'BootScene',
+      viewportConstraints: {
+        mode: ConstraintMode.Minimum,
+        width: CANVAS_WIDTH,
+        height: CANVAS_HEIGHT,
+      },
+    });
   }
 
   preload(): void {
-    setupCamera(this);
-
     const width = CANVAS_WIDTH;
     const height = CANVAS_HEIGHT;
 
@@ -17,12 +21,6 @@ export class BootScene extends Phaser.Scene {
     const progressBox = this.add.graphics();
     progressBox.fillStyle(THEME.boot.progressBox, 0.8);
     progressBox.fillRect(width / 2 - 160, height / 2 - 25, 320, 50);
-
-    const loadingText = makeText(this, width / 2, height / 2 - 50, 'Loading...', {
-      fontSize: '16px',
-      color: THEME.text.primary,
-    });
-    loadingText.setOrigin(0.5, 0.5);
 
     this.load.on('progress', (value: number) => {
       progressBar.clear();
@@ -33,7 +31,6 @@ export class BootScene extends Phaser.Scene {
     this.load.on('complete', () => {
       progressBar.destroy();
       progressBox.destroy();
-      loadingText.destroy();
     });
 
     // Load spritesheet atlas
@@ -45,6 +42,7 @@ export class BootScene extends Phaser.Scene {
   }
 
   create(): void {
+    super.create();
     this.scene.start('ModeSelectScene');
   }
 }

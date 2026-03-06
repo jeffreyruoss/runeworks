@@ -23,11 +23,22 @@ npm run sprites   # Regenerate sprite atlas from ASCII definitions
 
 ## Architecture
 
-### Scene Structure
+### Scene Structure (pixui)
 
-- **BootScene** (`src/scenes/BootScene.ts`) - Asset loading, bootstraps other scenes
-- **GameScene** (`src/scenes/GameScene.ts`) - Core gameplay orchestrator: wires together managers, handles cursor state, delegates input/rendering/placement
-- **UIScene** (`src/scenes/UIScene.ts`) - HUD overlay: status bars, hotbar legend, help text. Listens to GameScene events.
+All scenes extend `ResponsiveScene` from `phaser-pixui` for automatic integer-zoom scaling. UIScene extends `UiScene` for themed bitmap text and 9-slice frame components.
+
+- **BootScene** (`src/scenes/BootScene.ts`) - Asset loading, bootstraps other scenes (ResponsiveScene)
+- **ModeSelectScene** (`src/scenes/ModeSelectScene.ts`) - Game mode selection menu (ResponsiveScene)
+- **GameScene** (`src/scenes/GameScene.ts`) - Core gameplay orchestrator (ResponsiveScene, Maximum mode 640×400)
+- **UIScene** (`src/scenes/UIScene.ts`) - HUD overlay with bitmap text and 9-slice panels (UiScene, Minimum mode height=400)
+
+### UI Theme (`src/ui-theme.ts`)
+
+Defines the pixui ThemeConfig with CC0 Mana Soul assets (fonts + 9-slice frames). Key exports:
+
+- `uiTheme` — ThemeConfig for UiScene
+- `FONT_SM` / `FONT_MD` / `FONT_LG` — bitmap font names (mana_roots/trunk/branches)
+- `UI_ATLAS` — atlas key for 9-slice frames
 
 ### Core Systems
 
@@ -61,10 +72,19 @@ https://aistudio.google.com/usage?timeRange=last-28-days&project=gen-lang-client
 
 **Tileable sprites**: Sprites with `tileable: true` in `sprites.js` get special post-processing: alpha is flattened onto black (kills Gemini's fake transparency checkerboard), then a 4px oversize+crop removes Gemini's lighter border pixels. Always set `tileable: true` for terrain tiles that must tile seamlessly.
 
+### UI Asset Pipeline (pixel-tools)
+
+**pixel-tools** processes bitmap fonts and UI atlases at build time via Vite plugin:
+
+- Source: `assets/pixui/` (CC0 fonts + 9-slice UI sprites by Gabriel Lima)
+- Output: `public/packed_assets/` (generated, gitignored)
+- Config: `fonts.yaml` (bitmap font specs), `ui.yaml` (UI atlas with 9-slice borders)
+- Vite plugin: `processAssetsDev` / `processAssetsProd` in `vite.config.ts`
+
 ## Key Configuration (`src/config.ts`)
 
 - Grid: 40×25 tiles at 16×16px (640×400 virtual resolution)
-- Default zoom: 4× (renders at 2560×1600)
+- Scaling: `Scale.NONE` with responsive resize; pixui ResponsiveScene handles integer zoom
 - Simulation: 20 ticks/second (50ms per tick)
 
 ## Keyboard Controls (GameScene)
@@ -145,24 +165,27 @@ Keep `.claude/agents/` and `.claude/skills/` in sync with the codebase:
 Most frequently edited files:
 
 ```
-src/scenes/GameScene.ts           # Gameplay orchestrator (435 lines)
+src/scenes/GameScene.ts           # Gameplay orchestrator (573 lines)
+src/scenes/UIScene.ts             # pixui UiScene HUD (282 lines)
 src/Simulation.ts                 # Tick logic, production (278 lines)
-src/managers/GuidePanel.ts        # Guide panel with resources/items/buildings (271 lines)
-src/scenes/UIScene.ts             # HUD elements (341 lines)
+src/managers/GuidePanel.ts        # Guide panel — bitmap text + 9-slice (259 lines)
+src/managers/ResearchPanel.ts     # Research tree panel (226 lines)
+src/managers/ObjectivesPanel.ts   # Objectives & stage complete (196 lines)
 src/managers/BuildingPlacer.ts    # Placement validation, ghost sprite (201 lines)
-src/managers/ObjectivesPanel.ts   # Objectives & stage complete overlay (190 lines)
 src/simulation/transfers.ts       # Item distribution (166 lines)
 src/managers/InputManager.ts      # Keyboard bindings (128 lines)
+src/config.ts                     # Constants & THEME palette (127 lines)
+src/managers/MenuPanel.ts         # Menu panel — bitmap text + 9-slice (119 lines)
 src/managers/TerrainRenderer.ts   # Terrain/grid drawing (101 lines)
 src/managers/StageManager.ts      # Stage progression & objectives (97 lines)
 src/utils.ts                      # Pure helpers (94 lines)
 src/managers/PanelManager.ts      # Panel state & mutual exclusion (91 lines)
-src/managers/BufferIndicators.ts  # Buffer overlays (72 lines)
-src/config.ts                     # Constants (69 lines)
+src/managers/BufferIndicators.ts  # Buffer overlays (80 lines)
+src/ui-theme.ts                   # pixui ThemeConfig, font/atlas constants (61 lines)
 src/data/recipes.ts               # Recipe definitions
 src/data/buildings.ts             # Building specs
 src/types.ts                      # Core interfaces
-assets/sprites/src/*.txt          # ASCII sprite definitions
+assets/pixui/                     # CC0 bitmap fonts + UI sprites (source)
 ```
 
 ## Event API
@@ -273,6 +296,7 @@ npm run dev                # Game loads without console errors
 - ✅ Stage system (10 stages with objectives and progression)
 - ✅ Guide panel (G key — resources, items, buildings reference)
 - ✅ Multi-resource terrain and gathering
+- ✅ pixui responsive UI (bitmap fonts, 9-slice panels, auto integer zoom)
 
 **Not yet implemented:**
 
@@ -300,10 +324,9 @@ Keep the codebase modular so Claude Code can read, understand, and modify files 
 
 ### Current Modularity Debt
 
-| File           | Lines | Status                                                                  |
-| -------------- | ----- | ----------------------------------------------------------------------- |
-| `GameScene.ts` | 435   | Over target; building CRUD and cursor visuals are extraction candidates |
-| `UIScene.ts`   | 341   | Slightly over target; menu/inventory panels could extract to managers   |
+| File           | Lines | Status                                                                 |
+| -------------- | ----- | ---------------------------------------------------------------------- |
+| `GameScene.ts` | 573   | Over limit; building CRUD and cursor visuals are extraction candidates |
 
 All other files are under 300 lines. **Rule: When a file grows past 300 lines, extract a cohesive subsystem before or alongside your change.** Don't make large files larger.
 
@@ -346,10 +369,11 @@ export function getBuildingAt(x: number, y: number, buildings: Building[]): Buil
 
 ```
 src/
-├── scenes/          # Phaser scenes (thin orchestrators)
-│   ├── BootScene.ts       # Asset loading
-│   ├── GameScene.ts       # Gameplay orchestrator
-│   └── UIScene.ts         # HUD rendering
+├── scenes/          # Phaser scenes (all extend pixui ResponsiveScene)
+│   ├── BootScene.ts       # Asset loading (ResponsiveScene)
+│   ├── ModeSelectScene.ts # Game mode selection (ResponsiveScene)
+│   ├── GameScene.ts       # Gameplay orchestrator (ResponsiveScene)
+│   └── UIScene.ts         # HUD rendering (pixui UiScene)
 ├── managers/        # Stateful subsystems used by scenes
 │   ├── InputManager.ts    # Keyboard setup & bindings
 │   ├── TerrainRenderer.ts # Crystal/stone/grid drawing
@@ -357,8 +381,12 @@ src/
 │   ├── BufferIndicators.ts# Buffer count overlays
 │   ├── PanelManager.ts   # Panel open/close state & mutual exclusion
 │   ├── StageManager.ts   # Stage progression & objective tracking
-│   ├── ObjectivesPanel.ts# Objectives panel & stage complete overlay
-│   └── GuidePanel.ts     # Full-page reference guide panel
+│   ├── ObjectivesPanel.ts# Objectives panel (bitmap text + 9-slice)
+│   ├── GuidePanel.ts     # Full-page reference guide (bitmap text + 9-slice)
+│   ├── MenuPanel.ts      # Menu panel (bitmap text + 9-slice)
+│   ├── InventoryPanel.ts # Inventory panel (bitmap text + 9-slice)
+│   ├── ResearchPanel.ts  # Research tree panel (bitmap text + 9-slice)
+│   └── TutorialOverlay.ts# Tutorial text overlay
 ├── simulation/      # Tick engine subsystems
 │   └── transfers.ts       # Round-robin item distribution
 ├── data/            # Static definitions
@@ -370,9 +398,10 @@ src/
 │   └── terrainSetup.ts    # Procedural terrain patch generation
 ├── Simulation.ts    # Core tick engine (production phase)
 ├── types.ts         # Shared interfaces
-├── config.ts        # Game constants & shared abbreviations
+├── config.ts        # Game constants & THEME palette
+├── ui-theme.ts      # pixui ThemeConfig, font/atlas constants
 ├── utils.ts         # Pure helpers (buffers, directions, lookups)
-└── main.ts          # Phaser game config & entry point
+└── main.ts          # Phaser game config & entry point (responsive scaling)
 ```
 
 ### Principles

@@ -10,10 +10,6 @@ export const GRID_WIDTH = 40;
 export const GRID_HEIGHT = 25;
 export const CANVAS_WIDTH = GRID_WIDTH * TILE_SIZE; // 640
 export const CANVAS_HEIGHT = GRID_HEIGHT * TILE_SIZE; // 400
-export const DEFAULT_ZOOM = 4;
-export const TEXT_RESOLUTION = DEFAULT_ZOOM;
-export const UI_FONT = "'Silkscreen', monospace";
-
 // Simulation
 export const TICKS_PER_SECOND = 20;
 export const MS_PER_TICK = 1000 / TICKS_PER_SECOND; // 50ms
@@ -74,22 +70,6 @@ export const THEME = {
     bg: 0x141020,
     gridLine: 0x2a2240,
   },
-  text: {
-    primary: '#e8e0f0',
-    secondary: '#b0a8c0',
-    tertiary: '#8078a0',
-    muted: '#605880',
-    content: '#c8c0d8',
-  },
-  status: {
-    active: '#4af0ff',
-    valid: '#44ff88',
-    invalid: '#ff5566',
-    paused: '#ffdd44',
-    affordable: '#44ff88',
-    unaffordable: '#ff5566',
-    deconstructHint: '#ff8888',
-  },
   ghost: {
     valid: 0x00ff00,
     invalid: 0xff0000,
@@ -104,27 +84,11 @@ export const THEME = {
   },
   modeSelect: {
     bg: 0x0d0b1a,
-    selected: '#4af0ff',
-    selectedDesc: '#88d8e8',
   },
   tutorial: {
     border: 0x4af0ff,
-    header: '#4af0ff',
-  },
-  section: {
-    resources: '#88aaff',
-    items: '#ffaa44',
-    buildings: '#44ff88',
-    research: '#cc88ff',
   },
 } as const;
-
-// UI layout constants
-export const UI_PADDING = 15;
-export const PANEL_BORDER = 8;
-export const PANEL_INSET = PANEL_BORDER + UI_PADDING; // 23 — distance from panel edge to content
-export const BAR_VPAD = 4; // Padding inside thin HUD bars (all sides, from inner border edge)
-export const PANEL_FILL = 0x06050f;
 
 // Colors for UI (backward-compat layer referencing THEME)
 export const COLORS = {
