@@ -45,22 +45,30 @@ Defines the pixui ThemeConfig with CC0 Mana Soul assets (fonts + 9-slice frames)
 - **Simulation** (`src/Simulation.ts`) - Tick-based deterministic engine (20 ticks/sec). Handles production phase (buildings process recipes). Delegates transfer to TransferSystem.
 - **TransferSystem** (`src/simulation/transfers.ts`) - Round-robin item distribution between adjacent buildings
 - **ManaSystem** (`src/simulation/ManaSystem.ts`) - Mana power network: BFS connectivity, speed multipliers, accumulator-based speed gating
+- **ResearchSystem** (`src/data/research.ts`, `src/managers/ResearchManager.ts`) - Research recipes (Arcane Study → RP), tech tree with 3 branches (buildings/recipes/upgrades), persisted via localStorage
+- **Persistence** (`src/data/persistence.ts`) - localStorage save/load for research progress (versioned, auto-saves on mutation)
 - **Building Definitions** (`src/data/buildings.ts`) - Specs for all buildings (Quarry, Forge, Workbench, Chest, Arcane Study, Mana Well/Obelisk/Tower)
 - **Recipes** (`src/data/recipes.ts`) - Crafting recipes with input/output mappings and timing
+- **Tutorials** (`src/data/tutorials.ts`) - Tutorial stage definitions with step-by-step guidance
 
 ### Managers (used by GameScene)
 
 - **InputManager** (`src/managers/InputManager.ts`) - Keyboard setup and key bindings, delegates actions via callbacks
 - **TerrainRenderer** (`src/managers/TerrainRenderer.ts`) - Draws crystal veins, stone deposits, and grid lines
 - **BuildingPlacer** (`src/managers/BuildingPlacer.ts`) - Ghost preview sprite, placement validation, building creation
+- **BuildingManager** (`src/managers/BuildingManager.ts`) - Building CRUD operations (create, delete, sprite management)
 - **BufferIndicators** (`src/managers/BufferIndicators.ts`) - Buffer count text overlays on buildings
-- **PanelManager** (`src/managers/PanelManager.ts`) - Panel open/close state and mutual exclusion (menu, inventory, guide, objectives)
+- **PanelManager** (`src/managers/PanelManager.ts`) - Panel open/close state and mutual exclusion (menu, inventory, guide, objectives, research)
 - **StageManager** (`src/managers/StageManager.ts`) - Stage progression, objective tracking, completion flow
+- **ResearchManager** (`src/managers/ResearchManager.ts`) - Research points balance, tech tree unlocks, persistence
 
 ### Managers (used by UIScene)
 
 - **ObjectivesPanel** (`src/managers/ObjectivesPanel.ts`) - Objectives panel and stage complete overlay rendering
 - **GuidePanel** (`src/managers/GuidePanel.ts`) - Full-page reference panel showing resources, items, buildings, and recipes
+- **ResearchPanel** (`src/managers/ResearchPanel.ts`) - Research tree panel with branch navigation
+- **BuildPanel** (`src/managers/BuildPanel.ts`) - Build mode building selection modal
+- **TutorialOverlay** (`src/managers/TutorialOverlay.ts`) - Tutorial text overlay for guided play
 
 ### Sprite Pipeline
 
@@ -90,20 +98,21 @@ https://aistudio.google.com/usage?timeRange=last-28-days&project=gen-lang-client
 ## Keyboard Controls (GameScene)
 
 - **ESDF**: Move cursor (+ Shift for 5-tile jumps)
-- **B**: Toggle build menu (shows Q/F/W/C/A/M/O/T building options)
-- **Q/F/W/C/A** (build mode): Select Quarry/Forge/Workbench/Chest/Arcane Study
-- **M/O/T** (build mode): Select Mana Well/Mana Obelisk/Mana Tower
+- **B**: Toggle build menu
+- **Q/W/A** (build mode): Select Quarry/Workbench/Arcane Study (F=Forge, C=Chest intercepted from movement/recipe keys)
+- **M/T** (build mode): Select Mana Well/Mana Tower (O=Mana Obelisk intercepted from objectives key)
 - **Space/Enter**: Gather stone / Construct building
 - **Backspace**: Demolish building
 - **R**: Rotate building
 - **P**: Pause/resume simulation
 - **I**: Toggle inventory panel
+- **O**: Toggle objectives panel
 - **G**: Toggle guide panel (resources, items, buildings reference)
 - **H**: Toggle buffer stats display on all buildings
+- **K**: Toggle menu
 - **C** (normal mode): Cycle workbench recipe
 - **. / ,**: Speed up / slow down simulation
-- **M**: Toggle menu
-- **X / Esc**: Cancel build mode / cancel selection / close panel / go back
+- **X**: Cancel build mode / cancel selection / close panel / go back
 
 ## Design Reference
 
@@ -165,26 +174,34 @@ Keep `.claude/agents/` and `.claude/skills/` in sync with the codebase:
 Most frequently edited files:
 
 ```
-src/scenes/GameScene.ts           # Gameplay orchestrator (573 lines)
-src/scenes/UIScene.ts             # pixui UiScene HUD (282 lines)
-src/Simulation.ts                 # Tick logic, production (278 lines)
-src/managers/GuidePanel.ts        # Guide panel — bitmap text + 9-slice (259 lines)
-src/managers/ResearchPanel.ts     # Research tree panel (226 lines)
-src/managers/ObjectivesPanel.ts   # Objectives & stage complete (196 lines)
-src/managers/BuildingPlacer.ts    # Placement validation, ghost sprite (201 lines)
-src/simulation/transfers.ts       # Item distribution (166 lines)
-src/managers/InputManager.ts      # Keyboard bindings (128 lines)
-src/config.ts                     # Constants & THEME palette (127 lines)
-src/managers/MenuPanel.ts         # Menu panel — bitmap text + 9-slice (119 lines)
-src/managers/TerrainRenderer.ts   # Terrain/grid drawing (101 lines)
-src/managers/StageManager.ts      # Stage progression & objectives (97 lines)
-src/utils.ts                      # Pure helpers (94 lines)
-src/managers/PanelManager.ts      # Panel state & mutual exclusion (91 lines)
+src/scenes/GameScene.ts           # Gameplay orchestrator (606 lines)
+src/Simulation.ts                 # Tick logic, production (404 lines)
+src/scenes/UIScene.ts             # pixui UiScene HUD (353 lines)
+src/managers/GuidePanel.ts        # Guide panel — bitmap text + 9-slice (276 lines)
+src/managers/ResearchPanel.ts     # Research tree panel (249 lines)
+src/managers/ObjectivesPanel.ts   # Objectives & stage complete (244 lines)
+src/managers/BuildingPlacer.ts    # Placement validation, ghost sprite (230 lines)
+src/utils.ts                      # Pure helpers (189 lines)
+src/simulation/transfers.ts       # Item distribution (181 lines)
+src/managers/StageManager.ts      # Stage progression & objectives (175 lines)
+src/managers/ResearchManager.ts   # Research points & tech tree (139 lines)
+src/managers/InputManager.ts      # Keyboard bindings (136 lines)
+src/managers/BuildPanel.ts        # Build mode selection modal (119 lines)
+src/managers/MenuPanel.ts         # Menu panel — bitmap text + 9-slice (120 lines)
+src/managers/PanelManager.ts      # Panel state & mutual exclusion (106 lines)
+src/config.ts                     # Constants & THEME palette (102 lines)
+src/data/research.ts              # Research recipes & tech tree nodes (141 lines)
+src/data/tutorials.ts             # Tutorial stage definitions (106 lines)
+src/data/buildings.ts             # Building specs (100 lines)
+src/managers/TutorialOverlay.ts   # Tutorial text overlay (92 lines)
 src/managers/BufferIndicators.ts  # Buffer overlays (80 lines)
+src/managers/BuildingManager.ts   # Building CRUD operations (66 lines)
 src/ui-theme.ts                   # pixui ThemeConfig, font/atlas constants (61 lines)
-src/data/recipes.ts               # Recipe definitions
-src/data/buildings.ts             # Building specs
-src/types.ts                      # Core interfaces
+src/data/persistence.ts           # localStorage research save/load (59 lines)
+src/managers/TerrainRenderer.ts   # Terrain/grid drawing (58 lines)
+src/data/recipes.ts               # Recipe definitions (58 lines)
+src/managers/InventoryPanel.ts    # Inventory panel (56 lines)
+src/types.ts                      # Core interfaces (146 lines)
 assets/pixui/                     # CC0 bitmap fonts + UI sprites (source)
 ```
 
@@ -192,14 +209,24 @@ assets/pixui/                     # CC0 bitmap fonts + UI sprites (source)
 
 Scene-to-scene communication events (emit from GameScene, listen in UIScene):
 
-| Event                    | Payload                             | When Fired                    |
-| ------------------------ | ----------------------------------- | ----------------------------- |
-| `gameStateChanged`       | `GameUIState` object                | Every frame with state update |
-| `simulationStateChanged` | `SimulationState` object            | When sim starts/stops/ticks   |
-| `itemProduced`           | `{ item: ItemType, count: number }` | When building produces items  |
-| `menuOpened`             | none                                | Menu panel opens              |
-| `menuClosed`             | none                                | Menu panel closes             |
-| `inventoryToggled`       | `boolean` (isOpen)                  | Inventory panel toggled       |
+**Primary event (UIScene subscribes to this):**
+
+| Event              | Payload                  | When Fired                    |
+| ------------------ | ------------------------ | ----------------------------- |
+| `gameStateChanged` | `GameUIState` object     | Every frame with state update |
+| `researchNavigate` | `dx: number, dy: number` | Arrow keys in research panel  |
+| `researchUnlock`   | none                     | Research node purchased       |
+
+**Internal events (emitted but not cross-scene):**
+
+| Event                    | Payload                             | When Fired                     |
+| ------------------------ | ----------------------------------- | ------------------------------ |
+| `simulationStateChanged` | `SimulationState` object            | When sim starts/stops/ticks    |
+| `itemProduced`           | `{ item: ItemType, count: number }` | When building produces items   |
+| `menuOpened`             | none                                | Menu panel opens               |
+| `menuClosed`             | none                                | Menu panel closes              |
+| `inventoryToggled`       | `boolean` (isOpen)                  | Inventory panel toggled        |
+| `uiReady`                | none                                | UIScene requests initial state |
 
 ## Phaser Patterns
 
@@ -282,7 +309,7 @@ npm run dev                # Game loads without console errors
 - ✅ Grid rendering (40×25)
 - ✅ Cursor movement (ESDF + Shift)
 - ✅ Basic HUD (UIScene)
-- ✅ Building selection (B key → build menu with Q/F/W/C)
+- ✅ Building selection (B key → build panel modal)
 - ✅ Ghost preview with placement validation
 - ✅ Place (Space/Enter) and delete (Backspace)
 - ✅ Rotation (R)
@@ -294,15 +321,20 @@ npm run dev                # Game loads without console errors
 - ✅ Chest storage
 - ✅ Sprite generation pipeline
 - ✅ Stage system (10 stages with objectives and progression)
+- ✅ Objectives panel (O key — progress tracking)
 - ✅ Guide panel (G key — resources, items, buildings reference)
 - ✅ Multi-resource terrain and gathering
 - ✅ pixui responsive UI (bitmap fonts, 9-slice panels, auto integer zoom)
+- ✅ Research system (Arcane Study → RP, tech tree with 3 branches)
+- ✅ Research persistence (localStorage save/load)
+- ✅ Tutorial mode (guided step-by-step play)
+- ✅ Mana power network (Well/Obelisk/Tower, BFS connectivity)
 
 **Not yet implemented:**
 
 - ⬜ Results screen with bottleneck hints
 - ⬜ Stage select / menu scene
-- ⬜ Save/load progress (localStorage)
+- ⬜ Full save/load progress (only research is persisted currently)
 - ⬜ Power budget system
 - ⬜ Zoom controls
 - ⬜ Audio
@@ -324,11 +356,13 @@ Keep the codebase modular so Claude Code can read, understand, and modify files 
 
 ### Current Modularity Debt
 
-| File           | Lines | Status                                                                 |
-| -------------- | ----- | ---------------------------------------------------------------------- |
-| `GameScene.ts` | 573   | Over limit; building CRUD and cursor visuals are extraction candidates |
+| File            | Lines | Status                                                                     |
+| --------------- | ----- | -------------------------------------------------------------------------- |
+| `GameScene.ts`  | 606   | Over hard limit; cursor visuals and panel wiring are extraction candidates |
+| `Simulation.ts` | 404   | Over hard limit; research tick logic or mana tick could be extracted       |
+| `UIScene.ts`    | 353   | Over target; bar layout and help text could be extracted                   |
 
-All other files are under 300 lines. **Rule: When a file grows past 300 lines, extract a cohesive subsystem before or alongside your change.** Don't make large files larger.
+**Rule: When a file grows past 300 lines, extract a cohesive subsystem before or alongside your change.** Don't make large files larger.
 
 ### Extraction Patterns
 
@@ -370,32 +404,41 @@ export function getBuildingAt(x: number, y: number, buildings: Building[]): Buil
 ```
 src/
 ├── scenes/          # Phaser scenes (all extend pixui ResponsiveScene)
-│   ├── BootScene.ts       # Asset loading (ResponsiveScene)
-│   ├── ModeSelectScene.ts # Game mode selection (ResponsiveScene)
-│   ├── GameScene.ts       # Gameplay orchestrator (ResponsiveScene)
-│   └── UIScene.ts         # HUD rendering (pixui UiScene)
+│   ├── BootScene.ts          # Asset loading (ResponsiveScene)
+│   ├── ModeSelectScene.ts    # Game mode selection (ResponsiveScene)
+│   ├── GameScene.ts          # Gameplay orchestrator (ResponsiveScene)
+│   └── UIScene.ts            # HUD rendering (pixui UiScene)
 ├── managers/        # Stateful subsystems used by scenes
-│   ├── InputManager.ts    # Keyboard setup & bindings
-│   ├── TerrainRenderer.ts # Crystal/stone/grid drawing
-│   ├── BuildingPlacer.ts  # Ghost sprite & placement logic
-│   ├── BufferIndicators.ts# Buffer count overlays
-│   ├── PanelManager.ts   # Panel open/close state & mutual exclusion
-│   ├── StageManager.ts   # Stage progression & objective tracking
-│   ├── ObjectivesPanel.ts# Objectives panel (bitmap text + 9-slice)
-│   ├── GuidePanel.ts     # Full-page reference guide (bitmap text + 9-slice)
-│   ├── MenuPanel.ts      # Menu panel (bitmap text + 9-slice)
-│   ├── InventoryPanel.ts # Inventory panel (bitmap text + 9-slice)
-│   ├── ResearchPanel.ts  # Research tree panel (bitmap text + 9-slice)
-│   └── TutorialOverlay.ts# Tutorial text overlay
+│   ├── InputManager.ts       # Keyboard setup & bindings
+│   ├── TerrainRenderer.ts    # Crystal/stone/grid drawing
+│   ├── BuildingPlacer.ts     # Ghost sprite & placement logic
+│   ├── BuildingManager.ts    # Building CRUD operations
+│   ├── BufferIndicators.ts   # Buffer count overlays
+│   ├── PanelManager.ts       # Panel open/close state & mutual exclusion
+│   ├── StageManager.ts       # Stage progression & objective tracking
+│   ├── ResearchManager.ts    # Research points balance & tech tree unlocks
+│   ├── ObjectivesPanel.ts    # Objectives panel (bitmap text + 9-slice)
+│   ├── GuidePanel.ts         # Full-page reference guide (bitmap text + 9-slice)
+│   ├── MenuPanel.ts          # Menu panel (bitmap text + 9-slice)
+│   ├── InventoryPanel.ts     # Inventory panel (bitmap text + 9-slice)
+│   ├── ResearchPanel.ts      # Research tree panel (bitmap text + 9-slice)
+│   ├── BuildPanel.ts         # Build mode selection modal
+│   └── TutorialOverlay.ts    # Tutorial text overlay
 ├── simulation/      # Tick engine subsystems
-│   └── transfers.ts       # Round-robin item distribution
+│   ├── transfers.ts          # Round-robin item distribution
+│   └── ManaSystem.ts         # Mana power network & speed gating
 ├── data/            # Static definitions
-│   ├── buildings.ts       # Building specs
-│   ├── recipes.ts         # Crafting recipes
-│   ├── stages.ts          # Stage definitions & display names
-│   └── terrain.ts         # Terrain types, colors, display names
+│   ├── buildings.ts          # Building specs
+│   ├── recipes.ts            # Crafting recipes
+│   ├── research.ts           # Research recipes & tech tree nodes
+│   ├── stages.ts             # Stage definitions & display names
+│   ├── terrain.ts            # Terrain types, colors, display names
+│   ├── tutorials.ts          # Tutorial stage definitions
+│   └── persistence.ts        # localStorage save/load for research
 ├── terrain/         # Terrain generation
-│   └── terrainSetup.ts    # Procedural terrain patch generation
+│   ├── terrainSetup.ts       # Procedural terrain patch generation
+│   ├── patchGenerator.ts     # Seeded blob generation (Mulberry32 PRNG)
+│   └── ResourcePatchManager.ts # Resource patch HP pools
 ├── Simulation.ts    # Core tick engine (production phase)
 ├── types.ts         # Shared interfaces
 ├── config.ts        # Game constants & THEME palette
