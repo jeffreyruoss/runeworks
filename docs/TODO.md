@@ -7,7 +7,7 @@
 
 ## misc
 
-Indicate build mode one and show "x to cancel" or something
+Make build mode a modal.
 
 Code review for the new global padding system
 
