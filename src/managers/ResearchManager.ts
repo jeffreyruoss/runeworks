@@ -121,6 +121,18 @@ export class ResearchManager {
     return RESEARCH_NODES;
   }
 
+  /** Force-unlock a node without cost check (dev override) */
+  forceUnlock(nodeId: string): void {
+    this.unlockedNodes.add(nodeId);
+    this.save();
+  }
+
+  /** Set research points directly (dev override) */
+  setResearchPoints(rp: number): void {
+    this.researchPoints = rp;
+    this.save();
+  }
+
   /** Reset all research progress (for new game) */
   reset(): void {
     this.researchPoints = 0;

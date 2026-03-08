@@ -27,6 +27,7 @@ import { QUARRIABLE_TERRAIN } from '../data/terrain';
 import { ITEM_DISPLAY_NAMES } from '../data/stages';
 import { RESEARCH_RECIPES } from '../data/research';
 import { getTutorialStage } from '../data/tutorials';
+import { getActiveDevSettings } from '../dev/devSettings';
 
 export class GameScene extends ResponsiveScene {
   // Cursor state
@@ -79,6 +80,14 @@ export class GameScene extends ResponsiveScene {
   init(data?: { mode?: GameMode }): void {
     this.gameMode = data?.mode ?? 'stages';
     this.tutorialStageId = 1;
+    const dev = getActiveDevSettings();
+    if (
+      dev?.tutorialStep !== null &&
+      dev?.tutorialStep !== undefined &&
+      this.gameMode === 'tutorial'
+    ) {
+      this.tutorialStageId = dev.tutorialStep;
+    }
   }
 
   create(): void {
@@ -104,6 +113,23 @@ export class GameScene extends ResponsiveScene {
 
     // Setup mode-specific terrain and state
     this.initializeMode();
+
+    // Apply dev overrides after mode initialization
+    const dev = getActiveDevSettings();
+    if (dev) {
+      if (dev.startStage !== null && this.gameMode === 'stages') {
+        this.stageManager.setStartStage(dev.startStage);
+      }
+      if (dev.resources) {
+        Object.assign(this.playerResources, dev.resources);
+      }
+      if (dev.researchUnlocks) {
+        for (const nodeId of dev.researchUnlocks) this.researchManager.forceUnlock(nodeId);
+      }
+      if (dev.researchPoints !== null) {
+        this.researchManager.setResearchPoints(dev.researchPoints);
+      }
+    }
 
     // Setup input (must be after other init so callbacks reference valid state)
     this.inputManager = new InputManager(this, {

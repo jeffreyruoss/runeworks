@@ -1,5 +1,6 @@
 import { ResponsiveScene, ConstraintMode } from 'phaser-pixui';
 import { CANVAS_WIDTH, CANVAS_HEIGHT, THEME } from '../config';
+import { getActiveDevSettings } from '../dev/devSettings';
 
 export class BootScene extends ResponsiveScene {
   constructor() {
@@ -43,6 +44,12 @@ export class BootScene extends ResponsiveScene {
 
   create(): void {
     super.create();
+    const dev = getActiveDevSettings();
+    if (dev?.autoStartMode) {
+      this.scene.start('GameScene', { mode: dev.autoStartMode });
+      this.scene.start('UIScene', { mode: dev.autoStartMode });
+      return;
+    }
     this.scene.start('ModeSelectScene');
   }
 }

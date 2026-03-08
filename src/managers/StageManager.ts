@@ -201,6 +201,11 @@ export class StageManager {
     return false;
   }
 
+  /** Set starting stage directly (dev override) */
+  setStartStage(stage: number): void {
+    this.currentStage = stage;
+  }
+
   /** Reset stage state for a fresh run */
   resetForNewGame(): void {
     this.currentStage = 1;

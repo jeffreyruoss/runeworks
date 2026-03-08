@@ -5,6 +5,7 @@ import { GameScene } from './scenes/GameScene';
 import { UIScene } from './scenes/UIScene';
 import { PixuiDemoScene } from './scenes/PixuiDemoScene';
 import { COLORS } from './config';
+import { initDevTools } from './dev/devPanel';
 
 const dpr = window.devicePixelRatio || 1;
 
@@ -25,6 +26,7 @@ const config: Phaser.Types.Core.GameConfig = {
 };
 
 const game = new Phaser.Game(config);
+initDevTools();
 
 window.addEventListener('resize', () => {
   game.scale.resize(window.innerWidth * dpr, window.innerHeight * dpr);
