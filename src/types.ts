@@ -140,6 +140,7 @@ export interface GameUIState {
   manaProduction: number;
   manaConsumption: number;
   unlockedManaBuildings: BuildingType[];
+  availableBuildings: BuildingType[];
   cursorOverBuilding: boolean;
   gameMode: GameMode;
   tutorialText: string[] | null;

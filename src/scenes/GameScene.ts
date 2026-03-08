@@ -234,9 +234,15 @@ export class GameScene extends ResponsiveScene {
   }
 
   private moveCursor(dx: number, dy: number): void {
-    const step = this.inputManager.keys.SHIFT.isDown ? CURSOR_JUMP_STEP : 1;
+    const isShift = this.inputManager.keys.SHIFT.isDown;
+    const step = isShift ? CURSOR_JUMP_STEP : 1;
     this.cursor.x = Phaser.Math.Clamp(this.cursor.x + dx * step, 0, GRID_WIDTH - 1);
     this.cursor.y = Phaser.Math.Clamp(this.cursor.y + dy * step, 0, GRID_HEIGHT - 1);
+
+    if (this.gameMode === 'tutorial') {
+      this.trackTutorialMovement(dx, dy, isShift);
+    }
+
     this.updateCursor();
     this.bufferIndicators.update(
       this.buildingManager.getBuildings(),
@@ -244,6 +250,15 @@ export class GameScene extends ResponsiveScene {
       this.showAllBuffers
     );
     this.emitUIUpdate();
+  }
+
+  private trackTutorialMovement(dx: number, dy: number, isShift: boolean): void {
+    if (isShift) this.stageManager.markCheckComplete('shift_move');
+    if (dx === 0 && dy === -1) this.stageManager.markCheckComplete('move_up');
+    if (dx === -1 && dy === 0) this.stageManager.markCheckComplete('move_left');
+    if (dx === 0 && dy === 1) this.stageManager.markCheckComplete('move_down');
+    if (dx === 1 && dy === 0) this.stageManager.markCheckComplete('move_right');
+    this.stageManager.checkStageComplete();
   }
 
   private handleSelectBuilding(type: BuildingType): void {
@@ -282,6 +297,21 @@ export class GameScene extends ResponsiveScene {
   private toggleBuildMode(): void {
     this.buildModeActive = !this.buildModeActive;
     this.emitUIUpdate();
+  }
+
+  private getAvailableBuildings(): BuildingType[] {
+    return (
+      [
+        'quarry',
+        'forge',
+        'workbench',
+        'chest',
+        'arcane_study',
+        'mana_well',
+        'mana_obelisk',
+        'mana_tower',
+      ] as BuildingType[]
+    ).filter((t) => this.isBuildingAvailable(t));
   }
 
   private handleCancel(): void {
@@ -353,6 +383,7 @@ export class GameScene extends ResponsiveScene {
     }
     if (this.selectedBuilding) {
       this.buildingPlacer.rotate(this.selectedBuilding);
+      this.updateCursor();
     } else {
       this.toggleResearch();
     }
@@ -409,6 +440,11 @@ export class GameScene extends ResponsiveScene {
 
   private handleEnter(): void {
     if (this.stageManager.isStageCompleteShown()) {
+      this.handleStageAdvance();
+      return;
+    }
+    // Continue-only tutorial stages advance directly on Enter
+    if (this.gameMode === 'tutorial' && this.stageManager.isContinueOnly()) {
       this.handleStageAdvance();
       return;
     }
@@ -550,12 +586,29 @@ export class GameScene extends ResponsiveScene {
     const tutorial = this.stageManager.getTutorialStage();
     if (!tutorial) return null;
 
-    // Show completion message when all objectives are met
+    // Continue-only stages just show their instruction text as-is
+    if (this.stageManager.isContinueOnly()) {
+      return [...tutorial.instructionText];
+    }
+
+    // Show completion message when all checks/objectives are met
     if (this.stageManager.isStageComplete()) {
       return [`${tutorial.name} — Complete!`, 'Press Enter to continue.'];
     }
 
     const lines = [...tutorial.instructionText];
+
+    // Show check progress
+    const checks = tutorial.checks;
+    if (checks && checks.length > 0) {
+      const completed = this.stageManager.getCompletedChecks();
+      for (const check of checks) {
+        const mark = completed.has(check.id) ? '[x]' : '[ ]';
+        lines.push(`${mark} ${check.label}`);
+      }
+    }
+
+    // Show objective progress
     const progress = this.stageManager.getObjectiveProgress();
     for (const obj of progress) {
       const name = ITEM_DISPLAY_NAMES[obj.item] || obj.item;
@@ -594,6 +647,7 @@ export class GameScene extends ResponsiveScene {
       unlockedManaBuildings: (['mana_well', 'mana_obelisk', 'mana_tower'] as BuildingType[]).filter(
         (t) => this.stageManager.isBuildingUnlockedByStage(t)
       ),
+      availableBuildings: this.getAvailableBuildings(),
       cursorOverBuilding: this.getBuildingAtCursor() !== null,
       gameMode: this.gameMode,
       tutorialText: this.getTutorialText(),

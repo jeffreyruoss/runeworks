@@ -1,11 +1,17 @@
 import { BuildingType, ItemType, PlayerResources } from '../types';
 import { PatchDef } from '../terrain/terrainSetup';
 
+export interface TutorialCheck {
+  id: string;
+  label: string;
+}
+
 export interface TutorialStage {
   id: number;
   name: string;
   instructionText: string[];
   objectives: Array<{ item: ItemType; count: number }>;
+  checks?: TutorialCheck[];
   unlockedBuildings: BuildingType[];
   terrainLayout: PatchDef[];
   startingResources?: Partial<PlayerResources>;
@@ -14,10 +20,43 @@ export interface TutorialStage {
 export const TUTORIALS: TutorialStage[] = [
   {
     id: 1,
-    name: 'Movement & Gathering',
+    name: 'Welcome',
     instructionText: [
       'Welcome to Runeworks!',
-      'Use ESDF to move the cursor.',
+      'You are a Runesmith in the realm of Eldoria.',
+      'Press Enter to continue.',
+    ],
+    objectives: [],
+    unlockedBuildings: [],
+    terrainLayout: [],
+  },
+  {
+    id: 2,
+    name: 'Movement',
+    instructionText: ['Use ESDF to move the cursor.', 'Try moving in each direction.'],
+    objectives: [],
+    checks: [
+      { id: 'move_up', label: 'Move up (E)' },
+      { id: 'move_left', label: 'Move left (S)' },
+      { id: 'move_down', label: 'Move down (D)' },
+      { id: 'move_right', label: 'Move right (F)' },
+    ],
+    unlockedBuildings: [],
+    terrainLayout: [],
+  },
+  {
+    id: 3,
+    name: 'Quick Movement',
+    instructionText: ['Hold Shift + ESDF to jump 5 tiles.', 'Try it now!'],
+    objectives: [],
+    checks: [{ id: 'shift_move', label: 'Shift + move (any direction)' }],
+    unlockedBuildings: [],
+    terrainLayout: [],
+  },
+  {
+    id: 4,
+    name: 'Gathering',
+    instructionText: [
       'Move to a stone tile and press Space to gather.',
       'Gather 5 stone to continue.',
     ],
@@ -26,7 +65,7 @@ export const TUTORIALS: TutorialStage[] = [
     terrainLayout: [{ type: 'stone', cx: 20, cy: 12, size: 20, pool: 100 }],
   },
   {
-    id: 2,
+    id: 5,
     name: 'Multi-Resource Gathering',
     instructionText: [
       'Resources come in many types.',
@@ -45,7 +84,7 @@ export const TUTORIALS: TutorialStage[] = [
     ],
   },
   {
-    id: 3,
+    id: 6,
     name: 'First Building',
     instructionText: [
       'Press B for build menu, then Q to select Quarry.',
@@ -63,7 +102,7 @@ export const TUTORIALS: TutorialStage[] = [
     startingResources: { stone: 20, wood: 20 },
   },
   {
-    id: 4,
+    id: 7,
     name: 'Rotation & Transfer',
     instructionText: [
       'Buildings transfer items to adjacent buildings.',
@@ -81,7 +120,7 @@ export const TUTORIALS: TutorialStage[] = [
     startingResources: { stone: 30, wood: 20, iron: 10 },
   },
   {
-    id: 5,
+    id: 8,
     name: 'Crafting',
     instructionText: [
       'Workbenches craft advanced items from ingots.',

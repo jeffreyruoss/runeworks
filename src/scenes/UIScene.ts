@@ -10,6 +10,7 @@ import { ResearchManager } from '../managers/ResearchManager';
 import { TutorialOverlay } from '../managers/TutorialOverlay';
 import { MenuPanel } from '../managers/MenuPanel';
 import { InventoryPanel } from '../managers/InventoryPanel';
+import { BuildPanel } from '../managers/BuildPanel';
 import { canAfford } from '../utils';
 import { uiTheme, FONT_SM } from '../ui-theme';
 
@@ -19,7 +20,7 @@ export class UIScene extends UiScene {
   private simStatusBmp!: BitmapText;
   private resourcesBmp!: BitmapText;
   private itemsBmp!: BitmapText;
-  private hotbarBmp!: BitmapText;
+  private helpBmp!: BitmapText;
   private selectedBmp!: BitmapText;
   // HUD bar backgrounds
   private topBarBg!: Phaser.GameObjects.Rectangle;
@@ -36,6 +37,7 @@ export class UIScene extends UiScene {
   private researchPanel!: ResearchPanel;
   private researchManager!: ResearchManager;
   private tutorialOverlay!: TutorialOverlay;
+  private buildPanel!: BuildPanel;
 
   constructor() {
     super({
@@ -62,7 +64,7 @@ export class UIScene extends UiScene {
     const barH = 32;
     const pad = 4;
 
-    // Top bar background (simple filled rectangle — frame_dark 9-slice needs 64px min)
+    // Top bar background
     this.topBarBg = this.add.rectangle(
       Math.floor(vp.width / 2),
       Math.floor(barH / 2),
@@ -84,8 +86,7 @@ export class UIScene extends UiScene {
     );
     this.bottomBarBg.setOrigin(0.5, 0.5);
 
-    // --- Top bar text (positive offsets = inward) ---
-    // Cursor info (top-left)
+    // --- Top bar text ---
     this.cursorInfoBmp = this.insert.topLeft.bitmapText({
       x: pad,
       y: pad,
@@ -94,7 +95,6 @@ export class UIScene extends UiScene {
       tint: 0xe8e0f0,
     });
 
-    // Sim status (top-center)
     this.simStatusBmp = this.insert.top.bitmapText({
       x: 0,
       y: pad,
@@ -103,7 +103,6 @@ export class UIScene extends UiScene {
       tint: 0x4af0ff,
     });
 
-    // Resources (top-right)
     this.resourcesBmp = this.insert.topRight.bitmapText({
       x: pad,
       y: pad,
@@ -112,7 +111,6 @@ export class UIScene extends UiScene {
       tint: 0xb0a8c0,
     });
 
-    // Items produced (top-left, second row)
     this.itemsBmp = this.insert.topLeft.bitmapText({
       x: pad,
       y: pad + 14,
@@ -121,17 +119,8 @@ export class UIScene extends UiScene {
       tint: 0xffdd44,
     });
 
-    // --- Bottom bar text (positive offsets = inward) ---
-    // Hotbar (bottom-left)
-    this.hotbarBmp = this.insert.bottomLeft.bitmapText({
-      x: pad,
-      y: pad + 14,
-      font: FONT_SM,
-      text: '[B] Build',
-      tint: 0xb0a8c0,
-    });
-
-    // Selected building (bottom-right)
+    // --- Bottom bar text ---
+    // Selected building info (right, top row)
     this.selectedBmp = this.insert.bottomRight.bitmapText({
       x: pad,
       y: pad + 14,
@@ -140,14 +129,14 @@ export class UIScene extends UiScene {
       tint: 0x8078a0,
     });
 
-    // Help text (bottom-left, second row — closer to bottom edge)
-    // Static help text (no need to update, so no stored reference)
-    this.insert.bottomLeft.bitmapText({
+    // Dynamic help text with cyan hotkeys (left, bottom row)
+    this.helpBmp = this.insert.bottomLeft.bitmapText({
       x: pad,
       y: pad,
       font: FONT_SM,
-      text: 'ESDF:Move  Spc:Build  X:Cancel  R:Rot  P:Pause  O:Goals  G:Guide  K:Keys',
-      tint: 0x605880,
+      size: 15,
+      text: '',
+      tint: 0xe8e0f0,
     });
 
     // Update bar positions on resize
@@ -180,6 +169,7 @@ export class UIScene extends UiScene {
     this.researchManager = rm as ResearchManager;
     this.researchPanel = new ResearchPanel(this);
     this.tutorialOverlay = new TutorialOverlay(this);
+    this.buildPanel = new BuildPanel(this);
   }
 
   private listenToGameScene(): void {
@@ -214,19 +204,14 @@ export class UIScene extends UiScene {
       this.selectedBmp.text = '';
     }
 
-    // Hotbar
+    // Dynamic help text with cyan hotkeys
+    this.updateHelpText(state);
+
+    // Build panel modal — only show buildings the player can actually select
     if (state.buildModeActive) {
-      const entries: string[] = ['[Q] Quarry', '[F] Forge', '[W] Workbench', '[C] Chest'];
-      if (this.researchManager.isBuildingUnlocked('arcane_study')) entries.push('[A] Study');
-      if (state.unlockedManaBuildings.includes('mana_well')) entries.push('[M] Well');
-      if (state.unlockedManaBuildings.includes('mana_obelisk')) entries.push('[O] Obelisk');
-      if (state.unlockedManaBuildings.includes('mana_tower')) entries.push('[T] Tower');
-      this.hotbarBmp.text = entries.join('  ');
-      this.hotbarBmp.tint = 0xe8e0f0;
-    } else {
-      this.hotbarBmp.text = '[B] Build';
-      this.hotbarBmp.tint = 0xb0a8c0;
+      this.buildPanel.updateAvailable(new Set(state.availableBuildings));
     }
+    this.buildPanel.setVisible(state.buildModeActive);
 
     // RP + Mana display
     const rpStr = state.researchPoints > 0 ? `  RP:${state.researchPoints}` : '';
@@ -270,6 +255,68 @@ export class UIScene extends UiScene {
 
     // Tutorial overlay
     this.tutorialOverlay.update(state.tutorialText);
+  }
+
+  /** Build the bottom help bar text with per-character cyan tinting on hotkeys */
+  private updateHelpText(state: GameUIState): void {
+    type Seg = { key: string; label: string };
+    const s: Seg[] = [
+      { key: 'ESDF', label: 'Move' },
+      { key: 'ESDF+Shift', label: 'Move 5 Spaces' },
+    ];
+
+    if (state.selectedBuilding) {
+      s.push({ key: 'Spc', label: 'Place' });
+    }
+
+    const hasCancellable =
+      state.buildModeActive ||
+      state.selectedBuilding !== null ||
+      state.menuOpen ||
+      state.inventoryOpen ||
+      state.guideOpen ||
+      state.objectivesOpen ||
+      state.researchOpen;
+    if (hasCancellable) {
+      s.push({ key: 'X', label: 'Cancel' });
+    }
+
+    if (!state.buildModeActive) {
+      s.push({ key: 'B', label: 'Build' });
+    }
+
+    s.push({ key: 'R', label: 'Research' });
+    s.push({ key: 'P', label: 'Pause' });
+
+    if (!state.selectedBuilding) {
+      s.push({ key: 'O', label: 'Goals' });
+      s.push({ key: 'G', label: 'Guide' });
+    }
+
+    s.push({ key: 'K', label: 'Keys' });
+
+    // Build text and track cyan character ranges
+    let text = '';
+    const cyan: Array<[number, number]> = [];
+    for (let i = 0; i < s.length; i++) {
+      if (i > 0) text += '  ';
+      cyan.push([text.length, s[i].key.length]);
+      text += s[i].key + ':' + s[i].label;
+    }
+
+    this.helpBmp.text = text;
+
+    // Apply per-character tinting via underlying Phaser BitmapText
+    try {
+      const phaser = this.helpBmp.internal;
+      phaser.setCharacterTint(0, -1, false, 0xe8e0f0);
+      for (const [start, len] of cyan) {
+        phaser.setCharacterTint(start, len, false, 0x4af0ff);
+      }
+    } catch {
+      // Fallback: just set whole text to default tint if character tinting fails
+      this.helpBmp.tint = 0xe8e0f0;
+    }
   }
 
   private formatResources(res: PlayerResources): string {

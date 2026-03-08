@@ -22,10 +22,6 @@ const OLD_UI_SPRITES = [
   'cursor_valid.png',
   'cursor_invalid.png',
   'cursor_2x2.png',
-  'arrow_right.png',
-  'arrow_left.png',
-  'arrow_up.png',
-  'arrow_down.png',
   'favicon.png',
 ];
 

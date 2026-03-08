@@ -31,6 +31,7 @@ export class StageManager {
   private cachedComplete = false;
   private mode: GameMode = 'stages';
   private tutorialStage: TutorialStage | null = null;
+  private tutorialChecksComplete = new Set<string>();
 
   constructor(simulation: SimulationRef) {
     this.simulation = simulation;
@@ -49,10 +50,29 @@ export class StageManager {
     this.stageCompleteShown = false;
     this.cachedComplete = false;
     this.currentStage = tutorial.id;
+    this.tutorialChecksComplete.clear();
   }
 
   getTutorialStage(): TutorialStage | null {
     return this.tutorialStage;
+  }
+
+  /** Mark a tutorial check as complete. Returns true if newly completed. */
+  markCheckComplete(checkId: string): boolean {
+    if (this.tutorialChecksComplete.has(checkId)) return false;
+    this.tutorialChecksComplete.add(checkId);
+    return true;
+  }
+
+  getCompletedChecks(): ReadonlySet<string> {
+    return this.tutorialChecksComplete;
+  }
+
+  /** True if this tutorial stage has no objectives and no checks (just press Enter) */
+  isContinueOnly(): boolean {
+    if (this.mode !== 'tutorial' || !this.tutorialStage) return false;
+    const { checks, objectives } = this.tutorialStage;
+    return (!checks || checks.length === 0) && objectives.length === 0;
   }
 
   /** Called when an item is produced — checks if stage goals are met. */
@@ -106,6 +126,23 @@ export class StageManager {
   isStageComplete(): boolean {
     if (this.mode === 'sandbox') return false;
     if (this.cachedComplete) return true;
+
+    if (this.mode === 'tutorial' && this.tutorialStage) {
+      const { checks, objectives } = this.tutorialStage;
+      // Continue-only stages are never "complete" — they advance on Enter directly
+      if ((!checks || checks.length === 0) && objectives.length === 0) return false;
+      // All checks must pass (if any)
+      if (checks && checks.length > 0) {
+        if (!checks.every((c) => this.tutorialChecksComplete.has(c.id))) return false;
+      }
+      // All objectives must pass (if any)
+      if (objectives.length > 0) {
+        const progress = this.getObjectiveProgress();
+        if (!progress.every((p) => p.produced >= p.required)) return false;
+      }
+      return true;
+    }
+
     const progress = this.getObjectiveProgress();
     return progress.length > 0 && progress.every((p) => p.produced >= p.required);
   }
@@ -171,5 +208,6 @@ export class StageManager {
     this.cachedComplete = false;
     this.objectivesOpen = false;
     this.tutorialStage = null;
+    this.tutorialChecksComplete.clear();
   }
 }
