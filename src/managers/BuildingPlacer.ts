@@ -1,16 +1,14 @@
 import Phaser from 'phaser';
 import { TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, BUILDING_COSTS, THEME } from '../config';
-import { Building, BuildingType, PlayerResources, TerrainType } from '../types';
+import { Building, BuildingType, Direction, PlayerResources, TerrainType } from '../types';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
 import { QUARRIABLE_TERRAIN } from '../data/terrain';
-import { canAfford, deductCost } from '../utils';
+import { canAfford, deductCost, rotateDirection } from '../utils';
 
 /**
  * Manages building placement: ghost preview sprite, placement validation,
  * and building creation. Owns ghost sprite and rotation state.
  */
-/** Side order used for rotation mapping: local side index + rotation = world side */
-const SIDES = ['right', 'down', 'left', 'up'] as const;
 
 export class BuildingPlacer {
   private scene: Phaser.Scene;
@@ -53,14 +51,14 @@ export class BuildingPlacer {
 
     const def = BUILDING_DEFINITIONS[selectedBuilding];
     this.ghostSprite = this.scene.add.sprite(0, 0, 'sprites', selectedBuilding);
-    this.ghostSprite.setOrigin(0, 0);
+    this.ghostSprite.setOrigin(0.5, 0.5);
     this.ghostSprite.setAlpha(0.6);
     this.ghostSprite.setDepth(50);
     this.ghostSprite.setDisplaySize(def.width * TILE_SIZE, def.height * TILE_SIZE);
     this.ghostSprite.setAngle(this.ghostRotation * 90);
 
-    // Create graphics for output direction arrows
-    if (def.outputSides.length > 0) {
+    // Create graphics for output direction arrows (skip omnidirectional buildings like chest)
+    if (def.outputSides.length > 0 && def.outputSides.length < 4) {
       this.arrowGraphics = this.scene.add.graphics();
       this.arrowGraphics.setDepth(51);
     }
@@ -84,17 +82,16 @@ export class BuildingPlacer {
     const h = def.height * TILE_SIZE;
 
     this.ghostSprite.setPosition(x + w / 2, y + h / 2);
-    this.ghostSprite.setOrigin(0.5, 0.5);
     this.ghostSprite.setTint(canPlace ? THEME.ghost.valid : THEME.ghost.invalid);
 
     // Draw output direction arrows
     if (this.arrowGraphics) {
       this.arrowGraphics.clear();
-      this.arrowGraphics.fillStyle(0xffdd00, 0.9); // yellow
+      const arrowColor = canPlace ? 0xffdd00 : THEME.ghost.invalid;
+      this.arrowGraphics.fillStyle(arrowColor, 0.9);
 
       for (const localSide of def.outputSides) {
-        const localIdx = SIDES.indexOf(localSide as (typeof SIDES)[number]);
-        const worldSide = SIDES[(localIdx + this.ghostRotation) % 4];
+        const worldSide = rotateDirection(localSide as Direction, this.ghostRotation);
         this.drawArrow(x, y, w, h, worldSide);
       }
     }
@@ -255,8 +252,9 @@ export class BuildingPlacer {
   }
 
   /** Draw a pixel-art arrow (shaft + triangular head) outside the building edge */
-  private drawArrow(bx: number, by: number, bw: number, bh: number, direction: string): void {
-    const g = this.arrowGraphics!;
+  private drawArrow(bx: number, by: number, bw: number, bh: number, direction: Direction): void {
+    if (!this.arrowGraphics) return;
+    const g = this.arrowGraphics;
     const gap = 2; // gap past building edge (clears cursor stroke)
     const shaftLen = 6;
     const shaftThick = 4;
