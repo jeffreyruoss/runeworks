@@ -19,6 +19,8 @@ npm run dev       # Start dev server on port 3000 (auto-opens browser)
 npm run build     # TypeScript compile + Vite production build to /dist
 npm run preview   # Preview production build locally
 npm run sprites   # Regenerate sprite atlas from ASCII definitions
+npm test          # Run unit & simulation tests (vitest)
+npm run test:watch # Run tests in watch mode during development
 ```
 
 ## Architecture
@@ -88,6 +90,34 @@ https://aistudio.google.com/usage?timeRange=last-28-days&project=gen-lang-client
 - Output: `public/packed_assets/` (generated, gitignored)
 - Config: `fonts.yaml` (bitmap font specs), `ui.yaml` (UI atlas with 9-slice borders)
 - Vite plugin: `processAssetsDev` / `processAssetsProd` in `vite.config.ts`
+
+## Test Architecture
+
+Tests use **Vitest** with `environment: 'node'`. All tests are pure logic — no Phaser mocks needed.
+
+```
+tests/
+├── unit/                          # Pure function & data validation tests
+│   ├── utils.test.ts              # getBufferTotal, rotateDirection, oppositeDirection
+│   ├── utils-extended.test.ts     # addToBuffer, removeFromBuffer, hasIngredients, etc.
+│   ├── recipes.test.ts            # RECIPES data, getRecipe, getRecipesForBuilding
+│   ├── buildings.test.ts          # BUILDING_DEFINITIONS validation
+│   ├── research.test.ts           # RESEARCH_RECIPES, RESEARCH_NODES, getResearchNode
+│   ├── terrain.test.ts            # TERRAIN_TO_ITEM, QUARRIABLE_TERRAIN, display names
+│   ├── persistence.test.ts        # localStorage save/load with mocked storage
+│   └── ResourcePatchManager.test.ts # Patch CRUD, shared pools, depletion
+├── simulation/                    # Simulation engine integration tests
+│   ├── helpers.ts                 # Test factories (createTestBuilding, tickSimulation, etc.)
+│   ├── Simulation.test.ts         # Lifecycle, terrain, speed, tick accumulation, callbacks
+│   ├── production.test.ts         # Quarry, forge, workbench production
+│   ├── transfer.test.ts           # Adjacent transfers, round-robin, canAcceptItem
+│   ├── arcaneStudy.test.ts        # RP production, mana gating, research recipes
+│   └── mana.test.ts               # ManaSystem connectivity, BFS, speed multipliers
+└── terrain/
+    └── patchGenerator.test.ts     # PRNG determinism, blob generation, boundaries
+```
+
+**When to add tests:** After adding or modifying any code in `src/utils.ts`, `src/data/`, `src/simulation/`, `src/terrain/`, or `src/Simulation.ts`, run `npm test` and add tests for new behavior.
 
 ## Key Configuration (`src/config.ts`)
 
@@ -282,6 +312,7 @@ Avoid these frequent mistakes:
 After making changes, verify:
 
 ```bash
+npm test                   # All unit & simulation tests pass
 npm run build              # TypeScript compiles without errors
 npm run dev                # Game loads without console errors
 ```
