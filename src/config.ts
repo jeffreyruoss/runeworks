@@ -75,8 +75,8 @@ export const THEME = {
     invalid: 0xff0000,
   },
   buffer: {
-    text: '#ffdd44',
-    bg: '#0d0b1a',
+    text: 0xffdd44,
+    bg: 0x0d0b1a,
   },
   boot: {
     progressBox: 0x1a1830,

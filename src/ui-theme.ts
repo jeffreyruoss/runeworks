@@ -54,6 +54,9 @@ export const uiTheme: ThemeConfig = {
   },
 };
 
+// Palette shorthand — use C.active, C.muted, etc. instead of hardcoded hex
+export const C = uiTheme.palette;
+
 // UI atlas key and font names for use in manual bitmapText calls
 export const UI_ATLAS = 'mana_soul';
 export const FONT_SM = 'mana_roots'; // Smallest — good for HUD text

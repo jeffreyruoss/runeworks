@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import { FONT_SM, UI_ATLAS } from '../ui-theme';
+import { FONT_SM, UI_ATLAS, C } from '../ui-theme';
+import { getViewport } from '../utils';
 
 /**
  * Inventory modal panel. Currently a placeholder.
@@ -17,7 +18,7 @@ export class InventoryPanel {
   }
 
   private createPanel(scene: Phaser.Scene): Phaser.GameObjects.Container {
-    const vp = (scene as any).viewport as { width: number; height: number };
+    const vp = getViewport(scene);
     const container = scene.add.container(Math.floor(vp.width / 2), Math.floor(vp.height / 2));
     container.setDepth(1000);
     container.setVisible(false);
@@ -38,12 +39,12 @@ export class InventoryPanel {
 
     const title = scene.add.bitmapText(0, top, FONT_SM, 'INVENTORY');
     title.setOrigin(0.5, 0);
-    title.setTint(0xe8e0f0);
+    title.setTint(C.light);
     container.add(title);
 
     const placeholder = scene.add.bitmapText(0, top + 20, FONT_SM, 'Coming soon...');
     placeholder.setOrigin(0.5, 0);
-    placeholder.setTint(0x605880);
+    placeholder.setTint(C.muted);
     container.add(placeholder);
 
     const hint = scene.add.bitmapText(0, top + contentH, FONT_SM, 'Press I or X to close');

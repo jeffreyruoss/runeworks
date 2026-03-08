@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { UiScene, ConstraintMode } from 'phaser-pixui';
 import { TILE_SIZE, CANVAS_WIDTH, CANVAS_HEIGHT, THEME } from '../config';
 import { GameMode } from '../types';
-import { uiTheme, FONT_SM, FONT_MD, FONT_LG } from '../ui-theme';
+import { uiTheme, FONT_SM, FONT_MD, FONT_LG, C } from '../ui-theme';
 
 interface ModeOption {
   mode: GameMode | 'pixui_demo';
@@ -61,7 +61,7 @@ export class ModeSelectScene extends UiScene {
     // Title — bitmap text for crisp rendering
     const title = this.add.bitmapText(cx, cy - 105, FONT_LG, 'RUNEWORKS');
     title.setOrigin(0.5, 0.5);
-    title.setTint(0xe8e0f0);
+    title.setTint(C.light);
 
     const subtitle = this.add.bitmapText(cx, cy - 82, FONT_SM, 'Micro-Factory Builder');
     subtitle.setOrigin(0.5, 0.5);
@@ -77,19 +77,19 @@ export class ModeSelectScene extends UiScene {
 
       const label = this.add.bitmapText(cx, y, FONT_MD, opt.label);
       label.setOrigin(0.5, 0.5);
-      label.setTint(0xb0a8c0);
+      label.setTint(C.secondary);
       this.optionTexts.push(label);
 
       const desc = this.add.bitmapText(cx, y + 18, FONT_SM, opt.description);
       desc.setOrigin(0.5, 0.5);
-      desc.setTint(0x605880);
+      desc.setTint(C.muted);
       this.descTexts.push(desc);
     }
 
     // Selection arrow
     this.arrowText = this.add.bitmapText(0, 0, FONT_MD, '>');
     this.arrowText.setOrigin(0.5, 0.5);
-    this.arrowText.setTint(0x4af0ff);
+    this.arrowText.setTint(C.active);
 
     this.updateSelection();
 
@@ -101,7 +101,7 @@ export class ModeSelectScene extends UiScene {
       'E/D: Navigate    Space/Enter: Select'
     );
     hint.setOrigin(0.5, 0.5);
-    hint.setTint(0x605880);
+    hint.setTint(C.muted);
 
     // Input
     this.input.keyboard!.on('keydown', this.handleKey, this);
@@ -129,8 +129,8 @@ export class ModeSelectScene extends UiScene {
 
     for (let i = 0; i < this.optionTexts.length; i++) {
       const selected = i === this.selectedIndex;
-      this.optionTexts[i].setTint(selected ? 0x4af0ff : 0xb0a8c0);
-      this.descTexts[i].setTint(selected ? 0x88d8e8 : 0x605880);
+      this.optionTexts[i].setTint(selected ? C.active : C.secondary);
+      this.descTexts[i].setTint(selected ? 0x88d8e8 : C.muted);
     }
 
     const y = this.optionStartY + this.selectedIndex * this.optionSpacing;

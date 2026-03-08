@@ -7,11 +7,11 @@
 
 ## NEXT
 
+dev mode
+
 Let's improve the code modularity and ensure it is Claude-Code-Friendly. If we need to overhaul to optimize modularity let's do that. Use agent team.
 
 ## Code review, cleanup, tests
-
-Code review for UI design/images/etc
 
 Update tests
 

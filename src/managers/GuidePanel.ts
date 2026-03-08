@@ -6,7 +6,8 @@ import { RECIPES } from '../data/recipes';
 import { RESEARCH_RECIPES } from '../data/research';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
 import { BuildingType, ItemType, TerrainType } from '../types';
-import { FONT_SM, UI_ATLAS } from '../ui-theme';
+import { FONT_SM, UI_ATLAS, C } from '../ui-theme';
+import { getViewport } from '../utils';
 
 /** Items that have 8x8 sprites in the atlas */
 const ITEM_SPRITES: Set<ItemType> = new Set([
@@ -53,7 +54,7 @@ export class GuidePanel {
   }
 
   private createPanel(): void {
-    const vp = (this.scene as any).viewport as { width: number; height: number };
+    const vp = getViewport(this.scene);
     this.container = this.scene.add.container(Math.floor(vp.width / 2), Math.floor(vp.height / 2));
     this.container.setDepth(1000);
     this.container.setVisible(false);
@@ -75,7 +76,7 @@ export class GuidePanel {
 
     const title = this.scene.add.bitmapText(0, top, FONT_SM, 'GUIDE');
     title.setOrigin(0.5, 0);
-    title.setTint(0xe8e0f0);
+    title.setTint(C.light);
     this.container.add(title);
 
     const colX = [left, left + 186, left + 366];
@@ -118,7 +119,7 @@ export class GuidePanel {
       this.container.add(nameText);
 
       const sourceText = this.scene.add.bitmapText(x + 14, rowY + 12, FONT_SM, source);
-      sourceText.setTint(0x605880);
+      sourceText.setTint(C.muted);
       this.container.add(sourceText);
 
       rowY += 22;
@@ -164,7 +165,7 @@ export class GuidePanel {
       const recipeStr = `${inputStr} -> ${outputCount} (${timeStr}) [${buildingName}]`;
 
       const recipeText = this.scene.add.bitmapText(x + 14, rowY + 12, FONT_SM, recipeStr);
-      recipeText.setTint(0x605880);
+      recipeText.setTint(C.muted);
       this.container.add(recipeText);
 
       rowY += 24;
@@ -173,7 +174,7 @@ export class GuidePanel {
 
   private createBuildingsSection(x: number, y: number): void {
     const header = this.scene.add.bitmapText(x, y, FONT_SM, 'BUILDINGS');
-    header.setTint(0x44ff88);
+    header.setTint(C.valid);
     this.container.add(header);
 
     const divider = this.scene.add.graphics();
@@ -221,7 +222,7 @@ export class GuidePanel {
         FONT_SM,
         `${sizeStr}  Cost: ${costStr}`
       );
-      detailText.setTint(0x605880);
+      detailText.setTint(C.muted);
       this.container.add(detailText);
 
       let ioStr = '';
@@ -242,7 +243,7 @@ export class GuidePanel {
       }
 
       const ioText = this.scene.add.bitmapText(x + 18, rowY + 22, FONT_SM, ioStr);
-      ioText.setTint(0x605880);
+      ioText.setTint(C.muted);
       this.container.add(ioText);
 
       rowY += 34;
@@ -268,7 +269,7 @@ export class GuidePanel {
         FONT_SM,
         `${recipe.inputCount} ${ITEM_DISPLAY_NAMES[recipe.input] || recipe.input} -> ${recipe.rpYield} RP (${timeStr})`
       );
-      text.setTint(0x605880);
+      text.setTint(C.muted);
       this.container.add(text);
       rowY += 14;
     }

@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { THEME } from '../config';
-import { FONT_SM } from '../ui-theme';
+import { FONT_SM, C } from '../ui-theme';
+import { getViewport } from '../utils';
 
 const LINE_H = 14;
 const PAD_X = 16;
@@ -19,7 +20,7 @@ export class TutorialOverlay {
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
-    const vp = (scene as any).viewport as { width: number; height: number };
+    const vp = getViewport(scene);
     this.container = scene.add.container(Math.floor(vp.width / 2), 0);
     this.container.setDepth(900);
     this.container.setVisible(false);
@@ -40,7 +41,7 @@ export class TutorialOverlay {
     const key = lines.join('\n');
 
     // Always reposition container (viewport may have changed on resize)
-    const vp = (this.scene as any).viewport as { width: number; height: number };
+    const vp = getViewport(this.scene);
     const boxH = lines.length * LINE_H + PAD_Y * 2;
     this.container.setPosition(Math.floor(vp.width / 2), vp.height - 32 - boxH / 2);
 
@@ -58,13 +59,13 @@ export class TutorialOverlay {
       t.setOrigin(0.5, 0.5);
       // First line cyan, objective lines ([x]/[ ]) green/grey, rest muted
       if (i === 0) {
-        t.setTint(0x4af0ff);
+        t.setTint(C.active);
       } else if (lines[i].startsWith('[x]')) {
-        t.setTint(0x44ff88);
+        t.setTint(C.valid);
       } else if (lines[i].startsWith('[ ]')) {
-        t.setTint(0xe8e0f0);
+        t.setTint(C.light);
       } else {
-        t.setTint(0xb0a8c0);
+        t.setTint(C.secondary);
       }
       texts.push(t);
     }

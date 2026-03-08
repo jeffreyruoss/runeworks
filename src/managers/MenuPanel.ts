@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { THEME } from '../config';
-import { FONT_SM, UI_ATLAS } from '../ui-theme';
+import { FONT_SM, UI_ATLAS, C } from '../ui-theme';
+import { getViewport } from '../utils';
 
 const REGULAR_COMMANDS = [
   'ESDF - Move cursor',
@@ -46,7 +47,7 @@ export class MenuPanel {
   }
 
   private createPanel(scene: Phaser.Scene): Phaser.GameObjects.Container {
-    const vp = (scene as any).viewport as { width: number; height: number };
+    const vp = getViewport(scene);
     const container = scene.add.container(Math.floor(vp.width / 2), Math.floor(vp.height / 2));
     container.setDepth(1000);
     container.setVisible(false);
@@ -74,7 +75,7 @@ export class MenuPanel {
     // Title
     const title = scene.add.bitmapText(0, top, FONT_SM, 'KEY COMMANDS');
     title.setOrigin(0.5, 0);
-    title.setTint(0xe8e0f0);
+    title.setTint(C.light);
     container.add(title);
 
     // Column layout
@@ -85,7 +86,7 @@ export class MenuPanel {
       let y = startY;
       const headerText = scene.add.bitmapText(x, y, FONT_SM, header);
       headerText.setOrigin(0.5, 0);
-      headerText.setTint(0xb0a8c0);
+      headerText.setTint(C.secondary);
       container.add(headerText);
       y += headerH + 2;
 
@@ -112,7 +113,7 @@ export class MenuPanel {
     // Close hint at bottom
     const closeHint = scene.add.bitmapText(0, top + contentH, FONT_SM, 'Press K or X to close');
     closeHint.setOrigin(0.5, 1);
-    closeHint.setTint(0x605880);
+    closeHint.setTint(C.muted);
     container.add(closeHint);
 
     return container;

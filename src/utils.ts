@@ -175,6 +175,16 @@ export function getCursorInfo(
   return null;
 }
 
+/** Get the pixui viewport dimensions from a ResponsiveScene or UiScene */
+export function getViewport(scene: object): { width: number; height: number } {
+  return (scene as Record<string, unknown>).viewport as { width: number; height: number };
+}
+
+/** Convert a 0xRRGGBB hex number to a '#rrggbb' CSS color string */
+export function hexToCss(hex: number): string {
+  return '#' + hex.toString(16).padStart(6, '0');
+}
+
 /** Resource keys on PlayerResources */
 const RESOURCE_KEYS: Set<string> = new Set(['stone', 'wood', 'iron', 'clay', 'crystal_shard']);
 

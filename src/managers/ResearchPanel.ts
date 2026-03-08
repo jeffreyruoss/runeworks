@@ -3,7 +3,8 @@ import { TICKS_PER_SECOND } from '../config';
 import { RESEARCH_NODES, RESEARCH_RECIPES, ResearchBranch, ResearchNode } from '../data/research';
 import { ITEM_DISPLAY_NAMES } from '../data/stages';
 import { ResearchManager } from './ResearchManager';
-import { FONT_SM, UI_ATLAS } from '../ui-theme';
+import { FONT_SM, UI_ATLAS, C } from '../ui-theme';
+import { getViewport } from '../utils';
 
 interface NodeDisplay {
   node: ResearchNode;
@@ -68,20 +69,20 @@ export class ResearchPanel {
 
       if (state === 'unlocked') {
         display.statusText.setText('[x]');
-        display.statusText.setTint(0x44ff88);
+        display.statusText.setTint(C.valid);
         display.text.setTint(0x88ff88);
       } else if (state === 'available') {
         display.statusText.setText('[ ]');
-        display.statusText.setTint(0xe8e0f0);
-        display.text.setTint(0xe8e0f0);
+        display.statusText.setTint(C.light);
+        display.text.setTint(C.light);
       } else {
         display.statusText.setText('[-]');
-        display.statusText.setTint(0x605880);
-        display.text.setTint(0x605880);
+        display.statusText.setTint(C.muted);
+        display.text.setTint(C.muted);
       }
 
       if (i === this.selectedIndex) {
-        display.text.setTint(state === 'unlocked' ? 0x88ffaa : 0xffdd44);
+        display.text.setTint(state === 'unlocked' ? 0x88ffaa : C.paused);
       }
     }
 
@@ -93,7 +94,7 @@ export class ResearchPanel {
   }
 
   private createPanel(): void {
-    const vp = (this.scene as any).viewport as { width: number; height: number };
+    const vp = getViewport(this.scene);
     this.container = this.scene.add.container(Math.floor(vp.width / 2), Math.floor(vp.height / 2));
     this.container.setDepth(1000);
     this.container.setVisible(false);
@@ -125,14 +126,14 @@ export class ResearchPanel {
     this.container.add(this.rpText);
 
     this.selectionIndicator = this.scene.add.bitmapText(0, 0, FONT_SM, '>');
-    this.selectionIndicator.setTint(0xffdd44);
+    this.selectionIndicator.setTint(C.paused);
     this.selectionIndicator.setVisible(false);
     this.container.add(this.selectionIndicator);
 
     const colX = [left, left + 176, left + 356];
     const topY = top + 32;
 
-    this.createBranch(colX[0], topY, 'BUILDINGS', 'buildings', 0x44ff88);
+    this.createBranch(colX[0], topY, 'BUILDINGS', 'buildings', C.valid);
     this.createBranch(colX[1], topY, 'RECIPES', 'recipes', 0xffaa44);
     this.createBranch(colX[2], topY, 'UPGRADES', 'upgrades', 0x88aaff);
     this.createRecipeReference(left, topY + 180);
@@ -169,7 +170,7 @@ export class ResearchPanel {
 
     for (const node of branchNodes) {
       const statusText = this.scene.add.bitmapText(x, rowY, FONT_SM, '[-]');
-      statusText.setTint(0x605880);
+      statusText.setTint(C.muted);
       this.container.add(statusText);
 
       const nameText = this.scene.add.bitmapText(
@@ -178,12 +179,12 @@ export class ResearchPanel {
         FONT_SM,
         `${node.name} (${node.cost} RP)`
       );
-      nameText.setTint(0xb0a8c0);
+      nameText.setTint(C.secondary);
       this.container.add(nameText);
 
       const effectStr = this.getEffectDescription(node);
       const effectText = this.scene.add.bitmapText(x + 26, rowY + 14, FONT_SM, effectStr);
-      effectText.setTint(0x605880);
+      effectText.setTint(C.muted);
       this.container.add(effectText);
 
       if (node.requires) {
@@ -227,7 +228,7 @@ export class ResearchPanel {
         FONT_SM,
         `${recipe.inputCount} ${ITEM_DISPLAY_NAMES[recipe.input] || recipe.input} -> ${recipe.rpYield} RP (${timeStr})`
       );
-      text.setTint(0x605880);
+      text.setTint(C.muted);
       this.container.add(text);
       rowY += 14;
     }

@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { UiScene, ConstraintMode, BitmapText } from 'phaser-pixui';
-import { CANVAS_HEIGHT, BUILDING_COSTS, RESOURCE_DISPLAY_NAMES } from '../config';
+import { CANVAS_HEIGHT, BUILDING_COSTS, RESOURCE_DISPLAY_NAMES, THEME } from '../config';
 import { GameUIState, PlayerResources } from '../types';
 
 import { ObjectivesPanel } from '../managers/ObjectivesPanel';
@@ -12,7 +12,7 @@ import { MenuPanel } from '../managers/MenuPanel';
 import { InventoryPanel } from '../managers/InventoryPanel';
 import { BuildPanel } from '../managers/BuildPanel';
 import { canAfford } from '../utils';
-import { uiTheme, FONT_SM } from '../ui-theme';
+import { uiTheme, FONT_SM, C } from '../ui-theme';
 
 export class UIScene extends UiScene {
   // HUD text components (pixui BitmapText)
@@ -70,7 +70,7 @@ export class UIScene extends UiScene {
       Math.floor(barH / 2),
       vp.width,
       barH,
-      0x0a0816,
+      THEME.hud.bg,
       0.92
     );
     this.topBarBg.setOrigin(0.5, 0.5);
@@ -81,7 +81,7 @@ export class UIScene extends UiScene {
       vp.height - Math.floor(barH / 2),
       vp.width,
       barH,
-      0x0a0816,
+      THEME.hud.bg,
       0.92
     );
     this.bottomBarBg.setOrigin(0.5, 0.5);
@@ -92,7 +92,7 @@ export class UIScene extends UiScene {
       y: pad,
       font: FONT_SM,
       text: '',
-      tint: 0xe8e0f0,
+      tint: C.light,
     });
 
     this.simStatusBmp = this.insert.top.bitmapText({
@@ -100,7 +100,7 @@ export class UIScene extends UiScene {
       y: pad,
       font: FONT_SM,
       text: '> 1x',
-      tint: 0x4af0ff,
+      tint: C.active,
     });
 
     this.resourcesBmp = this.insert.topRight.bitmapText({
@@ -108,7 +108,7 @@ export class UIScene extends UiScene {
       y: pad,
       font: FONT_SM,
       text: '',
-      tint: 0xb0a8c0,
+      tint: C.secondary,
     });
 
     this.itemsBmp = this.insert.topLeft.bitmapText({
@@ -116,7 +116,7 @@ export class UIScene extends UiScene {
       y: pad + 14,
       font: FONT_SM,
       text: '',
-      tint: 0xffdd44,
+      tint: C.paused,
     });
 
     // --- Bottom bar text ---
@@ -136,7 +136,7 @@ export class UIScene extends UiScene {
       font: FONT_SM,
       size: 15,
       text: '',
-      tint: 0xe8e0f0,
+      tint: C.light,
     });
 
     // Update bar positions on resize
@@ -184,7 +184,7 @@ export class UIScene extends UiScene {
   private onGameStateChanged(state: GameUIState): void {
     // Cursor info
     this.cursorInfoBmp.text = state.cursorInfo ?? '';
-    this.cursorInfoBmp.tint = 0xe8e0f0;
+    this.cursorInfoBmp.tint = C.light;
 
     // Resources
     this.resourcesBmp.text = this.formatResources(state.playerResources);
@@ -196,7 +196,7 @@ export class UIScene extends UiScene {
       const costStr = this.formatCost(cost);
       const displayName = state.selectedBuilding.replace(/_/g, ' ').toUpperCase();
       this.selectedBmp.text = `${displayName} (${costStr})`;
-      this.selectedBmp.tint = affordable ? 0x44ff88 : 0xff5566;
+      this.selectedBmp.tint = affordable ? C.valid : C.invalid;
     } else if (state.cursorOverBuilding) {
       this.selectedBmp.text = '[X] Deconstruct';
       this.selectedBmp.tint = 0xff8888;
@@ -223,10 +223,10 @@ export class UIScene extends UiScene {
     // Sim status
     if (state.simPaused) {
       this.simStatusBmp.text = `|| ${state.simSpeed}x${rpStr}${manaStr}`;
-      this.simStatusBmp.tint = 0xffdd44;
+      this.simStatusBmp.tint = C.paused;
     } else {
       this.simStatusBmp.text = `> ${state.simSpeed}x${rpStr}${manaStr}`;
-      this.simStatusBmp.tint = 0x4af0ff;
+      this.simStatusBmp.tint = C.active;
     }
 
     // Items produced
@@ -309,13 +309,13 @@ export class UIScene extends UiScene {
     // Apply per-character tinting via underlying Phaser BitmapText
     try {
       const phaser = this.helpBmp.internal;
-      phaser.setCharacterTint(0, -1, false, 0xe8e0f0);
+      phaser.setCharacterTint(0, -1, false, C.light);
       for (const [start, len] of cyan) {
-        phaser.setCharacterTint(start, len, false, 0x4af0ff);
+        phaser.setCharacterTint(start, len, false, C.active);
       }
     } catch {
       // Fallback: just set whole text to default tint if character tinting fails
-      this.helpBmp.tint = 0xe8e0f0;
+      this.helpBmp.tint = C.light;
     }
   }
 

@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { BuildingType } from '../types';
-import { FONT_SM, UI_ATLAS } from '../ui-theme';
+import { FONT_SM, UI_ATLAS, C } from '../ui-theme';
+import { getViewport } from '../utils';
 
 interface BuildEntry {
   type: BuildingType;
@@ -46,7 +47,7 @@ export class BuildPanel {
   }
 
   private createPanel(scene: Phaser.Scene): Phaser.GameObjects.Container {
-    const vp = (scene as any).viewport as { width: number; height: number };
+    const vp = getViewport(scene);
     const container = scene.add.container(Math.floor(vp.width / 2), Math.floor(vp.height / 2));
     container.setDepth(1000);
     container.setVisible(false);
@@ -74,7 +75,7 @@ export class BuildPanel {
 
     const title = scene.add.bitmapText(0, top, FONT_SM, 'BUILD');
     title.setOrigin(0.5, 0);
-    title.setTint(0x4af0ff);
+    title.setTint(C.active);
     container.add(title);
 
     const startY = top + titleH;
@@ -83,7 +84,7 @@ export class BuildPanel {
 
     const hint = scene.add.bitmapText(0, top + contentH - 2, FONT_SM, 'B or X to close');
     hint.setOrigin(0.5, 1);
-    hint.setTint(0x605880);
+    hint.setTint(C.muted);
     container.add(hint);
 
     return container;
@@ -106,11 +107,11 @@ export class BuildPanel {
       parent.add(sprite);
 
       const keyText = scene.add.bitmapText(x + 18, rowY, FONT_SM, entry.key);
-      keyText.setTint(0x4af0ff);
+      keyText.setTint(C.active);
       parent.add(keyText);
 
       const nameText = scene.add.bitmapText(x + 30, rowY, FONT_SM, entry.name);
-      nameText.setTint(0xe8e0f0);
+      nameText.setTint(C.light);
       parent.add(nameText);
 
       this.entryGroups.set(entry.type, [sprite, keyText, nameText]);

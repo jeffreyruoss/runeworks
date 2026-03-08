@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { TILE_SIZE, THEME } from '../config';
 import { Building } from '../types';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
-import { getBufferTotal } from '../utils';
+import { getBufferTotal, hexToCss } from '../utils';
 
 /**
  * Manages buffer indicator text overlays on buildings.
@@ -39,8 +39,8 @@ export class BufferIndicators {
         if (!indicator) {
           indicator = this.scene.add.text(x, y, text, {
             fontSize: '8px',
-            color: THEME.buffer.text,
-            backgroundColor: THEME.buffer.bg,
+            color: hexToCss(THEME.buffer.text),
+            backgroundColor: hexToCss(THEME.buffer.bg),
             padding: { x: 1, y: 0 },
           });
           indicator.setOrigin(0.5, 1);

@@ -3,7 +3,8 @@ import { THEME } from '../config';
 import { GameUIState } from '../types';
 import { getStage, ITEM_DISPLAY_NAMES, PRODUCTION_CHAINS } from '../data/stages';
 import { TUTORIALS } from '../data/tutorials';
-import { FONT_SM, UI_ATLAS } from '../ui-theme';
+import { FONT_SM, UI_ATLAS, C } from '../ui-theme';
+import { getViewport } from '../utils';
 
 const PAD_X = 20;
 const PAD_Y = 16;
@@ -41,7 +42,7 @@ export class ObjectivesPanel {
   }
 
   private createObjectivesPanel(): void {
-    const vp = (this.scene as any).viewport as { width: number; height: number };
+    const vp = getViewport(this.scene);
     this.objectivesContainer = this.scene.add.container(
       Math.floor(vp.width / 2),
       Math.floor(vp.height / 2)
@@ -58,7 +59,7 @@ export class ObjectivesPanel {
     // Title
     this.stageTitleText = this.scene.add.bitmapText(0, 0, FONT_SM, '');
     this.stageTitleText.setOrigin(0.5, 0);
-    this.stageTitleText.setTint(0xe8e0f0);
+    this.stageTitleText.setTint(C.light);
     this.objectivesContainer.add(this.stageTitleText);
 
     // Divider
@@ -68,7 +69,7 @@ export class ObjectivesPanel {
     // Objective rows
     for (let i = 0; i < MAX_OBJ; i++) {
       const objText = this.scene.add.bitmapText(0, 0, FONT_SM, '');
-      objText.setTint(0xb0a8c0);
+      objText.setTint(C.secondary);
       this.objectiveTexts.push(objText);
       this.objectivesContainer.add(objText);
 
@@ -81,7 +82,7 @@ export class ObjectivesPanel {
     // Stage complete indicator
     this.stageCompleteText = this.scene.add.bitmapText(0, 0, FONT_SM, 'STAGE COMPLETE!');
     this.stageCompleteText.setOrigin(0.5, 0);
-    this.stageCompleteText.setTint(0x44ff88);
+    this.stageCompleteText.setTint(C.valid);
     this.stageCompleteText.setVisible(false);
     this.objectivesContainer.add(this.stageCompleteText);
 
@@ -93,7 +94,7 @@ export class ObjectivesPanel {
   }
 
   private createStageCompletePanel(): void {
-    const vp = (this.scene as any).viewport as { width: number; height: number };
+    const vp = getViewport(this.scene);
     this.stageCompleteContainer = this.scene.add.container(
       Math.floor(vp.width / 2),
       Math.floor(vp.height / 2)
@@ -108,7 +109,7 @@ export class ObjectivesPanel {
 
     const bg = this.scene.add.nineslice(0, 0, UI_ATLAS, 'frame_bright', panelW, panelH);
     bg.setOrigin(0.5, 0.5);
-    bg.setTint(0x44ff88);
+    bg.setTint(C.valid);
     this.stageCompleteContainer.add(bg);
 
     const top = -panelH / 2 + PAD_Y;
@@ -116,24 +117,24 @@ export class ObjectivesPanel {
 
     const title = this.scene.add.bitmapText(0, y, FONT_SM, 'STAGE COMPLETE!');
     title.setOrigin(0.5, 0);
-    title.setTint(0x44ff88);
+    title.setTint(C.valid);
     this.stageCompleteContainer.add(title);
     y += 26;
 
     this.stageCompleteNameText = this.scene.add.bitmapText(0, y, FONT_SM, '');
     this.stageCompleteNameText.setOrigin(0.5, 0);
-    this.stageCompleteNameText.setTint(0xe8e0f0);
+    this.stageCompleteNameText.setTint(C.light);
     this.stageCompleteContainer.add(this.stageCompleteNameText);
     y += 20;
 
     this.stageCompleteNextText = this.scene.add.bitmapText(0, y, FONT_SM, '');
     this.stageCompleteNextText.setOrigin(0.5, 0);
-    this.stageCompleteNextText.setTint(0xb0a8c0);
+    this.stageCompleteNextText.setTint(C.secondary);
     this.stageCompleteContainer.add(this.stageCompleteNextText);
 
     const hint = this.scene.add.bitmapText(0, top + contentH, FONT_SM, '[Enter] Continue');
     hint.setOrigin(0.5, 1);
-    hint.setTint(0x4af0ff);
+    hint.setTint(C.active);
     this.stageCompleteContainer.add(hint);
   }
 
@@ -160,7 +161,7 @@ export class ObjectivesPanel {
         const check = done ? '[x]' : '[ ]';
         const name = ITEM_DISPLAY_NAMES[obj.item] || obj.item;
         this.objectiveTexts[i].setText(`${check} ${name}: ${obj.produced}/${obj.required}`);
-        this.objectiveTexts[i].setTint(done ? 0x44ff88 : 0xb0a8c0);
+        this.objectiveTexts[i].setTint(done ? C.valid : C.secondary);
         this.objectiveTexts[i].setVisible(true);
 
         const chain = PRODUCTION_CHAINS[obj.item] || '';
