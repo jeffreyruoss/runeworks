@@ -50,7 +50,6 @@ export class GameScene extends ResponsiveScene {
 
   // UI state
   private showAllBuffers = false;
-  private buildModeActive = false;
 
   // Mode state
   private gameMode: GameMode = 'stages';
@@ -93,7 +92,7 @@ export class GameScene extends ResponsiveScene {
     this.simulation = new Simulation();
     this.stageManager = new StageManager(this.simulation);
     this.stageManager.setMode(this.gameMode);
-    this.panelManager = new PanelManager(this.stageManager);
+    this.panelManager = new PanelManager();
     this.researchManager = new ResearchManager();
     this.registry.set('researchManager', this.researchManager);
     this.setupSimulationCallbacks();
@@ -223,10 +222,9 @@ export class GameScene extends ResponsiveScene {
     if (startingResources) Object.assign(this.playerResources, startingResources);
     this.cursor = { x: Math.floor(GRID_WIDTH / 2), y: Math.floor(GRID_HEIGHT / 2) };
     this.selectedBuilding = null;
-    this.buildModeActive = false;
     this.showAllBuffers = false;
     this.buildingPlacer.clearSelection();
-    this.panelManager.closeAll();
+    this.panelManager.close();
     this.simulation.setBuildings(this.buildingManager.getBuildings());
     this.simulation.start();
     this.updateCursor();
@@ -242,11 +240,11 @@ export class GameScene extends ResponsiveScene {
   // --- Input handlers ---
 
   private handleMoveCursor(dx: number, dy: number): void {
-    if (this.panelManager.isResearchOpen()) {
+    if (this.panelManager.isOpen('research')) {
       this.events.emit('researchNavigate', dx, dy);
       return;
     }
-    if (this.buildModeActive) {
+    if (this.panelManager.isOpen('build')) {
       if (dx === 1 && dy === 0) {
         this.selectBuildingAndCloseBuildMode('forge');
       }
@@ -289,12 +287,12 @@ export class GameScene extends ResponsiveScene {
   }
 
   private handleSelectBuilding(type: BuildingType): void {
-    if (!this.buildModeActive) return;
+    if (!this.panelManager.isOpen('build')) return;
     this.selectBuildingAndCloseBuildMode(type);
   }
 
   private handleCycleRecipe(): void {
-    if (this.buildModeActive) {
+    if (this.panelManager.isOpen('build')) {
       this.selectBuildingAndCloseBuildMode('chest');
       return;
     }
@@ -303,7 +301,7 @@ export class GameScene extends ResponsiveScene {
 
   private selectBuildingAndCloseBuildMode(type: BuildingType): void {
     if (!this.isBuildingAvailable(type)) return;
-    this.buildModeActive = false;
+    this.panelManager.close();
     this.selectBuilding(type);
   }
 
@@ -322,7 +320,7 @@ export class GameScene extends ResponsiveScene {
   }
 
   private toggleBuildMode(): void {
-    this.buildModeActive = !this.buildModeActive;
+    if (!this.panelManager.toggle('build')) return;
     this.emitUIUpdate();
   }
 
@@ -342,12 +340,7 @@ export class GameScene extends ResponsiveScene {
   }
 
   private handleCancel(): void {
-    if (this.buildModeActive) {
-      this.buildModeActive = false;
-      this.emitUIUpdate();
-      return;
-    }
-    const closed = this.panelManager.closeTopPanel();
+    const closed = this.panelManager.close();
     if (closed) {
       if (closed === 'menu') this.events.emit('menuClosed');
       if (closed === 'inventory') this.events.emit('inventoryToggled', false);
@@ -369,15 +362,15 @@ export class GameScene extends ResponsiveScene {
   }
 
   private toggleMenu(): void {
-    const wasOpen = this.panelManager.isMenuOpen();
-    this.panelManager.toggleMenu();
+    const wasOpen = this.panelManager.isOpen('menu');
+    if (!this.panelManager.toggle('menu')) return;
     this.events.emit(wasOpen ? 'menuClosed' : 'menuOpened');
     this.emitUIUpdate();
   }
 
   /** M key: mana_well in build mode, otherwise no-op */
   private handleMKey(): void {
-    if (this.buildModeActive) {
+    if (this.panelManager.isOpen('build')) {
       this.selectBuildingAndCloseBuildMode('mana_well');
     }
   }
@@ -388,23 +381,23 @@ export class GameScene extends ResponsiveScene {
   }
 
   private toggleInventory(): void {
-    const isOpen = this.panelManager.toggleInventory();
-    this.events.emit('inventoryToggled', isOpen);
+    if (!this.panelManager.toggle('inventory')) return;
+    this.events.emit('inventoryToggled', this.panelManager.isOpen('inventory'));
     this.emitUIUpdate();
   }
 
   private toggleGuide(): void {
-    this.panelManager.toggleGuide();
+    if (!this.panelManager.toggle('guide')) return;
     this.emitUIUpdate();
   }
 
   private toggleResearch(): void {
-    this.panelManager.toggleResearch();
+    if (!this.panelManager.toggle('research')) return;
     this.emitUIUpdate();
   }
 
   private handleRotateOrResearch(): void {
-    if (this.panelManager.isResearchOpen()) {
+    if (this.panelManager.isOpen('research')) {
       this.toggleResearch();
       return;
     }
@@ -417,11 +410,11 @@ export class GameScene extends ResponsiveScene {
   }
 
   private toggleObjectives(): void {
-    if (this.buildModeActive) {
+    if (this.panelManager.isOpen('build')) {
       this.selectBuildingAndCloseBuildMode('mana_obelisk');
       return;
     }
-    this.panelManager.toggleObjectives();
+    if (!this.panelManager.toggle('objectives')) return;
     this.emitUIUpdate();
   }
 
@@ -479,7 +472,7 @@ export class GameScene extends ResponsiveScene {
   }
 
   private handleAction(): void {
-    if (this.panelManager.isResearchOpen()) {
+    if (this.panelManager.isOpen('research')) {
       this.events.emit('researchUnlock');
       return;
     }
@@ -656,18 +649,13 @@ export class GameScene extends ResponsiveScene {
       simSpeed: state.speed,
       simTick: state.tickCount,
       itemsProduced: Object.fromEntries(state.itemsProduced),
-      menuOpen: this.panelManager.isMenuOpen(),
-      inventoryOpen: this.panelManager.isInventoryOpen(),
+      activePanel: this.panelManager.getActivePanel(),
       playerResources: this.playerResources,
-      buildModeActive: this.buildModeActive,
-      guideOpen: this.panelManager.isGuideOpen(),
-      objectivesOpen: this.panelManager.isObjectivesOpen(),
       currentStage: this.stageManager.getCurrentStage(),
       stageName: this.stageManager.getCurrentStageName(),
       stageComplete: this.stageManager.isStageComplete(),
       stageCompleteShown: this.stageManager.isStageCompleteShown(),
       objectiveProgress: this.stageManager.getObjectiveProgress(),
-      researchOpen: this.panelManager.isResearchOpen(),
       researchPoints: this.researchManager.getResearchPoints(),
       manaProduction: state.manaProduction,
       manaConsumption: state.manaConsumption,

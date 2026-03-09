@@ -2,6 +2,9 @@
  * Core game types for Runeworks
  */
 
+import type { PanelType } from './managers/PanelManager';
+export type { PanelType };
+
 export type ItemType =
   | 'arcstone'
   | 'sunite'
@@ -124,18 +127,13 @@ export interface GameUIState {
   simSpeed: number;
   simTick: number;
   itemsProduced: Record<string, number>;
-  menuOpen: boolean;
-  inventoryOpen: boolean;
+  activePanel: PanelType | null;
   playerResources: PlayerResources;
-  buildModeActive: boolean;
-  objectivesOpen: boolean;
-  guideOpen: boolean;
   currentStage: number;
   stageName: string;
   stageComplete: boolean;
   stageCompleteShown: boolean;
   objectiveProgress: Array<{ item: ItemType; required: number; produced: number }>;
-  researchOpen: boolean;
   researchPoints: number;
   manaProduction: number;
   manaConsumption: number;

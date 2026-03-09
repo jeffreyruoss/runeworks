@@ -106,7 +106,7 @@ export class InputManager {
 
     // Build mode selection: Q=quarry, W=workbench
     // F (forge) and C (chest) reuse moveCursor/cycleRecipe bindings;
-    // GameScene intercepts them when buildModeActive is true
+    // GameScene intercepts them when build panel is open
     this.keys.Q.on('down', () => cb.selectBuilding('quarry'));
     this.keys.W.on('down', () => cb.selectBuilding('workbench'));
     this.keys.A.on('down', () => cb.selectBuilding('arcane_study'));

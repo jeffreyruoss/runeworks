@@ -27,7 +27,6 @@ export class StageManager {
   private simulation: SimulationRef;
   private currentStage = 1;
   private stageCompleteShown = false;
-  private objectivesOpen = false;
   private cachedComplete = false;
   private mode: GameMode = 'stages';
   private tutorialStage: TutorialStage | null = null;
@@ -154,18 +153,6 @@ export class StageManager {
     return this.currentStage === STAGES.length && this.isStageComplete();
   }
 
-  toggleObjectives(): void {
-    this.objectivesOpen = !this.objectivesOpen;
-  }
-
-  closeObjectives(): void {
-    this.objectivesOpen = false;
-  }
-
-  isObjectivesOpen(): boolean {
-    return this.objectivesOpen;
-  }
-
   isStageCompleteShown(): boolean {
     return this.stageCompleteShown;
   }
@@ -211,7 +198,6 @@ export class StageManager {
     this.currentStage = 1;
     this.stageCompleteShown = false;
     this.cachedComplete = false;
-    this.objectivesOpen = false;
     this.tutorialStage = null;
     this.tutorialChecksComplete.clear();
   }

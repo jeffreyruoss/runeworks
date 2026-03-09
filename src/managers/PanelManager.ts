@@ -1,106 +1,34 @@
-import { StageManager } from './StageManager';
-
-export type PanelType = 'menu' | 'inventory' | 'guide' | 'objectives' | 'research';
+export type PanelType = 'menu' | 'inventory' | 'guide' | 'objectives' | 'research' | 'build';
 
 /**
- * Manages open/close state and mutual exclusion for UI panels.
- * Full-screen panels (guide, objectives) close all others when opened.
+ * Manages modal panel state. Only one panel can be open at a time.
  */
 export class PanelManager {
-  private menuOpen = false;
-  private inventoryOpen = false;
-  private guideOpen = false;
-  private researchOpen = false;
+  private activePanel: PanelType | null = null;
 
-  private stageManager: StageManager;
-
-  constructor(stageManager: StageManager) {
-    this.stageManager = stageManager;
-  }
-
-  isMenuOpen(): boolean {
-    return this.menuOpen;
-  }
-
-  isInventoryOpen(): boolean {
-    return this.inventoryOpen;
-  }
-
-  isGuideOpen(): boolean {
-    return this.guideOpen;
-  }
-
-  isResearchOpen(): boolean {
-    return this.researchOpen;
-  }
-
-  isObjectivesOpen(): boolean {
-    return this.stageManager.isObjectivesOpen();
-  }
-
-  openMenu(): void {
-    this.menuOpen = true;
-  }
-
-  closeMenu(): void {
-    this.menuOpen = false;
-  }
-
-  toggleMenu(): void {
-    this.menuOpen = !this.menuOpen;
-  }
-
-  /** Returns the new inventory open state. */
-  toggleInventory(): boolean {
-    this.inventoryOpen = !this.inventoryOpen;
-    return this.inventoryOpen;
-  }
-
-  toggleGuide(): void {
-    if (!this.guideOpen) this.closeAll();
-    this.guideOpen = !this.guideOpen;
-  }
-
-  toggleResearch(): void {
-    if (!this.researchOpen) this.closeAll();
-    this.researchOpen = !this.researchOpen;
-  }
-
-  toggleObjectives(): void {
-    if (!this.stageManager.isObjectivesOpen()) this.closeAll();
-    this.stageManager.toggleObjectives();
-  }
-
-  /** Close the topmost open panel. Returns which was closed, or null. */
-  closeTopPanel(): PanelType | null {
-    if (this.menuOpen) {
-      this.menuOpen = false;
-      return 'menu';
+  /** Toggle a panel. Blocked if a different panel is already open. Returns true if state changed. */
+  toggle(panel: PanelType): boolean {
+    if (this.activePanel === panel) {
+      this.activePanel = null;
+      return true;
     }
-    if (this.researchOpen) {
-      this.researchOpen = false;
-      return 'research';
-    }
-    if (this.guideOpen) {
-      this.guideOpen = false;
-      return 'guide';
-    }
-    if (this.stageManager.isObjectivesOpen()) {
-      this.stageManager.closeObjectives();
-      return 'objectives';
-    }
-    if (this.inventoryOpen) {
-      this.inventoryOpen = false;
-      return 'inventory';
-    }
-    return null;
+    if (this.activePanel !== null) return false;
+    this.activePanel = panel;
+    return true;
   }
 
-  closeAll(): void {
-    this.menuOpen = false;
-    this.inventoryOpen = false;
-    this.guideOpen = false;
-    this.researchOpen = false;
-    if (this.stageManager.isObjectivesOpen()) this.stageManager.closeObjectives();
+  isOpen(panel: PanelType): boolean {
+    return this.activePanel === panel;
+  }
+
+  /** Returns which panel was closed, or null if nothing was open. */
+  close(): PanelType | null {
+    const was = this.activePanel;
+    this.activePanel = null;
+    return was;
+  }
+
+  getActivePanel(): PanelType | null {
+    return this.activePanel;
   }
 }

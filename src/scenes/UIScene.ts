@@ -217,10 +217,11 @@ export class UIScene extends UiScene {
     this.updateHelpText(state);
 
     // Build panel modal — only show buildings the player can actually select
-    if (state.buildModeActive) {
+    const buildOpen = state.activePanel === 'build';
+    if (buildOpen) {
       this.buildPanel.updateAvailable(new Set(state.availableBuildings));
     }
-    this.buildPanel.setVisible(state.buildModeActive);
+    this.buildPanel.setVisible(buildOpen);
 
     // RP + Mana display
     const rpStr = state.researchPoints > 0 ? `  RP:${state.researchPoints}` : '';
@@ -249,15 +250,15 @@ export class UIScene extends UiScene {
     setText(this.itemsBmp, itemStrings.join('  '));
 
     // Panel visibility
-    this.menuPanel.setVisible(state.menuOpen);
-    this.inventoryPanel.setVisible(state.inventoryOpen);
-    this.guidePanel.setVisible(state.guideOpen);
-    this.researchPanel.setVisible(state.researchOpen);
-    if (state.researchOpen) this.researchPanel.update(this.researchManager);
+    this.menuPanel.setVisible(state.activePanel === 'menu');
+    this.inventoryPanel.setVisible(state.activePanel === 'inventory');
+    this.guidePanel.setVisible(state.activePanel === 'guide');
+    this.researchPanel.setVisible(state.activePanel === 'research');
+    if (state.activePanel === 'research') this.researchPanel.update(this.researchManager);
 
     // Objectives panel (only used in stages mode — tutorial/sandbox hide it)
     if (state.gameMode !== 'stages') {
-      this.objectivesPanel.update({ ...state, objectivesOpen: false, stageCompleteShown: false });
+      this.objectivesPanel.update({ ...state, activePanel: null, stageCompleteShown: false });
     } else {
       this.objectivesPanel.update(state);
     }
@@ -269,40 +270,7 @@ export class UIScene extends UiScene {
   /** Build the bottom help bar text with per-character cyan tinting on hotkeys */
   private updateHelpText(state: GameUIState): void {
     type Seg = { key: string; label: string };
-    const s: Seg[] = [
-      { key: 'ESDF', label: 'Move' },
-      { key: 'ESDF+Shift', label: 'Move 5 Spaces' },
-    ];
-
-    if (state.selectedBuilding) {
-      s.push({ key: 'Spc', label: 'Place' });
-    }
-
-    const hasCancellable =
-      state.buildModeActive ||
-      state.selectedBuilding !== null ||
-      state.menuOpen ||
-      state.inventoryOpen ||
-      state.guideOpen ||
-      state.objectivesOpen ||
-      state.researchOpen;
-    if (hasCancellable) {
-      s.push({ key: 'X', label: 'Cancel' });
-    }
-
-    if (!state.buildModeActive) {
-      s.push({ key: 'B', label: 'Build' });
-    }
-
-    s.push({ key: 'R', label: 'Research' });
-    s.push({ key: 'P', label: 'Pause' });
-
-    if (!state.selectedBuilding) {
-      s.push({ key: 'O', label: 'Goals' });
-      s.push({ key: 'G', label: 'Guide' });
-    }
-
-    s.push({ key: 'K', label: 'Keys' });
+    const s: Seg[] = this.getHelpSegments(state);
 
     // Build text and track cyan character ranges
     let text = '';
@@ -323,9 +291,43 @@ export class UIScene extends UiScene {
         phaser.setCharacterTint(start, len, false, C.active);
       }
     } catch {
-      // Fallback: just set whole text to default tint if character tinting fails
       this.helpBmp.tint = C.light;
     }
+  }
+
+  private getHelpSegments(state: GameUIState): Array<{ key: string; label: string }> {
+    // Panel-specific hints
+    if (state.activePanel === 'research') {
+      return [
+        { key: 'ESDF', label: 'Navigate' },
+        { key: 'Space', label: 'Unlock' },
+        { key: 'X', label: 'Close' },
+      ];
+    }
+    if (state.activePanel !== null) {
+      return [{ key: 'X', label: 'Close' }];
+    }
+
+    // Building selected — placement mode
+    if (state.selectedBuilding) {
+      return [
+        { key: 'ESDF', label: 'Move' },
+        { key: 'Space', label: 'Place' },
+        { key: 'R', label: 'Rotate' },
+        { key: 'X', label: 'Cancel' },
+      ];
+    }
+
+    // Default — no panel, no selection
+    return [
+      { key: 'ESDF', label: 'Move' },
+      { key: 'B', label: 'Build' },
+      { key: 'R', label: 'Research' },
+      { key: 'P', label: 'Pause' },
+      { key: 'O', label: 'Goals' },
+      { key: 'G', label: 'Guide' },
+      { key: 'K', label: 'Keys' },
+    ];
   }
 
   private formatResources(res: PlayerResources): string {

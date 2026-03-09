@@ -139,8 +139,9 @@ export class ObjectivesPanel {
   }
 
   update(state: GameUIState): void {
-    this.objectivesContainer.setVisible(state.objectivesOpen);
-    if (state.objectivesOpen) this.updateObjectivesContent(state);
+    const objectivesOpen = state.activePanel === 'objectives';
+    this.objectivesContainer.setVisible(objectivesOpen);
+    if (objectivesOpen) this.updateObjectivesContent(state);
 
     this.stageCompleteContainer.setVisible(state.stageCompleteShown);
     if (state.stageCompleteShown) this.updateStageCompleteContent(state);
