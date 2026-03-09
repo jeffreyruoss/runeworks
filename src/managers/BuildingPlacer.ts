@@ -57,8 +57,10 @@ export class BuildingPlacer {
     this.ghostSprite.setDisplaySize(def.width * TILE_SIZE, def.height * TILE_SIZE);
     this.ghostSprite.setAngle(this.ghostRotation * 90);
 
-    // Create graphics for output direction arrows (skip omnidirectional buildings like chest)
-    if (def.outputSides.length > 0 && def.outputSides.length < 4) {
+    // Create graphics for direction arrows (skip omnidirectional buildings like chest)
+    const hasOutputArrows = def.outputSides.length > 0 && def.outputSides.length < 4;
+    const hasInputArrows = def.inputSides.length > 0 && def.inputSides.length < 4;
+    if (hasOutputArrows || hasInputArrows) {
       this.arrowGraphics = this.scene.add.graphics();
       this.arrowGraphics.setDepth(51);
     }
@@ -84,15 +86,27 @@ export class BuildingPlacer {
     this.ghostSprite.setPosition(x + w / 2, y + h / 2);
     this.ghostSprite.setTint(canPlace ? THEME.ghost.valid : THEME.ghost.invalid);
 
-    // Draw output direction arrows
+    // Draw direction arrows (output = yellow, input = cyan)
     if (this.arrowGraphics) {
       this.arrowGraphics.clear();
-      const arrowColor = canPlace ? 0xffdd00 : THEME.ghost.invalid;
-      this.arrowGraphics.fillStyle(arrowColor, 0.9);
+      const invalidColor = THEME.ghost.invalid;
 
-      for (const localSide of def.outputSides) {
-        const worldSide = rotateDirection(localSide as Direction, this.ghostRotation);
-        this.drawArrow(x, y, w, h, worldSide);
+      // Output arrows (pointing outward)
+      if (def.outputSides.length > 0 && def.outputSides.length < 4) {
+        this.arrowGraphics.fillStyle(canPlace ? 0xffdd00 : invalidColor, 0.9);
+        for (const localSide of def.outputSides) {
+          const worldSide = rotateDirection(localSide, this.ghostRotation);
+          this.drawArrow(x, y, w, h, worldSide, false);
+        }
+      }
+
+      // Input arrows (pointing inward)
+      if (def.inputSides.length > 0 && def.inputSides.length < 4) {
+        this.arrowGraphics.fillStyle(canPlace ? 0x44ccff : invalidColor, 0.9);
+        for (const localSide of def.inputSides) {
+          const worldSide = rotateDirection(localSide, this.ghostRotation);
+          this.drawArrow(x, y, w, h, worldSide, true);
+        }
       }
     }
   }
@@ -251,8 +265,18 @@ export class BuildingPlacer {
     }
   }
 
-  /** Draw a pixel-art arrow (shaft + triangular head) outside the building edge */
-  private drawArrow(bx: number, by: number, bw: number, bh: number, direction: Direction): void {
+  /**
+   * Draw a pixel-art arrow (shaft + triangular head) outside the building edge.
+   * When inward=true, the arrow points toward the building (for inputs).
+   */
+  private drawArrow(
+    bx: number,
+    by: number,
+    bw: number,
+    bh: number,
+    direction: Direction,
+    inward: boolean
+  ): void {
     if (!this.arrowGraphics) return;
     const g = this.arrowGraphics;
     const gap = 2; // gap past building edge (clears cursor stroke)
@@ -265,57 +289,81 @@ export class BuildingPlacer {
       case 'right': {
         const ax = bx + bw + gap;
         const ay = by + bh / 2;
-        g.fillRect(ax, ay - shaftThick / 2, shaftLen, shaftThick);
-        g.fillTriangle(
-          ax + shaftLen,
-          ay - headHalf,
-          ax + shaftLen + headLen,
-          ay,
-          ax + shaftLen,
-          ay + headHalf
-        );
+        if (inward) {
+          // Arrow on right side pointing left (into building)
+          g.fillRect(ax + headLen, ay - shaftThick / 2, shaftLen, shaftThick);
+          g.fillTriangle(ax + headLen, ay - headHalf, ax, ay, ax + headLen, ay + headHalf);
+        } else {
+          g.fillRect(ax, ay - shaftThick / 2, shaftLen, shaftThick);
+          g.fillTriangle(
+            ax + shaftLen,
+            ay - headHalf,
+            ax + shaftLen + headLen,
+            ay,
+            ax + shaftLen,
+            ay + headHalf
+          );
+        }
         break;
       }
       case 'left': {
         const ax = bx - gap;
         const ay = by + bh / 2;
-        g.fillRect(ax - shaftLen, ay - shaftThick / 2, shaftLen, shaftThick);
-        g.fillTriangle(
-          ax - shaftLen,
-          ay - headHalf,
-          ax - shaftLen - headLen,
-          ay,
-          ax - shaftLen,
-          ay + headHalf
-        );
+        if (inward) {
+          // Arrow on left side pointing right (into building)
+          g.fillRect(ax - headLen - shaftLen, ay - shaftThick / 2, shaftLen, shaftThick);
+          g.fillTriangle(ax - headLen, ay - headHalf, ax, ay, ax - headLen, ay + headHalf);
+        } else {
+          g.fillRect(ax - shaftLen, ay - shaftThick / 2, shaftLen, shaftThick);
+          g.fillTriangle(
+            ax - shaftLen,
+            ay - headHalf,
+            ax - shaftLen - headLen,
+            ay,
+            ax - shaftLen,
+            ay + headHalf
+          );
+        }
         break;
       }
       case 'down': {
         const ax = bx + bw / 2;
         const ay = by + bh + gap;
-        g.fillRect(ax - shaftThick / 2, ay, shaftThick, shaftLen);
-        g.fillTriangle(
-          ax - headHalf,
-          ay + shaftLen,
-          ax,
-          ay + shaftLen + headLen,
-          ax + headHalf,
-          ay + shaftLen
-        );
+        if (inward) {
+          // Arrow on bottom side pointing up (into building)
+          g.fillRect(ax - shaftThick / 2, ay + headLen, shaftThick, shaftLen);
+          g.fillTriangle(ax - headHalf, ay + headLen, ax, ay, ax + headHalf, ay + headLen);
+        } else {
+          g.fillRect(ax - shaftThick / 2, ay, shaftThick, shaftLen);
+          g.fillTriangle(
+            ax - headHalf,
+            ay + shaftLen,
+            ax,
+            ay + shaftLen + headLen,
+            ax + headHalf,
+            ay + shaftLen
+          );
+        }
         break;
       }
       case 'up': {
         const ax = bx + bw / 2;
         const ay = by - gap;
-        g.fillRect(ax - shaftThick / 2, ay - shaftLen, shaftThick, shaftLen);
-        g.fillTriangle(
-          ax - headHalf,
-          ay - shaftLen,
-          ax,
-          ay - shaftLen - headLen,
-          ax + headHalf,
-          ay - shaftLen
-        );
+        if (inward) {
+          // Arrow on top side pointing down (into building)
+          g.fillRect(ax - shaftThick / 2, ay - headLen - shaftLen, shaftThick, shaftLen);
+          g.fillTriangle(ax - headHalf, ay - headLen, ax, ay, ax + headHalf, ay - headLen);
+        } else {
+          g.fillRect(ax - shaftThick / 2, ay - shaftLen, shaftThick, shaftLen);
+          g.fillTriangle(
+            ax - headHalf,
+            ay - shaftLen,
+            ax,
+            ay - shaftLen - headLen,
+            ax + headHalf,
+            ay - shaftLen
+          );
+        }
         break;
       }
     }
