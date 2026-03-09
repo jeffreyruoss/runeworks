@@ -275,7 +275,12 @@ export class GameScene extends ResponsiveScene {
   }
 
   private trackTutorialMovement(dx: number, dy: number, isShift: boolean): void {
-    if (isShift) this.stageManager.markCheckComplete('shift_move');
+    if (isShift) {
+      if (dx === 0 && dy === -1) this.stageManager.markCheckComplete('shift_up');
+      if (dx === -1 && dy === 0) this.stageManager.markCheckComplete('shift_left');
+      if (dx === 0 && dy === 1) this.stageManager.markCheckComplete('shift_down');
+      if (dx === 1 && dy === 0) this.stageManager.markCheckComplete('shift_right');
+    }
     if (dx === 0 && dy === -1) this.stageManager.markCheckComplete('move_up');
     if (dx === -1 && dy === 0) this.stageManager.markCheckComplete('move_left');
     if (dx === 0 && dy === 1) this.stageManager.markCheckComplete('move_down');

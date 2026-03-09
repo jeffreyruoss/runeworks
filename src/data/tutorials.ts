@@ -49,7 +49,12 @@ export const TUTORIALS: TutorialStage[] = [
     name: 'Quick Movement',
     instructionText: ['Hold Shift + ESDF to jump 5 tiles.', 'Try it now!'],
     objectives: [],
-    checks: [{ id: 'shift_move', label: 'Shift + move (any direction)' }],
+    checks: [
+      { id: 'shift_up', label: 'Shift + E (up)' },
+      { id: 'shift_left', label: 'Shift + S (left)' },
+      { id: 'shift_down', label: 'Shift + D (down)' },
+      { id: 'shift_right', label: 'Shift + F (right)' },
+    ],
     unlockedBuildings: [],
     terrainLayout: [],
   },
