@@ -81,11 +81,7 @@ export class GameScene extends ResponsiveScene {
     this.gameMode = data?.mode ?? 'stages';
     this.tutorialStageId = 1;
     const dev = getActiveDevSettings();
-    if (
-      dev?.tutorialStep !== null &&
-      dev?.tutorialStep !== undefined &&
-      this.gameMode === 'tutorial'
-    ) {
+    if (dev?.tutorialStep != null && this.gameMode === 'tutorial') {
       this.tutorialStageId = dev.tutorialStep;
     }
   }

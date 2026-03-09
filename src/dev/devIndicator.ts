@@ -1,6 +1,6 @@
 import { isDevActive } from './devSettings';
 
-const INDICATOR_ID = 'dev-indicator-bar';
+const INDICATOR_ID = 'dev-indicator';
 
 /** Creates or removes the fixed orange pill badge in the top-right corner */
 export function updateDevIndicator(): void {

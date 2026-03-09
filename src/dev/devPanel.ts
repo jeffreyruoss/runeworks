@@ -7,8 +7,6 @@ const PANEL_ID = 'dev-settings-panel';
 const RESOURCE_KEYS: (keyof PlayerResources)[] = ['stone', 'wood', 'iron', 'clay', 'crystal_shard'];
 const GAME_MODES: (GameMode | '')[] = ['', 'tutorial', 'stages', 'sandbox'];
 
-let panelVisible = false;
-
 function createPanel(): HTMLDivElement {
   const panel = document.createElement('div');
   panel.id = PANEL_ID;
@@ -40,16 +38,16 @@ function createPanel(): HTMLDivElement {
   document.body.appendChild(panel);
 
   // Wire up buttons after innerHTML is set
-  panel.querySelector('#dev-apply')!.addEventListener('click', applyAndReload);
-  panel.querySelector('#dev-reset')!.addEventListener('click', resetAndReload);
+  panel.querySelector('#dev-apply')?.addEventListener('click', applyAndReload);
+  panel.querySelector('#dev-reset')?.addEventListener('click', resetAndReload);
 
   return panel;
 }
 
 function buildPanelHTML(s: DevSettings): string {
+  const isSelected = (m: GameMode | ''): boolean => (m ? s.autoStartMode === m : !s.autoStartMode);
   const modeOptions = GAME_MODES.map(
-    (m) =>
-      `<option value="${m}" ${s.autoStartMode === m || (!m && !s.autoStartMode) ? 'selected' : ''}>${m || '(none)'}</option>`
+    (m) => `<option value="${m}" ${isSelected(m) ? 'selected' : ''}>${m || '(none)'}</option>`
   ).join('');
 
   const resourceInputs = RESOURCE_KEYS.map((key) => {
@@ -169,8 +167,8 @@ function resetAndReload(): void {
 function togglePanel(): void {
   let panel = document.getElementById(PANEL_ID) as HTMLDivElement | null;
   if (!panel) panel = createPanel();
-  panelVisible = !panelVisible;
-  panel.style.display = panelVisible ? 'block' : 'none';
+  const isVisible = panel.style.display !== 'none';
+  panel.style.display = isVisible ? 'none' : 'block';
 }
 
 /** Call once after Phaser game is created. Sets up backtick toggle + indicator. */

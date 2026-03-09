@@ -22,22 +22,28 @@ const DEFAULT_SETTINGS: DevSettings = {
   researchPoints: null,
 };
 
+// Cached after first read — settings only change on reload
+let cached: DevSettings | undefined;
+
 export function loadDevSettings(): DevSettings {
+  if (cached) return cached;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { ...DEFAULT_SETTINGS };
-    return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
+    cached = raw ? { ...DEFAULT_SETTINGS, ...JSON.parse(raw) } : { ...DEFAULT_SETTINGS };
   } catch {
-    return { ...DEFAULT_SETTINGS };
+    cached = { ...DEFAULT_SETTINGS };
   }
+  return cached!;
 }
 
 export function saveDevSettings(settings: DevSettings): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+  cached = undefined;
 }
 
 export function clearDevSettings(): void {
   localStorage.removeItem(STORAGE_KEY);
+  cached = undefined;
 }
 
 /** Returns settings if enabled, null otherwise. Game code calls this. */
