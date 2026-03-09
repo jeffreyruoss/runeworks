@@ -1,5 +1,7 @@
 import { GameMode, PlayerResources } from '../types';
 import { RESEARCH_NODES } from '../data/research';
+import { STAGES } from '../data/stages';
+import { TUTORIALS } from '../data/tutorials';
 import { loadDevSettings, saveDevSettings, clearDevSettings, DevSettings } from './devSettings';
 import { updateDevIndicator } from './devIndicator';
 
@@ -73,13 +75,13 @@ function buildPanelHTML(s: DevSettings): string {
     </div>
 
     <div style="margin:8px 0">
-      <b>Start stage</b> (1-10)<br>
-      <input type="number" id="dev-stage" min="1" max="10" value="${s.startStage ?? ''}" style="${inputStyle()}" placeholder="—">
+      <b>Start stage</b><br>
+      <select id="dev-stage" style="${selectStyle()}">${buildStageOptions(s.startStage)}</select>
     </div>
 
     <div style="margin:8px 0">
-      <b>Tutorial step</b> (1-8)<br>
-      <input type="number" id="dev-tutorial" min="1" max="8" value="${s.tutorialStep ?? ''}" style="${inputStyle()}" placeholder="—">
+      <b>Tutorial step</b><br>
+      <select id="dev-tutorial" style="${selectStyle()}">${buildTutorialOptions(s.tutorialStep)}</select>
     </div>
 
     <div style="margin:8px 0">
@@ -114,6 +116,24 @@ function selectStyle(): string {
   return 'background:#0f0f23;color:#e0e0e0;border:1px solid #444;padding:2px 4px;font-family:monospace;font-size:12px';
 }
 
+function buildStageOptions(selected: number | null): string {
+  const none = `<option value="">(none)</option>`;
+  const opts = STAGES.map(
+    (st) =>
+      `<option value="${st.id}" ${selected === st.id ? 'selected' : ''}>Stage ${st.id}: ${st.name}</option>`
+  ).join('');
+  return none + opts;
+}
+
+function buildTutorialOptions(selected: number | null): string {
+  const none = `<option value="">(none)</option>`;
+  const opts = TUTORIALS.map(
+    (t) =>
+      `<option value="${t.id}" ${selected === t.id ? 'selected' : ''}>${t.id}. ${t.name}</option>`
+  ).join('');
+  return none + opts;
+}
+
 function buttonStyle(bg: string): string {
   return `background:${bg};color:#fff;border:none;padding:6px 12px;cursor:pointer;font-family:monospace;font-size:12px;font-weight:bold`;
 }
@@ -122,8 +142,8 @@ function readFormSettings(): DevSettings {
   const panel = document.getElementById(PANEL_ID)!;
   const enabled = (panel.querySelector('#dev-enabled') as HTMLInputElement).checked;
   const modeVal = (panel.querySelector('#dev-mode') as HTMLSelectElement).value;
-  const stageVal = (panel.querySelector('#dev-stage') as HTMLInputElement).value;
-  const tutorialVal = (panel.querySelector('#dev-tutorial') as HTMLInputElement).value;
+  const stageVal = (panel.querySelector('#dev-stage') as HTMLSelectElement).value;
+  const tutorialVal = (panel.querySelector('#dev-tutorial') as HTMLSelectElement).value;
   const rpVal = (panel.querySelector('#dev-rp') as HTMLInputElement).value;
 
   // Resources: only set if at least one field has a value
