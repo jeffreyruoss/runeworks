@@ -14,6 +14,15 @@ import { BuildPanel } from '../managers/BuildPanel';
 import { canAfford } from '../utils';
 import { uiTheme, FONT_SM, C } from '../ui-theme';
 
+/** Set text on a pixui BitmapText without the maxWidth feedback loop.
+ *  Clears maxWidth before so text renders unwrapped (correct width/height),
+ *  uses pixui setter for layout positioning, then clears maxWidth again. */
+function setText(bmp: BitmapText, value: string): void {
+  bmp.internal.setMaxWidth(0);
+  bmp.text = value;
+  bmp.internal.setMaxWidth(0);
+}
+
 export class UIScene extends UiScene {
   // HUD text components (pixui BitmapText)
   private cursorInfoBmp!: BitmapText;
@@ -99,9 +108,9 @@ export class UIScene extends UiScene {
       x: 0,
       y: pad,
       font: FONT_SM,
-      text: '> 1x',
       tint: C.active,
     });
+    setText(this.simStatusBmp, 'Game Speed  > 1x');
 
     this.resourcesBmp = this.insert.topRight.bitmapText({
       x: pad,
@@ -183,11 +192,11 @@ export class UIScene extends UiScene {
 
   private onGameStateChanged(state: GameUIState): void {
     // Cursor info
-    this.cursorInfoBmp.text = state.cursorInfo ?? '';
+    setText(this.cursorInfoBmp, state.cursorInfo ?? '');
     this.cursorInfoBmp.tint = C.light;
 
     // Resources
-    this.resourcesBmp.text = this.formatResources(state.playerResources);
+    setText(this.resourcesBmp, this.formatResources(state.playerResources));
 
     // Selected building with cost info
     if (state.selectedBuilding) {
@@ -195,13 +204,13 @@ export class UIScene extends UiScene {
       const affordable = canAfford(state.playerResources, cost);
       const costStr = this.formatCost(cost);
       const displayName = state.selectedBuilding.replace(/_/g, ' ').toUpperCase();
-      this.selectedBmp.text = `${displayName} (${costStr})`;
+      setText(this.selectedBmp, `${displayName} (${costStr})`);
       this.selectedBmp.tint = affordable ? C.valid : C.invalid;
     } else if (state.cursorOverBuilding) {
-      this.selectedBmp.text = '[X] Deconstruct';
+      setText(this.selectedBmp, '[X] Deconstruct');
       this.selectedBmp.tint = 0xff8888;
     } else {
-      this.selectedBmp.text = '';
+      setText(this.selectedBmp, '');
     }
 
     // Dynamic help text with cyan hotkeys
@@ -222,10 +231,10 @@ export class UIScene extends UiScene {
 
     // Sim status
     if (state.simPaused) {
-      this.simStatusBmp.text = `|| ${state.simSpeed}x${rpStr}${manaStr}`;
+      setText(this.simStatusBmp, `Game Speed  || ${state.simSpeed}x${rpStr}${manaStr}`);
       this.simStatusBmp.tint = C.paused;
     } else {
-      this.simStatusBmp.text = `> ${state.simSpeed}x${rpStr}${manaStr}`;
+      setText(this.simStatusBmp, `Game Speed  > ${state.simSpeed}x${rpStr}${manaStr}`);
       this.simStatusBmp.tint = C.active;
     }
 
@@ -237,7 +246,7 @@ export class UIScene extends UiScene {
     if (items.cogwheel) itemStrings.push(`Cog:${items.cogwheel}`);
     if (items.thread) itemStrings.push(`Thrd:${items.thread}`);
     if (items.rune) itemStrings.push(`Rune:${items.rune}`);
-    this.itemsBmp.text = itemStrings.join('  ');
+    setText(this.itemsBmp, itemStrings.join('  '));
 
     // Panel visibility
     this.menuPanel.setVisible(state.menuOpen);
@@ -304,7 +313,7 @@ export class UIScene extends UiScene {
       text += s[i].key + ':' + s[i].label;
     }
 
-    this.helpBmp.text = text;
+    setText(this.helpBmp, text);
 
     // Apply per-character tinting via underlying Phaser BitmapText
     try {
