@@ -265,6 +265,7 @@ export class Simulation {
       const result = this.patchManager.extractFromPatch(resource.x, resource.y);
       if (result) {
         addToBuffer(building.outputBuffer, result.item, 1);
+        this.recordProduction(result.item, 1);
         if (result.depleted) {
           for (const tile of result.tilesToClear) {
             this.setTerrain(tile.x, tile.y, 'empty');
