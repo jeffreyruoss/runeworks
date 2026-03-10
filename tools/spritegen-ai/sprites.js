@@ -65,6 +65,48 @@ export const SPRITES = [
       'Color scheme: dark iron gray metal, faint cyan-blue accent on the rivet, purple-gray highlights.',
   },
 
+  // === Style experiments ===
+  {
+    name: 'quarry_v2',
+    width: 64,
+    height: 64,
+    prompt:
+      'Pixel art sprite, top-down view, transparent background, crisp pixel edges. ' +
+      'Style reference: ornate gothic-fantasy UI art with deep purple (#2a1f4e to #3d2d6b) as the ' +
+      'primary body color, warm gold/amber (#c4a35a, #d4a437) metallic trim and ornate decorative ' +
+      'flourishes, and bright orange-red accent glows. Clean bold outlines, simple elegant shapes ' +
+      'with clear silhouettes. NOT industrial or gritty — ornate and magical. ' +
+      'The sprite should be 64x64 logical pixels shown at large scale. ' +
+      'A top-down view of a mystical quarry extraction machine. The base is a deep purple-indigo ' +
+      'stone platform with ornate gold filigree borders and corner flourishes. In the center, a ' +
+      'circular opening reveals a bright orange-amber magical drill/pick mechanism surrounded by ' +
+      'a golden ring. Small gold runic symbols etched around the central mechanism. ' +
+      'The overall shape is a clean square with decorative gold trim on each edge, like an ornate ' +
+      'tile or panel. A faint warm amber glow emanates from the center. ' +
+      'Keep it simple and readable at small sizes — bold shapes, minimal noise. ' +
+      'Color scheme: deep purple-indigo body, warm gold trim and runes, orange-amber central glow.',
+  },
+
+  {
+    name: 'quarry_v3',
+    width: 64,
+    height: 64,
+    prompt:
+      'Pixel art sprite, STRICTLY top-down orthographic view (looking straight down from above, ' +
+      'NO angle, NO isometric, NO 3/4 perspective, NO vanishing point), transparent background, ' +
+      'crisp pixel edges, rich color palette with shading and highlights, subtle dithering allowed. ' +
+      'Single isolated object on transparent background, no text or labels. ' +
+      'The sprite should be 64x64 logical pixels shown at large scale. ' +
+      'A flat top-down view of a literal open-pit stone quarry, as seen from directly overhead. ' +
+      'A square excavation carved into rock. Concentric rectangular rings of stone getting darker ' +
+      'toward the center, showing terraced depth through color alone (lighter edges, darker center). ' +
+      'Rough-hewn stone blocks scattered near the rim. A simple wooden A-frame or tripod hoist ' +
+      'seen from above (just a few crossed timbers). Small pile of cut stone blocks near one edge. ' +
+      'Everything is shown flat from above — no side faces visible, no depth perspective. ' +
+      'Color scheme: warm grays, sandy tan stone, dark shadows in the pit center, ' +
+      'brown wood accents for the hoist. Natural and earthy, not mechanical.',
+  },
+
   // === Buildings (64x64, 2x2 tile) ===
   {
     name: 'quarry',
@@ -387,5 +429,21 @@ export const SPRITES = [
       'A top-down terrain tile showing crystal shard deposits. Dark rocky ground with clusters ' +
       'of small pointed cyan-teal crystals growing upward from the surface. Faint magical glow ' +
       'around the crystal clusters. Color scheme: dark rock with bright teal-cyan crystal shards.',
+  },
+  {
+    name: 'water_terrain',
+    width: 32,
+    height: 32,
+    tileable: true,
+    prompt:
+      `${STYLE_PREFIX} The sprite should be 32x32 logical pixels shown at large scale. ` +
+      'IMPORTANT: This is a seamless tileable texture — the pattern must repeat seamlessly when tiled ' +
+      'in all directions. Content must extend fully to every edge with NO whitespace, NO border, ' +
+      'and NO empty margin. ' +
+      'A top-down dark water surface texture. Still, deep water with subtle ripples and reflections. ' +
+      'Dark blue-indigo base with lighter blue-cyan highlights where light catches the surface. ' +
+      'Small subtle circular ripple patterns scattered across. NO fish, NO objects, NO land — pure water. ' +
+      'Color scheme: deep dark blue-indigo water with cyan-blue highlights. Darker than sky blue, ' +
+      'mysterious and deep. Fits a dark fantasy aesthetic.',
   },
 ];

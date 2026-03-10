@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, BUILDING_COSTS, THEME } from '../config';
 import { Building, BuildingType, Direction, PlayerResources, TerrainType } from '../types';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
-import { QUARRIABLE_TERRAIN } from '../data/terrain';
+import { QUARRIABLE_TERRAIN, UNBUILDABLE_TERRAIN } from '../data/terrain';
 import { canAfford, deductCost, rotateDirection } from '../utils';
 
 /**
@@ -144,20 +144,18 @@ export class BuildingPlacer {
       }
     }
 
-    // Quarries must be on a quarriable resource
-    if (selectedBuilding === 'quarry') {
-      let hasResource = false;
-      for (let dy = 0; dy < def.height; dy++) {
-        for (let dx = 0; dx < def.width; dx++) {
-          const terrain = getTerrain(cursorX + dx, cursorY + dy);
-          if (QUARRIABLE_TERRAIN.has(terrain)) {
-            hasResource = true;
-            break;
-          }
+    // Check terrain: block unbuildable tiles (water), require resource for quarries
+    let hasResource = false;
+    for (let dy = 0; dy < def.height; dy++) {
+      for (let dx = 0; dx < def.width; dx++) {
+        const terrain = getTerrain(cursorX + dx, cursorY + dy);
+        if (UNBUILDABLE_TERRAIN.has(terrain)) return false;
+        if (selectedBuilding === 'quarry' && QUARRIABLE_TERRAIN.has(terrain)) {
+          hasResource = true;
         }
       }
-      if (!hasResource) return false;
     }
+    if (selectedBuilding === 'quarry' && !hasResource) return false;
 
     // Check multi-resource cost
     const cost = BUILDING_COSTS[selectedBuilding];

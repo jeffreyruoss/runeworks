@@ -52,7 +52,7 @@ export class ResourcePatchManager {
   ): { item: ItemType; depleted: boolean; tilesToClear: Position[] } | null {
     const patch = this.getPatchAt(x, y);
     if (!patch || patch.remainingPool <= 0) return null;
-    if (patch.terrainType === 'empty') return null;
+    if (patch.terrainType === 'empty' || patch.terrainType === 'water') return null;
 
     const item = TERRAIN_TO_ITEM[patch.terrainType];
     patch.remainingPool--;

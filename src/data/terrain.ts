@@ -1,9 +1,15 @@
 import { ItemType, TerrainType } from '../types';
 
+/** Terrain types that yield resources (excludes empty and water) */
+export type ResourceTerrainType = Exclude<TerrainType, 'empty' | 'water'>;
+
+/** Terrain types that block building placement */
+export const UNBUILDABLE_TERRAIN: Set<TerrainType> = new Set(['water']);
+
 /**
  * Maps terrain types to the item they yield when mined
  */
-export const TERRAIN_TO_ITEM: Record<Exclude<TerrainType, 'empty'>, ItemType> = {
+export const TERRAIN_TO_ITEM: Record<ResourceTerrainType, ItemType> = {
   arcstone: 'arcstone',
   sunite: 'sunite',
   stone: 'stone',
@@ -33,6 +39,7 @@ export const TERRAIN_COLORS: Record<
   Exclude<TerrainType, 'empty'>,
   { base: number; highlight: number }
 > = {
+  water: { base: 0x1a3a6a, highlight: 0x3a7aca },
   arcstone: { base: 0x4a3b6e, highlight: 0x7b68ee },
   sunite: { base: 0x8b6914, highlight: 0xdaa520 },
   stone: { base: 0x5a5a5a, highlight: 0x8a8a8a },
@@ -46,6 +53,7 @@ export const TERRAIN_COLORS: Record<
  * Human-readable names shown in cursor info
  */
 export const TERRAIN_DISPLAY_NAMES: Record<Exclude<TerrainType, 'empty'>, string> = {
+  water: 'Water',
   arcstone: 'Arcstone Vein',
   sunite: 'Sunite Vein',
   stone: 'Stone Outcrop',

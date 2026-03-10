@@ -7,19 +7,19 @@
 
 ## NEXT
 
-dev mode
+Clean up quarry image versions
+
+Break up tutorial step 7 into builing transfer and rotation. For rotation, use the water tile to make a river near the arcstone so that the player has to rotate the quarry.
+
+Maybe we can use water as a resource in the game. Water gathering structure of some kind? Also, water wheel for power? Maybe water wheel power and windmill power can be for simple power and mana energy sources can be for more advanced power? Let's brainstorm some ideas.
 
 Let's improve the code modularity and ensure it is Claude-Code-Friendly. If we need to overhaul to optimize modularity let's do that. Use agent team.
 
 ## Code review, cleanup, tests
 
-Update tests
+Tests last updated mar 8
 
 ## Tutorial
-
-Make sure shift + esdf is in the tutorial (probably right in the beginning?)
-
-Mention k for key commands in the tutuorial
 
 ## Misc
 

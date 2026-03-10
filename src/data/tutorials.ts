@@ -121,6 +121,8 @@ export const TUTORIALS: TutorialStage[] = [
       { type: 'arcstone', cx: 16, cy: 12, size: 25, pool: 500 },
       { type: 'stone', cx: 8, cy: 6, size: 10, pool: 100 },
       { type: 'forest', cx: 32, cy: 6, size: 10, pool: 100 },
+      { type: 'water', cx: 28, cy: 16, size: 8, pool: 0 },
+      { type: 'water', cx: 30, cy: 13, size: 6, pool: 0 },
     ],
     startingResources: { stone: 30, wood: 20, iron: 10 },
   },

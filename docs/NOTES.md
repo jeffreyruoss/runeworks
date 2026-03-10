@@ -1,3 +1,3 @@
-Check usage at: https://aistudio.google.com/usage?timeRange=last-28-days&project=gen-lang-client-0335300341&tab=billing
+Dev mode: press ` (tilde) or dev mode sidebar
 
-Dev mode
+Check usage at: https://aistudio.google.com/usage?timeRange=last-28-days&project=gen-lang-client-0335300341&tab=billing

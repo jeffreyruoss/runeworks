@@ -51,6 +51,13 @@ export function generateTerrain(simulation: Simulation, layout?: PatchDef[], see
   for (const def of patches) {
     const tiles = generateBlob(def.cx, def.cy, def.size, rng, (x, y) => occupied.has(`${x},${y}`));
     for (const t of tiles) occupied.add(`${t.x},${t.y}`);
-    simulation.addResourcePatch(def.type, tiles, def.pool);
+    if (def.type === 'water') {
+      // Water is not a resource — just set terrain tiles directly
+      for (const tile of tiles) {
+        simulation.setTerrain(tile.x, tile.y, 'water');
+      }
+    } else {
+      simulation.addResourcePatch(def.type, tiles, def.pool);
+    }
   }
 }

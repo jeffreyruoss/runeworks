@@ -1,11 +1,11 @@
 import Phaser from 'phaser';
 import { BUILDING_COSTS, TICKS_PER_SECOND, RESOURCE_DISPLAY_NAMES } from '../config';
 import { ITEM_DISPLAY_NAMES } from '../data/stages';
-import { TERRAIN_DISPLAY_NAMES, TERRAIN_COLORS } from '../data/terrain';
+import { TERRAIN_DISPLAY_NAMES, TERRAIN_COLORS, ResourceTerrainType } from '../data/terrain';
 import { RECIPES } from '../data/recipes';
 import { RESEARCH_RECIPES } from '../data/research';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
-import { BuildingType, ItemType, TerrainType } from '../types';
+import { BuildingType, ItemType } from '../types';
 import { FONT_SM, UI_ATLAS, C } from '../ui-theme';
 import { getViewport } from '../utils';
 
@@ -26,7 +26,7 @@ const ITEM_SPRITES: Set<ItemType> = new Set([
 ]);
 
 /** Resource entries: terrain type -> item yielded */
-const RESOURCE_ENTRIES: Array<{ item: ItemType; terrain: Exclude<TerrainType, 'empty'> }> = [
+const RESOURCE_ENTRIES: Array<{ item: ItemType; terrain: ResourceTerrainType }> = [
   { item: 'stone', terrain: 'stone' },
   { item: 'wood', terrain: 'forest' },
   { item: 'iron', terrain: 'iron' },

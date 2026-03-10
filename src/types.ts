@@ -35,6 +35,7 @@ export type GameMode = 'tutorial' | 'stages' | 'sandbox';
 
 export type TerrainType =
   | 'empty'
+  | 'water'
   | 'arcstone'
   | 'sunite'
   | 'stone'

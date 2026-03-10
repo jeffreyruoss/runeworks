@@ -5,6 +5,7 @@ import { TerrainType } from '../types';
 /** Map terrain types to atlas frame names */
 const TERRAIN_FRAME: Record<TerrainType, string> = {
   empty: 'ground',
+  water: 'water_terrain',
   arcstone: 'arcstone_vein',
   sunite: 'sunite_vein',
   stone: 'stone_terrain',
