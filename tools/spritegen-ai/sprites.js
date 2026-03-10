@@ -65,30 +65,9 @@ export const SPRITES = [
       'Color scheme: dark iron gray metal, faint cyan-blue accent on the rivet, purple-gray highlights.',
   },
 
-  // === Style experiments ===
+  // === Buildings (64x64, 2x2 tile) ===
   {
-    name: 'quarry_v2',
-    width: 64,
-    height: 64,
-    prompt:
-      'Pixel art sprite, top-down view, transparent background, crisp pixel edges. ' +
-      'Style reference: ornate gothic-fantasy UI art with deep purple (#2a1f4e to #3d2d6b) as the ' +
-      'primary body color, warm gold/amber (#c4a35a, #d4a437) metallic trim and ornate decorative ' +
-      'flourishes, and bright orange-red accent glows. Clean bold outlines, simple elegant shapes ' +
-      'with clear silhouettes. NOT industrial or gritty — ornate and magical. ' +
-      'The sprite should be 64x64 logical pixels shown at large scale. ' +
-      'A top-down view of a mystical quarry extraction machine. The base is a deep purple-indigo ' +
-      'stone platform with ornate gold filigree borders and corner flourishes. In the center, a ' +
-      'circular opening reveals a bright orange-amber magical drill/pick mechanism surrounded by ' +
-      'a golden ring. Small gold runic symbols etched around the central mechanism. ' +
-      'The overall shape is a clean square with decorative gold trim on each edge, like an ornate ' +
-      'tile or panel. A faint warm amber glow emanates from the center. ' +
-      'Keep it simple and readable at small sizes — bold shapes, minimal noise. ' +
-      'Color scheme: deep purple-indigo body, warm gold trim and runes, orange-amber central glow.',
-  },
-
-  {
-    name: 'quarry_v3',
+    name: 'quarry',
     width: 64,
     height: 64,
     prompt:
@@ -105,20 +84,6 @@ export const SPRITES = [
       'Everything is shown flat from above — no side faces visible, no depth perspective. ' +
       'Color scheme: warm grays, sandy tan stone, dark shadows in the pit center, ' +
       'brown wood accents for the hoist. Natural and earthy, not mechanical.',
-  },
-
-  // === Buildings (64x64, 2x2 tile) ===
-  {
-    name: 'quarry',
-    width: 64,
-    height: 64,
-    prompt:
-      `${STYLE_PREFIX} The sprite should be 64x64 logical pixels shown at large scale. ` +
-      'A top-down view of a mystical quarry machine. A heavy stone-and-iron mining apparatus with ' +
-      'a drill or pick mechanism in the center. Dark gray metal frame with bolts and rivets. ' +
-      'A glowing purple-blue crystal core visible through a grate. Input/output ports on the sides ' +
-      'shown as small colored squares. Runic engravings along the edges. Color scheme: dark grays, ' +
-      'iron browns, with purple-blue arcane accents.',
   },
   {
     name: 'forge',
