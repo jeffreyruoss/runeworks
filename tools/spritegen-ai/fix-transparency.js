@@ -68,13 +68,13 @@ function getExcludedNames() {
   return excluded;
 }
 
-/** Convert RGB to HSV. Returns { h: 0-360, s: 0-1, v: 0-255 } */
+/** Convert RGB to HSV. Returns { s: 0-1, v: 0-255 } (hue not needed) */
 function rgbToHsv(r, g, b) {
   const max = Math.max(r, g, b);
   const min = Math.min(r, g, b);
   const delta = max - min;
 
-  let s = max === 0 ? 0 : delta / max;
+  const s = max === 0 ? 0 : delta / max;
   return { s, v: max };
 }
 
@@ -125,20 +125,20 @@ function detectCheckerboard(data, width, height, channels) {
 }
 
 /**
- * Check if a pixel qualifies as background for the given checkerboard type.
+ * Check if a pixel qualifies as background.
+ * Once a checkerboard is detected, both light AND dark desaturated pixels
+ * are background — the checkerboard alternates between the two.
  */
-function isBackground(r, g, b, type) {
+function isBackground(r, g, b) {
   const { s, v } = rgbToHsv(r, g, b);
   if (s >= 0.15) return false;
-  if (type === 'light') return v > 200;
-  if (type === 'dark') return v < 60;
-  return false;
+  return v > 200 || v < 60;
 }
 
 /**
  * BFS flood fill from edges. Returns a Set of pixel indices to make transparent.
  */
-function floodFillFromEdges(data, width, height, channels, type) {
+function floodFillFromEdges(data, width, height, channels) {
   const visited = new Set();
   const queue = [];
 
@@ -147,7 +147,7 @@ function floodFillFromEdges(data, width, height, channels, type) {
     for (const y of [0, height - 1]) {
       const idx = (y * width + x) * channels;
       const pixelKey = y * width + x;
-      if (!visited.has(pixelKey) && isBackground(data[idx], data[idx + 1], data[idx + 2], type)) {
+      if (!visited.has(pixelKey) && isBackground(data[idx], data[idx + 1], data[idx + 2])) {
         visited.add(pixelKey);
         queue.push(pixelKey);
       }
@@ -157,7 +157,7 @@ function floodFillFromEdges(data, width, height, channels, type) {
     for (const x of [0, width - 1]) {
       const idx = (y * width + x) * channels;
       const pixelKey = y * width + x;
-      if (!visited.has(pixelKey) && isBackground(data[idx], data[idx + 1], data[idx + 2], type)) {
+      if (!visited.has(pixelKey) && isBackground(data[idx], data[idx + 1], data[idx + 2])) {
         visited.add(pixelKey);
         queue.push(pixelKey);
       }
@@ -181,7 +181,7 @@ function floodFillFromEdges(data, width, height, channels, type) {
       const nKey = ny * width + nx;
       if (visited.has(nKey)) continue;
       const nIdx = nKey * channels;
-      if (isBackground(data[nIdx], data[nIdx + 1], data[nIdx + 2], type)) {
+      if (isBackground(data[nIdx], data[nIdx + 1], data[nIdx + 2])) {
         visited.add(nKey);
         queue.push(nKey);
       }
@@ -207,7 +207,7 @@ async function fixTransparency(filePath, opts) {
   }
 
   // Flood fill from edges to find background pixels
-  const transparent = floodFillFromEdges(data, width, height, channels, type);
+  const transparent = floodFillFromEdges(data, width, height, channels);
 
   // Set alpha=0 for flood-filled pixels
   for (const key of transparent) {
