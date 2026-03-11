@@ -108,11 +108,11 @@ export const TUTORIALS: TutorialStage[] = [
   },
   {
     id: 7,
-    name: 'Rotation & Transfer',
+    name: 'Transfer',
     instructionText: [
       'Buildings transfer items to adjacent buildings.',
-      'Use R to rotate before placing.',
-      "Point a Quarry's output toward a Forge's input.",
+      "A Quarry's output arrow points to its output side.",
+      'Place a Quarry on arcstone, then a Forge beside it.',
       'Produce 1 arcane ingot to continue.',
     ],
     objectives: [{ item: 'arcane_ingot', count: 1 }],
@@ -121,13 +121,46 @@ export const TUTORIALS: TutorialStage[] = [
       { type: 'arcstone', cx: 16, cy: 12, size: 25, pool: 500 },
       { type: 'stone', cx: 8, cy: 6, size: 10, pool: 100 },
       { type: 'forest', cx: 32, cy: 6, size: 10, pool: 100 },
-      { type: 'water', cx: 28, cy: 16, size: 8, pool: 0 },
-      { type: 'water', cx: 30, cy: 13, size: 6, pool: 0 },
     ],
     startingResources: { stone: 30, wood: 20, iron: 10 },
   },
   {
     id: 8,
+    name: 'Rotation',
+    instructionText: [
+      'Sometimes terrain blocks the default output side.',
+      'Use R to rotate before placing.',
+      'Rotate the Quarry to avoid the river, then add a Forge.',
+      'Produce 1 arcane ingot to continue.',
+    ],
+    objectives: [{ item: 'arcane_ingot', count: 1 }],
+    unlockedBuildings: ['quarry', 'forge'],
+    terrainLayout: [
+      {
+        type: 'arcstone',
+        cx: 0,
+        cy: 0,
+        size: 0,
+        pool: 500,
+        manualTiles: [10, 11, 12].flatMap((x) =>
+          Array.from({ length: 15 }, (_, i) => ({ x, y: 5 + i }))
+        ),
+      },
+      {
+        type: 'water',
+        cx: 0,
+        cy: 0,
+        size: 0,
+        pool: 0,
+        manualTiles: [13, 14].flatMap((x) => Array.from({ length: 25 }, (_, y) => ({ x, y }))),
+      },
+      { type: 'stone', cx: 5, cy: 5, size: 10, pool: 100 },
+      { type: 'forest', cx: 5, cy: 19, size: 10, pool: 100 },
+    ],
+    startingResources: { stone: 30, wood: 20, iron: 10 },
+  },
+  {
+    id: 9,
     name: 'Crafting',
     instructionText: [
       'Workbenches craft advanced items from ingots.',

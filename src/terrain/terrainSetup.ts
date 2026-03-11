@@ -1,5 +1,6 @@
-import { TerrainType } from '../types';
+import { Position, TerrainType } from '../types';
 import { Simulation } from '../Simulation';
+import { GRID_WIDTH, GRID_HEIGHT } from '../config';
 import { generateBlob, mulberry32 } from './patchGenerator';
 
 /** Deterministic seed for terrain generation */
@@ -7,6 +8,7 @@ const TERRAIN_SEED = 42;
 
 /**
  * Patch layout definition: terrain type, center position, target size, and resource pool.
+ * When `manualTiles` is provided, those exact positions are used instead of blob generation.
  */
 export interface PatchDef {
   type: TerrainType;
@@ -14,6 +16,7 @@ export interface PatchDef {
   cy: number;
   size: number;
   pool: number;
+  manualTiles?: Position[];
 }
 
 /** Default patch layout for the 40x25 grid */
@@ -49,7 +52,19 @@ export function generateTerrain(simulation: Simulation, layout?: PatchDef[], see
   const occupied = new Set<string>();
 
   for (const def of patches) {
-    const tiles = generateBlob(def.cx, def.cy, def.size, rng, (x, y) => occupied.has(`${x},${y}`));
+    let tiles: Position[];
+    if (def.manualTiles) {
+      tiles = def.manualTiles.filter(
+        (t) =>
+          t.x >= 0 &&
+          t.x < GRID_WIDTH &&
+          t.y >= 0 &&
+          t.y < GRID_HEIGHT &&
+          !occupied.has(`${t.x},${t.y}`)
+      );
+    } else {
+      tiles = generateBlob(def.cx, def.cy, def.size, rng, (x, y) => occupied.has(`${x},${y}`));
+    }
     for (const t of tiles) occupied.add(`${t.x},${t.y}`);
     if (def.type === 'water') {
       // Water is not a resource — just set terrain tiles directly
