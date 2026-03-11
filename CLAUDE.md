@@ -15,12 +15,15 @@ Runeworks is a keyboard-only, stage-based micro-factory builder game built with 
 ## Commands
 
 ```bash
-npm run dev       # Start dev server on port 3000 (auto-opens browser)
-npm run build     # TypeScript compile + Vite production build to /dist
-npm run preview   # Preview production build locally
-npm run sprites   # Regenerate sprite atlas from ASCII definitions
-npm test          # Run unit & simulation tests (vitest)
-npm run test:watch # Run tests in watch mode during development
+npm run dev          # Start dev server on port 3000 (auto-opens browser)
+npm run build        # TypeScript compile + Vite production build to /dist
+npm run preview      # Preview production build locally
+npm run sprites      # Regenerate sprite atlas from ASCII definitions
+npm run sprites:ai   # Generate AI sprites via Gemini
+npm run sprites:fix  # Fix checkerboard transparency on AI sprites
+npm run sprites:ai:pack # Rebuild AI sprite atlas
+npm test             # Run unit & simulation tests (vitest)
+npm run test:watch   # Run tests in watch mode during development
 ```
 
 ## Architecture
@@ -303,18 +306,19 @@ Rotation indicates the **output direction**. Input sides are defined per buildin
 
 Avoid these frequent mistakes:
 
-| Pitfall                        | Solution                                                                          |
-| ------------------------------ | --------------------------------------------------------------------------------- |
-| Sprites not updating           | Run `pack-atlas.js` after changing PNGs, then hard-refresh browser                |
-| Gemini border artifacts        | Set `tileable: true` in sprites.js — flattens alpha + crops edges automatically   |
-| White edges on terrain tiles   | Ensure `tileable: true` is set; Gemini adds fake transparency checkerboard        |
-| Event listener not firing      | Check exact event name spelling (see Event API above)                             |
-| Items disappearing             | Check buffer capacity limits in `buildings.ts`                                    |
-| Transfer not working           | Verify rotation: output side must face adjacent input side                        |
-| Placement blocked unexpectedly | Check 2×2 buildings need all 4 tiles free                                         |
-| Simulation not ticking         | Verify `running: true` and `paused: false` in state                               |
-| Type errors with Maps          | Use `new Map([...])` syntax, not object literals                                  |
-| Ghost sprite wrong rotation    | `ghostRotation` lives in `BuildingPlacer`, separate from placed building rotation |
+| Pitfall                         | Solution                                                                          |
+| ------------------------------- | --------------------------------------------------------------------------------- |
+| Sprites not updating            | Run `pack-atlas.js` after changing PNGs, then hard-refresh browser                |
+| Gemini border artifacts         | Set `tileable: true` in sprites.js — flattens alpha + crops edges automatically   |
+| White edges on terrain tiles    | Ensure `tileable: true` is set; Gemini adds fake transparency checkerboard        |
+| Checkerboard on buildings/items | Run `npm run sprites:fix` — converts fake checkerboard to real alpha              |
+| Event listener not firing       | Check exact event name spelling (see Event API above)                             |
+| Items disappearing              | Check buffer capacity limits in `buildings.ts`                                    |
+| Transfer not working            | Verify rotation: output side must face adjacent input side                        |
+| Placement blocked unexpectedly  | Check 2×2 buildings need all 4 tiles free                                         |
+| Simulation not ticking          | Verify `running: true` and `paused: false` in state                               |
+| Type errors with Maps           | Use `new Map([...])` syntax, not object literals                                  |
+| Ghost sprite wrong rotation     | `ghostRotation` lives in `BuildingPlacer`, separate from placed building rotation |
 
 ## Testing Checklist
 
@@ -337,7 +341,8 @@ npm run dev                # Game loads without console errors
 
 **After sprite changes:**
 
-- [ ] `npm run sprites` completes without errors
+- [ ] `npm run sprites:fix` — fix checkerboard transparency (non-tileable sprites)
+- [ ] `npm run sprites:ai:pack` — rebuild atlas
 - [ ] New sprites appear in game at correct size
 - [ ] All 4 rotations render correctly (if applicable)
 
