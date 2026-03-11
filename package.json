@@ -10,6 +10,7 @@
     "sprites": "cd tools/spritegen && node generate.js",
     "sprites:ai": "cd tools/spritegen-ai && node generate.js",
     "sprites:ai:pack": "cd tools/spritegen-ai && node pack-atlas.js",
+    "sprites:fix": "cd tools/spritegen-ai && node fix-transparency.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",

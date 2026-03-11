@@ -80,7 +80,16 @@ Defines the pixui ThemeConfig with CC0 Mana Soul assets (fonts + 9-slice frames)
 The AI pipeline uses the **Google Gemini API** for image generation. After running sprite generation, remind the user to check API usage at:
 https://aistudio.google.com/usage?timeRange=last-28-days&project=gen-lang-client-0335300341&tab=billing
 
+**Pipeline order** (post-generation):
+
+1. `generate.js` — generate raw sprites from Gemini
+2. `trim-borders.js` — crop border artifacts
+3. `fix-transparency.js` — convert checkerboard → real alpha (`npm run sprites:fix`)
+4. `pack-atlas.js` — pack into spritesheet
+
 **Tileable sprites**: Sprites with `tileable: true` in `sprites.js` get special post-processing: alpha is flattened onto black (kills Gemini's fake transparency checkerboard), then a 4px oversize+crop removes Gemini's lighter border pixels. Always set `tileable: true` for terrain tiles that must tile seamlessly.
+
+**Non-tileable sprites**: Use `fix-transparency.js` to convert Gemini's fake checkerboard background to real alpha. Uses saturation-gated BFS flood fill from edges — only removes connected low-saturation pixels reachable from the border.
 
 ### UI Asset Pipeline (pixel-tools)
 
