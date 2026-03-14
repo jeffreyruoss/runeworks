@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { BootScene } from './scenes/BootScene';
 import { ModeSelectScene } from './scenes/ModeSelectScene';
+import { LoadingScene } from './scenes/LoadingScene';
 import { GameScene } from './scenes/GameScene';
 import { UIScene } from './scenes/UIScene';
 import { PixuiDemoScene } from './scenes/PixuiDemoScene';
@@ -22,7 +23,7 @@ const config: Phaser.Types.Core.GameConfig = {
     zoom: 1 / dpr,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
-  scene: [BootScene, ModeSelectScene, GameScene, UIScene, PixuiDemoScene],
+  scene: [BootScene, ModeSelectScene, LoadingScene, GameScene, UIScene, PixuiDemoScene],
 };
 
 const game = new Phaser.Game(config);

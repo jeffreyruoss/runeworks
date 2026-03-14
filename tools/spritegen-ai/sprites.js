@@ -112,11 +112,19 @@ export const SPRITES = [
     width: 64,
     height: 64,
     prompt:
-      `${STYLE_PREFIX} The sprite should be 64x64 logical pixels shown at large scale. ` +
-      'A top-down view of an enchanted forge/smelter. A rectangular furnace with glowing orange-red ' +
-      'flames visible through a central chamber. Dark iron casing with heat vents on the sides. ' +
-      'Molten metal channels running through it. Input hopper on one side, output chute on another. ' +
-      'Color scheme: dark iron grays, fiery orange-red center, with amber/gold highlights from the heat.',
+      'Pixel art sprite, STRICTLY top-down orthographic view (looking straight down from above, ' +
+      'NO angle, NO isometric, NO 3/4 perspective, NO vanishing point), transparent background, ' +
+      'crisp pixel edges, rich color palette with shading and highlights, subtle dithering allowed. ' +
+      'Single isolated object on transparent background, no text or labels. ' +
+      'The sprite should be 64x64 logical pixels shown at large scale. ' +
+      'A flat top-down view of a blacksmith forge, as seen from directly overhead. ' +
+      'A stone or brick hearth in the center with glowing orange-red coals and flames visible inside. ' +
+      'A dark iron anvil sitting next to the hearth. A small bellows mechanism attached to one side. ' +
+      'A water quench trough or bucket near the edge. A few metal tongs and a hammer resting on ' +
+      'the work surface. The forge hearth has a circular or rectangular stone rim. ' +
+      'Everything is shown flat from above — no side faces visible, no depth perspective. ' +
+      'Color scheme: dark gray stone hearth, bright orange-red glowing coals in the center, ' +
+      'dark iron anvil and tools, warm brown wood for the bellows handle, earthy and industrial.',
   },
   {
     name: 'workbench',

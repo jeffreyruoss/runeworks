@@ -32,7 +32,8 @@ npm run test:watch   # Run tests in watch mode during development
 All scenes extend `ResponsiveScene` from `phaser-pixui` for automatic integer-zoom scaling. UIScene extends `UiScene` for themed bitmap text and 9-slice frame components.
 
 - **BootScene** (`src/scenes/BootScene.ts`) - Asset loading, bootstraps other scenes (ResponsiveScene)
-- **ModeSelectScene** (`src/scenes/ModeSelectScene.ts`) - Game mode selection menu (ResponsiveScene)
+- **ModeSelectScene** (`src/scenes/ModeSelectScene.ts`) - Game mode selection menu with mouse/keyboard/arrow support (UiScene)
+- **LoadingScene** (`src/scenes/LoadingScene.ts`) - Transition screen with progress bar and game tips (UiScene)
 - **GameScene** (`src/scenes/GameScene.ts`) - Core gameplay orchestrator (ResponsiveScene, Maximum mode 640×400)
 - **UIScene** (`src/scenes/UIScene.ts`) - HUD overlay with bitmap text and 9-slice panels (UiScene, Minimum mode height=400)
 
@@ -100,6 +101,18 @@ https://aistudio.google.com/usage?timeRange=last-28-days&project=gen-lang-client
 - Output: `public/packed_assets/` (generated, gitignored)
 - Config: `fonts.yaml` (bitmap font specs), `ui.yaml` (UI atlas with 9-slice borders)
 - Vite plugin: `processAssetsDev` / `processAssetsProd` in `vite.config.ts`
+
+### Audio (`src/audio.ts`)
+
+Procedural 8-bit sound effects via [jsfxr](https://github.com/chr15m/jsfxr) (~2.5 KB). No audio files — sounds are synthesized at runtime from parameter objects.
+
+- `playSelectSound()` — menu select blip (used by ModeSelectScene and LoadingScene)
+- `BLINK_COUNT` / `BLINK_INTERVAL` — shared NES-style blink animation constants
+- Sound params are designed at https://sfxr.me and stored as plain objects
+- Audio is lazy-initialized on first `play()` call (deferred from module load)
+- jsfxr bypasses Phaser's SoundManager — uses WebAudio `BufferSource` directly
+
+When adding new sounds: define params in `audio.ts`, export a `playXxxSound()` function.
 
 ## Test Architecture
 
@@ -380,7 +393,7 @@ npm run dev                # Game loads without console errors
 - ⬜ Full save/load progress (only research is persisted currently)
 - ⬜ Power budget system
 - ⬜ Zoom controls
-- ⬜ Audio
+- ⬜ Audio (menu select sound exists via jsfxr; no in-game audio yet)
 
 **Current items/buildings:**
 
@@ -448,7 +461,8 @@ export function getBuildingAt(x: number, y: number, buildings: Building[]): Buil
 src/
 ├── scenes/          # Phaser scenes (all extend pixui ResponsiveScene)
 │   ├── BootScene.ts          # Asset loading (ResponsiveScene)
-│   ├── ModeSelectScene.ts    # Game mode selection (ResponsiveScene)
+│   ├── ModeSelectScene.ts    # Mode selection with mouse/keyboard (UiScene)
+│   ├── LoadingScene.ts       # Transition screen with tips (UiScene)
 │   ├── GameScene.ts          # Gameplay orchestrator (ResponsiveScene)
 │   └── UIScene.ts            # HUD rendering (pixui UiScene)
 ├── managers/        # Stateful subsystems used by scenes
@@ -486,6 +500,7 @@ src/
 ├── types.ts         # Shared interfaces
 ├── config.ts        # Game constants & THEME palette
 ├── ui-theme.ts      # pixui ThemeConfig, font/atlas constants
+├── audio.ts         # Procedural 8-bit sounds via jsfxr
 ├── utils.ts         # Pure helpers (buffers, directions, lookups)
 └── main.ts          # Phaser game config & entry point (responsive scaling)
 ```

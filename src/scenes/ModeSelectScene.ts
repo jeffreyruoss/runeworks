@@ -3,7 +3,7 @@ import { UiScene, ConstraintMode } from 'phaser-pixui';
 import { CANVAS_WIDTH, CANVAS_HEIGHT, THEME } from '../config';
 import { GameMode } from '../types';
 import { uiTheme, FONT_SM, FONT_MD, FONT_LG, C } from '../ui-theme';
-import { sfxr } from 'jsfxr';
+import { blinkTransition } from '../audio';
 
 const LOGO_SIZE = 64;
 const LOGO_OFFSET_Y = -150;
@@ -11,42 +11,6 @@ const TITLE_OFFSET_Y = -80;
 const MENU_START_OFFSET_Y = -25;
 const MENU_ITEM_SPACING = 50;
 const ICON_PADDING = 16;
-const BLINK_COUNT = 5;
-const BLINK_INTERVAL = 70; // ms per blink toggle
-
-// Menu select sound params (sawtooth blip designed in sfxr.me)
-const SELECT_SOUND_DEF = {
-  oldParams: true,
-  wave_type: 1,
-  p_env_attack: 0,
-  p_env_sustain: 0.02727193042081071,
-  p_env_punch: 0.3719218275602389,
-  p_env_decay: 0.2806954521471867,
-  p_base_freq: 0.6417857495222331,
-  p_freq_limit: 0,
-  p_freq_ramp: 0,
-  p_freq_dramp: 0,
-  p_vib_strength: 0,
-  p_vib_speed: 0,
-  p_arp_mod: 0.5313118378337934,
-  p_arp_speed: 0.5340896727515815,
-  p_duty: 0,
-  p_duty_ramp: 0,
-  p_repeat_speed: 0,
-  p_pha_offset: 0,
-  p_pha_ramp: 0,
-  p_lpf_freq: 1,
-  p_lpf_ramp: 0,
-  p_lpf_resonance: 0,
-  p_hpf_freq: 0,
-  p_hpf_ramp: 0,
-  sound_vol: 0.25,
-  sample_rate: 44100,
-  sample_size: 8,
-};
-
-// Lazy-initialized on first scene create (avoids eager synthesis at import time)
-let selectAudio: ReturnType<typeof sfxr.toAudio> | null = null;
 
 interface ModeOption {
   mode: GameMode;
@@ -87,9 +51,6 @@ export class ModeSelectScene extends UiScene {
 
   create(): void {
     super.create();
-
-    // Synthesize audio on first create (deferred from module load)
-    if (!selectAudio) selectAudio = sfxr.toAudio(SELECT_SOUND_DEF);
 
     const vp = this.viewport;
     const cx = Math.floor(vp.width / 2);
@@ -197,32 +158,17 @@ export class ModeSelectScene extends UiScene {
     this.selecting = true;
     this.input.keyboard!.off('keydown', this.handleKey, this);
 
-    // Play 8-bit select sound
-    selectAudio!.play();
-
-    // NES-style rapid blink: alternate between white and active color
-    const label = this.optionTexts[this.selectedIndex];
-    const desc = this.descTexts[this.selectedIndex];
-    let blinks = 0;
-    const totalToggles = BLINK_COUNT * 2;
-
-    this.time.addEvent({
-      delay: BLINK_INTERVAL,
-      repeat: totalToggles - 1,
-      callback: () => {
-        blinks++;
-        const isWhite = blinks % 2 === 1;
-        label.setTint(isWhite ? 0xffffff : C.active);
-        desc.setTint(isWhite ? 0xffffff : C.active);
-        this.arrowIcon.setVisible(!isWhite);
-
-        // Transition after final blink
-        if (blinks === totalToggles) {
-          const mode = MODE_OPTIONS[this.selectedIndex].mode;
-          this.scene.start('GameScene', { mode });
-          this.scene.start('UIScene', { mode });
-        }
-      },
-    });
+    blinkTransition(
+      this,
+      [
+        { obj: this.optionTexts[this.selectedIndex], tint: C.active },
+        { obj: this.descTexts[this.selectedIndex], tint: C.active },
+        { obj: this.arrowIcon, tint: 0, toggleVisible: true },
+      ],
+      () => {
+        const mode = MODE_OPTIONS[this.selectedIndex].mode;
+        this.scene.start('LoadingScene', { mode });
+      }
+    );
   }
 }
