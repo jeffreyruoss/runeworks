@@ -7,7 +7,6 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "sprites": "cd tools/spritegen && node generate.js",
     "sprites:ai": "cd tools/spritegen-ai && node generate.js",
     "sprites:ai:pack": "cd tools/spritegen-ai && node pack-atlas.js",
     "sprites:fix": "cd tools/spritegen-ai && node fix-transparency.js",
@@ -22,6 +21,7 @@
     "*.{ts,js,json,html,css,md}": "prettier --write"
   },
   "dependencies": {
+    "jsfxr": "^1.4.0",
     "phaser": "^4.0.0-rc.6",
     "phaser-pixui": "^0.1.6"
   },

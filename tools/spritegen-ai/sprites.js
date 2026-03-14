@@ -99,11 +99,13 @@ export const SPRITES = [
       'A flat top-down view of a literal open-pit stone quarry, as seen from directly overhead. ' +
       'A square excavation carved into rock. Concentric rectangular rings of stone getting darker ' +
       'toward the center, showing terraced depth through color alone (lighter edges, darker center). ' +
+      'The bottom of the pit is NOT black — instead, rough rocks and rubble are visible at the ' +
+      'bottom in dark gray and brown tones, showing the rocky floor of the excavation. ' +
       'Rough-hewn stone blocks scattered near the rim. A simple wooden A-frame or tripod hoist ' +
       'seen from above (just a few crossed timbers). Small pile of cut stone blocks near one edge. ' +
       'Everything is shown flat from above — no side faces visible, no depth perspective. ' +
-      'Color scheme: warm grays, sandy tan stone, dark shadows in the pit center, ' +
-      'brown wood accents for the hoist. Natural and earthy, not mechanical.',
+      'Color scheme: warm grays, sandy tan stone, dark gray rocky rubble in the pit center ' +
+      '(NOT black, NOT a hole), brown wood accents for the hoist. Natural and earthy, not mechanical.',
   },
   {
     name: 'forge',

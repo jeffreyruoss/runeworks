@@ -18,7 +18,6 @@ Runeworks is a keyboard-only, stage-based micro-factory builder game built with 
 npm run dev          # Start dev server on port 3000 (auto-opens browser)
 npm run build        # TypeScript compile + Vite production build to /dist
 npm run preview      # Preview production build locally
-npm run sprites      # Regenerate sprite atlas from ASCII definitions
 npm run sprites:ai   # Generate AI sprites via Gemini
 npm run sprites:fix  # Fix checkerboard transparency on AI sprites
 npm run sprites:ai:pack # Rebuild AI sprite atlas
@@ -77,8 +76,7 @@ Defines the pixui ThemeConfig with CC0 Mana Soul assets (fonts + 9-slice frames)
 
 ### Sprite Pipeline
 
-**ASCII pipeline** (legacy): `assets/sprites/src/*.txt` → `tools/spritegen/generate.js` → `assets/sprites/out/`
-**AI pipeline** (active): `tools/spritegen-ai/generate.js` → `assets/sprites/ai-out/` (loaded by BootScene)
+`tools/spritegen-ai/generate.js` → `assets/sprites/ai-out/` (loaded by BootScene)
 
 The AI pipeline uses the **Google Gemini API** for image generation. After running sprite generation, remind the user to check API usage at:
 https://aistudio.google.com/usage?timeRange=last-28-days&project=gen-lang-client-0335300341&tab=billing

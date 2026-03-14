@@ -28,7 +28,9 @@ npm run dev
 npm run dev       # Start dev server (port 3000)
 npm run build     # Production build to /dist
 npm run preview   # Preview production build
-npm run sprites   # Regenerate sprite atlas
+npm run sprites:ai      # Generate AI sprites via Gemini
+npm run sprites:fix     # Fix checkerboard transparency
+npm run sprites:ai:pack # Rebuild sprite atlas
 ```
 
 ## Tech Stack

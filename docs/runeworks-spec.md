@@ -314,19 +314,17 @@ const PALETTE = {
 
 ### Pipeline
 
-1. `/assets/sprites/src/*.txt` — ASCII sprite definitions
-2. `/tools/spritegen/` — Node script that:
-   - Reads ASCII definitions
-   - Generates individual PNGs
-   - Packs into spritesheet atlas
-   - Outputs JSON atlas metadata
-3. `/assets/sprites/ai-out/` — Generated PNG atlas + JSON (active)
-4. `/assets/sprites/out/` — Legacy ASCII pipeline output
+1. `/tools/spritegen-ai/sprites.js` — Sprite definitions with Gemini prompts
+2. `/tools/spritegen-ai/generate.js` — Generates sprites via Google Gemini API
+3. `/tools/spritegen-ai/fix-transparency.js` — Converts checkerboard to real alpha
+4. `/tools/spritegen-ai/pack-atlas.js` — Packs into spritesheet atlas + JSON metadata
+5. `/assets/sprites/ai-out/` — Generated PNGs, atlas, and JSON
 
 ### Build integration
 
-- `npm run sprites` — regenerate sprites
-- Sprites auto-regenerate on change in dev mode (Vite plugin)
+- `npm run sprites:ai` — generate sprites via Gemini
+- `npm run sprites:fix` — fix checkerboard transparency
+- `npm run sprites:ai:pack` — rebuild atlas
 
 ## 11) Audio (future)
 

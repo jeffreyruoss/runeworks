@@ -26,7 +26,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const AI_OUT = join(__dirname, '../../assets/sprites/ai-out');
-const EXISTING_OUT = join(__dirname, '../../assets/sprites/out');
 
 // Load API key from environment or .env file
 function getApiKey() {
@@ -208,19 +207,17 @@ async function downscaleSprite(
     .toBuffer();
 }
 
-// Generate comparison HTML
+// Generate sprite gallery HTML
 function generateCompareHtml(sprites) {
   const scale = 8;
   const rows = sprites
     .map((s) => {
-      const existingPath = `../../assets/sprites/out/${s.name}.png`;
       const aiPath = `../../assets/sprites/ai-out/${s.name}.png`;
       const displayW = s.width * scale;
       const displayH = s.height * scale;
       return `
       <tr>
         <td><code>${s.name}</code><br>${s.width}x${s.height}</td>
-        <td><img src="${existingPath}" width="${displayW}" height="${displayH}" style="image-rendering: pixelated;"></td>
         <td><img src="${aiPath}" width="${displayW}" height="${displayH}" style="image-rendering: pixelated;"></td>
       </tr>`;
     })
@@ -229,7 +226,7 @@ function generateCompareHtml(sprites) {
   return `<!DOCTYPE html>
 <html>
 <head>
-  <title>Runeworks Sprite Comparison</title>
+  <title>Runeworks Sprite Gallery</title>
   <style>
     body { background: #1a1a2e; color: #e0e0e0; font-family: monospace; padding: 20px; }
     h1 { color: #9b59b6; }
@@ -242,10 +239,10 @@ function generateCompareHtml(sprites) {
   </style>
 </head>
 <body>
-  <h1>Runeworks Sprite Comparison</h1>
-  <p>Existing (ASCII pipeline) vs AI-generated (Gemini) at ${scale}x magnification</p>
+  <h1>Runeworks Sprite Gallery</h1>
+  <p>AI-generated sprites (Gemini) at ${scale}x magnification</p>
   <table>
-    <tr><th>Sprite</th><th>Existing</th><th>AI Generated</th></tr>
+    <tr><th>Sprite</th><th>AI Generated</th></tr>
     ${rows}
   </table>
 </body>

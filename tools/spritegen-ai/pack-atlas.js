@@ -1,7 +1,6 @@
 /**
  * Atlas packer for AI-generated sprites.
- * Reads individual PNGs from assets/sprites/ai-out/ and old UI sprites
- * from assets/sprites/out/, packs them into a Phaser 3 atlas.
+ * Reads individual PNGs from assets/sprites/ai-out/, packs them into a Phaser 3 atlas.
  *
  * Usage: node pack-atlas.js
  * Output: assets/sprites/ai-out/spritesheet.png + spritesheet.json
@@ -14,16 +13,6 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const AI_DIR = path.resolve(__dirname, '../../assets/sprites/ai-out');
-const OLD_DIR = path.resolve(__dirname, '../../assets/sprites/out');
-
-// Old UI sprites to carry over (no AI versions exist)
-const OLD_UI_SPRITES = [
-  'cursor.png',
-  'cursor_valid.png',
-  'cursor_invalid.png',
-  'cursor_2x2.png',
-  'favicon.png',
-];
 
 async function packAtlas() {
   const entries = [];
@@ -37,22 +26,6 @@ async function packAtlas() {
     entries.push({
       name: path.basename(file, '.png'),
       path: path.join(AI_DIR, file),
-      width: meta.width,
-      height: meta.height,
-    });
-  }
-
-  // Collect old UI sprites
-  for (const file of OLD_UI_SPRITES) {
-    const filePath = path.join(OLD_DIR, file);
-    if (!fs.existsSync(filePath)) {
-      console.warn(`Warning: old sprite ${file} not found, skipping`);
-      continue;
-    }
-    const meta = await sharp(filePath).metadata();
-    entries.push({
-      name: path.basename(file, '.png'),
-      path: filePath,
       width: meta.width,
       height: meta.height,
     });

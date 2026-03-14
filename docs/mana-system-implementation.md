@@ -62,7 +62,7 @@ Added a mana power network system with three new buildings that control the spee
 ### New
 
 - `src/simulation/ManaSystem.ts` — Core mana network logic (BFS connectivity, speed multipliers, accumulator)
-- `assets/sprites/src/mana_well.txt`, `mana_obelisk.txt`, `mana_tower.txt` — ASCII sprite definitions
+- Mana building sprites defined in `tools/spritegen-ai/sprites.js` (mana_well, mana_obelisk, mana_tower)
 
 ### Modified (key changes)
 

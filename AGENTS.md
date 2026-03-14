@@ -18,8 +18,10 @@ npm run preview   # Preview production build locally
 npm run format       # Format all code with Prettier
 npm run format:check # Check formatting without modifying files
 
-# Asset Generation
-npm run sprites   # Regenerate sprite atlas from ASCII art in assets/sprites/src/*.txt
+# Asset Generation (see CLAUDE.md for full pipeline docs)
+npm run sprites:ai       # Generate AI sprites via Gemini
+npm run sprites:fix      # Fix checkerboard transparency
+npm run sprites:ai:pack  # Rebuild sprite atlas
 ```
 
 ## Architecture
@@ -70,12 +72,13 @@ Buildings have input/output sides that must align for item transfer:
 
 ### Sprite Pipeline
 
-ASCII art → PNG atlas workflow:
+AI sprite generation workflow:
 
-1. Create/edit ASCII art in `assets/sprites/src/*.txt`
-2. Run `npm run sprites` to execute `tools/spritegen/generate.js`
-3. Script generates PNG atlas in `assets/sprites/out/`
-4. BootScene loads sprite atlas at startup
+1. Define sprite in `tools/spritegen-ai/sprites.js`
+2. Run `npm run sprites:ai -- --only <name>` to generate via Gemini
+3. Run `npm run sprites:fix` to fix checkerboard transparency
+4. Run `npm run sprites:ai:pack` to rebuild atlas
+5. BootScene loads sprite atlas from `assets/sprites/ai-out/` at startup
 
 ## Key Configuration
 
@@ -167,7 +170,7 @@ npm run dev       # Launch game and verify in browser
 ### After Sprite Changes
 
 ```bash
-npm run sprites   # Must regenerate atlas after editing ASCII art
+npm run sprites:ai:pack  # Must rebuild atlas after sprite changes
 npm run dev       # Verify new sprites appear at correct size and rotation
 ```
 
@@ -175,8 +178,8 @@ npm run dev       # Verify new sprites appear at correct size and rotation
 
 1. Add BuildingType to `src/types.ts`
 2. Add definition to `src/data/buildings.ts` (specify size, power, input/output sides, buffer sizes)
-3. Add sprite ASCII art to `assets/sprites/src/` directory
-4. Run `npm run sprites` to generate sprite atlas
+3. Add sprite definition to `tools/spritegen-ai/sprites.js`
+4. Run `npm run sprites:ai -- --only <name>`, then `npm run sprites:fix` and `npm run sprites:ai:pack`
 5. Update `src/scenes/GameScene.ts` keyboard bindings if adding to hotbar
 6. If building produces items, add update logic to `src/Simulation.ts`
 

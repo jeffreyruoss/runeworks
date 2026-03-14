@@ -86,12 +86,12 @@ Use a **fixed-point accumulator** per building for deterministic behavior:
 - Accumulator logic: at top of `updateBuilding()`, for powered buildings, do the accumulator check and skip if not ready
 - Expose mana stats via `SimulationState` or a new callback
 
-### 5. Sprites (3 new ASCII definitions)
+### 5. Sprites (3 new AI sprite definitions)
 
-- `assets/sprites/src/mana_well.txt` — glowing well/fountain, 1x1
-- `assets/sprites/src/mana_obelisk.txt` — tall crystal pillar, 2x2
-- `assets/sprites/src/mana_conduit.txt` — small relay stone, 1x1
-- Run `npm run sprites` to regenerate atlas
+- `mana_well` — glowing well/fountain, 1x1
+- `mana_obelisk` — tall crystal pillar, 2x2
+- `mana_tower` — small relay stone, 1x1
+- Define in `tools/spritegen-ai/sprites.js`, generate with `npm run sprites:ai`
 
 ### 6. Input & Placement
 
@@ -131,12 +131,12 @@ Use a **fixed-point accumulator** per building for deterministic behavior:
 | `src/data/stages.ts`               | Stage adjustments for mana introduction                                 |
 | `src/managers/GuidePanel.ts`       | Document mana buildings                                                 |
 | `src/config.ts`                    | Mana-related constants if needed                                        |
-| `assets/sprites/src/*.txt`         | 3 new sprite definitions                                                |
+| `tools/spritegen-ai/sprites.js`    | 3 new sprite definitions                                                |
 
 ## Verification
 
 1. `npm run build` — compiles without errors
-2. `npm run sprites` — generates new building sprites
+2. `npm run sprites:ai` — generates new building sprites
 3. `npm run dev` — manual testing:
    - Stages 1-4: play normally, no mana mechanic visible
    - Stage 5: place workbench without mana well — it runs at 5% (very slow)
