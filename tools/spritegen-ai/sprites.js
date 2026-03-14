@@ -65,6 +65,7 @@ export const SPRITES = [
       'Color scheme: dark iron gray metal, faint cyan-blue accent on the rivet, purple-gray highlights.',
   },
 
+  // Custom prefix: menu UI element uses front-facing view to match pixui Mana Soul style
   {
     name: 'menu_rune',
     width: 16,

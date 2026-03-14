@@ -1,8 +1,15 @@
 import Phaser from 'phaser';
 import { UiScene, ConstraintMode } from 'phaser-pixui';
-import { TILE_SIZE, CANVAS_WIDTH, CANVAS_HEIGHT } from '../config';
+import { CANVAS_WIDTH, CANVAS_HEIGHT, THEME } from '../config';
 import { GameMode } from '../types';
 import { uiTheme, FONT_SM, FONT_MD, FONT_LG, C } from '../ui-theme';
+
+const LOGO_SIZE = 64;
+const LOGO_OFFSET_Y = -150;
+const TITLE_OFFSET_Y = -80;
+const MENU_START_OFFSET_Y = -25;
+const MENU_ITEM_SPACING = 50;
+const ICON_PADDING = 16;
 
 interface ModeOption {
   mode: GameMode;
@@ -47,25 +54,24 @@ export class ModeSelectScene extends UiScene {
     const cx = Math.floor(vp.width / 2);
     const cy = Math.floor(vp.height / 2);
 
-    // Background fills entire viewport
-    const bg = this.add.graphics();
-    bg.fillStyle(0x000000, 1);
-    bg.fillRect(0, 0, vp.width, vp.height);
+    // Background — oversized to survive viewport resizes
+    const bg = this.add.rectangle(0, 0, 9999, 9999, THEME.modeSelect.bg);
+    bg.setOrigin(0, 0);
 
     // Logo crest
-    const logo = this.add.sprite(cx, cy - 150, 'sprites', 'logo_crest');
+    const logo = this.add.sprite(cx, cy + LOGO_OFFSET_Y, 'sprites', 'logo_crest');
     logo.setOrigin(0.5, 0.5);
-    logo.setDisplaySize(TILE_SIZE * 4, TILE_SIZE * 4);
+    logo.setDisplaySize(LOGO_SIZE, LOGO_SIZE);
 
     // Title — bitmap text scaled up for big impact
-    const title = this.add.bitmapText(cx, cy - 80, FONT_LG, 'RUNEWORKS');
+    const title = this.add.bitmapText(cx, cy + TITLE_OFFSET_Y, FONT_LG, 'RUNEWORKS');
     title.setOrigin(0.5, 0.5);
     title.setScale(3);
     title.setTint(C.light);
 
     // Mode options — centered vertically around viewport center
-    this.optionStartY = cy - 25;
-    this.optionSpacing = 50;
+    this.optionStartY = cy + MENU_START_OFFSET_Y;
+    this.optionSpacing = MENU_ITEM_SPACING;
 
     for (let i = 0; i < MODE_OPTIONS.length; i++) {
       const opt = MODE_OPTIONS[i];
@@ -120,16 +126,15 @@ export class ModeSelectScene extends UiScene {
   }
 
   private updateSelection(): void {
-    const cx = Math.floor(this.viewport.width / 2);
-
     for (let i = 0; i < this.optionTexts.length; i++) {
       const selected = i === this.selectedIndex;
       this.optionTexts[i].setTint(selected ? C.active : C.secondary);
-      this.descTexts[i].setTint(selected ? 0x88d8e8 : C.muted);
+      this.descTexts[i].setTint(selected ? C.active : C.muted);
     }
 
+    const label = this.optionTexts[this.selectedIndex];
     const y = this.optionStartY + this.selectedIndex * this.optionSpacing;
-    this.arrowIcon.setPosition(cx - 80, y);
+    this.arrowIcon.setPosition(label.x - label.width / 2 - ICON_PADDING, y);
   }
 
   private selectMode(): void {

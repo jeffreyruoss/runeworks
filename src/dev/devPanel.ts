@@ -198,8 +198,9 @@ function resetAndReload(): void {
 
 function launchUiDemo(): void {
   if (!gameRef) return;
-  // Stop all running scenes and start the demo
-  gameRef.scene.getScenes(true).forEach((s) => gameRef!.scene.stop(s));
+  // Copy array to avoid mutation during iteration
+  const scenes = [...gameRef.scene.getScenes(true)];
+  scenes.forEach((s) => gameRef!.scene.stop(s));
   gameRef.scene.start('PixuiDemoScene');
   togglePanel();
 }

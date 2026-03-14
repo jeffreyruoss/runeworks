@@ -83,7 +83,7 @@ export const THEME = {
     progressBar: 0x4af0ff,
   },
   modeSelect: {
-    bg: 0x0d0b1a,
+    bg: 0x000000,
   },
   tutorial: {
     border: 0x4af0ff,
