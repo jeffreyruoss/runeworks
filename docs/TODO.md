@@ -7,6 +7,14 @@
 
 ## NEXT
 
+SEE docs/game-design-v2.md
+
+Have Claude build out game-design-v2.md (might want to do the font size task below first)
+
+Clean up / remove docs that are no longer relevant because of game-design-v2.
+
+Tell claude to add new game-design-v2 to CLAUDE.md
+
 Jeff note: make the fonts and UI as small as possible while still being readable on my macbook air.
 Let's make all of the game scene fonts one increment smaller.
 
