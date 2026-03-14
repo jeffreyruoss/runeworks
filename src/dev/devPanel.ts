@@ -1,3 +1,4 @@
+import Phaser from 'phaser';
 import { GameMode, PlayerResources } from '../types';
 import { RESEARCH_NODES } from '../data/research';
 import { STAGES } from '../data/stages';
@@ -5,6 +6,7 @@ import { TUTORIALS } from '../data/tutorials';
 import { loadDevSettings, saveDevSettings, clearDevSettings, DevSettings } from './devSettings';
 import { updateDevIndicator } from './devIndicator';
 
+let gameRef: Phaser.Game | null = null;
 const PANEL_ID = 'dev-settings-panel';
 const RESOURCE_KEYS: (keyof PlayerResources)[] = ['stone', 'wood', 'iron', 'clay', 'crystal_shard'];
 const GAME_MODES: (GameMode | '')[] = ['', 'tutorial', 'stages', 'sandbox'];
@@ -42,6 +44,7 @@ function createPanel(): HTMLDivElement {
   // Wire up buttons after innerHTML is set
   panel.querySelector('#dev-apply')?.addEventListener('click', applyAndReload);
   panel.querySelector('#dev-reset')?.addEventListener('click', resetAndReload);
+  panel.querySelector('#dev-uidemo')?.addEventListener('click', launchUiDemo);
 
   return panel;
 }
@@ -62,9 +65,12 @@ function buildPanelHTML(s: DevSettings): string {
     return `<label style="display:block;margin:1px 0"><input type="checkbox" data-node="${n.id}" ${checked}> ${n.name} (${n.branch}, ${n.cost}RP)</label>`;
   }).join('');
 
+  const headingStyle = 'font-size:14px;font-weight:bold;color:#ff6600';
+
   return `
+    <div style="font-size:18px;font-weight:bold;color:#ff6600;margin-bottom:10px">DEVELOPMENT</div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <span style="font-size:14px;font-weight:bold;color:#ff6600">DEV SETTINGS</span>
+      <span style="${headingStyle}">SETTINGS</span>
       <label><input type="checkbox" id="dev-enabled" ${s.enabled ? 'checked' : ''}> Enabled</label>
     </div>
     <hr style="border-color:#333">
@@ -104,6 +110,12 @@ function buildPanelHTML(s: DevSettings): string {
     <div style="margin-top:12px;display:flex;gap:8px">
       <button id="dev-apply" style="${buttonStyle('#ff6600')}">Apply & Reload</button>
       <button id="dev-reset" style="${buttonStyle('#666')}">Reset All</button>
+    </div>
+
+    <hr style="border-color:#333;margin:12px 0">
+    <span style="${headingStyle}">TOOLS</span>
+    <div style="margin-top:6px">
+      <button id="dev-uidemo" style="${buttonStyle('#4a90d9')}">Open UI Demo</button>
     </div>
   `;
 }
@@ -184,6 +196,14 @@ function resetAndReload(): void {
   window.location.reload();
 }
 
+function launchUiDemo(): void {
+  if (!gameRef) return;
+  // Stop all running scenes and start the demo
+  gameRef.scene.getScenes(true).forEach((s) => gameRef!.scene.stop(s));
+  gameRef.scene.start('PixuiDemoScene');
+  togglePanel();
+}
+
 function togglePanel(): void {
   let panel = document.getElementById(PANEL_ID) as HTMLDivElement | null;
   if (!panel) panel = createPanel();
@@ -192,7 +212,8 @@ function togglePanel(): void {
 }
 
 /** Call once after Phaser game is created. Sets up backtick toggle + indicator. */
-export function initDevTools(): void {
+export function initDevTools(game: Phaser.Game): void {
+  gameRef = game;
   window.addEventListener('keydown', (e) => {
     if (e.code === 'Backquote') {
       e.preventDefault();

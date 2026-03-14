@@ -1,11 +1,11 @@
 import Phaser from 'phaser';
 import { UiScene, ConstraintMode } from 'phaser-pixui';
-import { TILE_SIZE, CANVAS_WIDTH, CANVAS_HEIGHT, THEME } from '../config';
+import { TILE_SIZE, CANVAS_WIDTH, CANVAS_HEIGHT } from '../config';
 import { GameMode } from '../types';
 import { uiTheme, FONT_SM, FONT_MD, FONT_LG, C } from '../ui-theme';
 
 interface ModeOption {
-  mode: GameMode | 'pixui_demo';
+  mode: GameMode;
   label: string;
   description: string;
 }
@@ -14,7 +14,6 @@ const MODE_OPTIONS: ModeOption[] = [
   { mode: 'tutorial', label: 'TUTORIAL', description: 'Learn the basics step by step' },
   { mode: 'stages', label: 'STAGES', description: '10-stage progression challenge' },
   { mode: 'sandbox', label: 'SANDBOX', description: 'All buildings unlocked, no objectives' },
-  { mode: 'pixui_demo', label: 'UI DEMO', description: 'Preview all pixUI components' },
 ];
 
 /**
@@ -25,7 +24,7 @@ export class ModeSelectScene extends UiScene {
   private selectedIndex = 0;
   private optionTexts: Phaser.GameObjects.BitmapText[] = [];
   private descTexts: Phaser.GameObjects.BitmapText[] = [];
-  private arrowText!: Phaser.GameObjects.BitmapText;
+  private arrowIcon!: Phaser.GameObjects.Sprite;
   private optionStartY = 0;
   private optionSpacing = 0;
 
@@ -48,9 +47,9 @@ export class ModeSelectScene extends UiScene {
     const cx = Math.floor(vp.width / 2);
     const cy = Math.floor(vp.height / 2);
 
-    // Background fills entire viewport (prevents game bg color bleeding through)
+    // Background fills entire viewport
     const bg = this.add.graphics();
-    bg.fillStyle(THEME.modeSelect.bg, 1);
+    bg.fillStyle(0x000000, 1);
     bg.fillRect(0, 0, vp.width, vp.height);
 
     // Logo crest
@@ -58,14 +57,11 @@ export class ModeSelectScene extends UiScene {
     logo.setOrigin(0.5, 0.5);
     logo.setDisplaySize(TILE_SIZE * 4, TILE_SIZE * 4);
 
-    // Title — bitmap text for crisp rendering
-    const title = this.add.bitmapText(cx, cy - 105, FONT_LG, 'RUNEWORKS');
+    // Title — bitmap text scaled up for big impact
+    const title = this.add.bitmapText(cx, cy - 80, FONT_LG, 'RUNEWORKS');
     title.setOrigin(0.5, 0.5);
+    title.setScale(3);
     title.setTint(C.light);
-
-    const subtitle = this.add.bitmapText(cx, cy - 82, FONT_SM, 'Micro-Factory Builder');
-    subtitle.setOrigin(0.5, 0.5);
-    subtitle.setTint(0x8078a0);
 
     // Mode options — centered vertically around viewport center
     this.optionStartY = cy - 25;
@@ -86,10 +82,9 @@ export class ModeSelectScene extends UiScene {
       this.descTexts.push(desc);
     }
 
-    // Selection arrow
-    this.arrowText = this.add.bitmapText(0, 0, FONT_MD, '>');
-    this.arrowText.setOrigin(0.5, 0.5);
-    this.arrowText.setTint(C.active);
+    // Selection rune icon
+    this.arrowIcon = this.add.sprite(0, 0, 'sprites', 'menu_rune');
+    this.arrowIcon.setOrigin(0.5, 0.5);
 
     this.updateSelection();
 
@@ -134,16 +129,12 @@ export class ModeSelectScene extends UiScene {
     }
 
     const y = this.optionStartY + this.selectedIndex * this.optionSpacing;
-    this.arrowText.setPosition(cx - 80, y);
+    this.arrowIcon.setPosition(cx - 80, y);
   }
 
   private selectMode(): void {
     const mode = MODE_OPTIONS[this.selectedIndex].mode;
     this.input.keyboard!.off('keydown', this.handleKey, this);
-    if (mode === 'pixui_demo') {
-      this.scene.start('PixuiDemoScene');
-      return;
-    }
     this.scene.start('GameScene', { mode });
     this.scene.start('UIScene', { mode });
   }

@@ -65,6 +65,25 @@ export const SPRITES = [
       'Color scheme: dark iron gray metal, faint cyan-blue accent on the rivet, purple-gray highlights.',
   },
 
+  {
+    name: 'menu_rune',
+    width: 16,
+    height: 16,
+    prompt:
+      'Pixel art sprite, front-facing view (NOT top-down), transparent background, 16-bit SNES-era style, ' +
+      'crisp pixel edges, rich color palette with shading and highlights. ' +
+      'Single isolated object on transparent background, no text or labels. ' +
+      'The sprite should be 16x16 logical pixels shown at large scale. ' +
+      'A small ornate golden diamond-shaped rune marker, styled to match the Mana Soul UI asset pack. ' +
+      'An upright diamond or rhombus shape with ornate golden-amber filigree edges and a glowing ' +
+      'cyan-blue magical center gem or rune glyph. Thin golden border with small decorative curls at ' +
+      'the top and bottom points. The center has a bright cyan-teal magical glow. ' +
+      'Style reference: ornate golden pixel art UI elements with deep amber/gold metallic frames ' +
+      'and bright cyan magical energy — like a menu selection indicator gem. ' +
+      'Color scheme: warm golden-amber metallic frame, bright cyan-teal glowing center, ' +
+      'subtle purple shadows in the recesses.',
+  },
+
   // === Buildings (64x64, 2x2 tile) ===
   {
     name: 'quarry',
