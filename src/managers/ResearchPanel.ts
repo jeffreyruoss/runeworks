@@ -3,7 +3,7 @@ import { TICKS_PER_SECOND } from '../config';
 import { RESEARCH_NODES, RESEARCH_RECIPES, ResearchBranch, ResearchNode } from '../data/research';
 import { ITEM_DISPLAY_NAMES } from '../data/stages';
 import { ResearchManager } from './ResearchManager';
-import { FONT_SM, UI_ATLAS, C } from '../ui-theme';
+import { FONT_SM, C, addPanelBackground } from '../ui-theme';
 import { getViewport } from '../utils';
 
 interface NodeDisplay {
@@ -106,11 +106,7 @@ export class ResearchPanel {
     const panelW = contentW + 2 * padX;
     const panelH = contentH + 2 * padY;
 
-    const bg = this.scene.add.nineslice(0, 0, UI_ATLAS, 'frame_dark', panelW, panelH);
-    bg.setOrigin(0.5, 0.5);
-    bg.setAlpha(0.93);
-    bg.setTint(0x8844aa);
-    this.container.add(bg);
+    addPanelBackground(this.scene, this.container, panelW, panelH);
 
     const left = -panelW / 2 + padX;
     const top = -panelH / 2 + padY;

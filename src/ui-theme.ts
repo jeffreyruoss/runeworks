@@ -1,3 +1,4 @@
+import Phaser from 'phaser';
 import { ThemeConfig, TextAlign } from 'phaser-pixui';
 
 /**
@@ -62,3 +63,29 @@ export const UI_ATLAS = 'mana_soul';
 export const FONT_SM = 'mana_roots'; // Smallest — good for HUD text
 export const FONT_MD = 'mana_trunk'; // Medium — good for panel headers
 export const FONT_LG = 'mana_branches'; // Largest — good for titles
+
+// Panel background constants
+const PANEL_FILL = 0x080818;
+const PANEL_FRAME_TINT = 0x6688cc;
+const PANEL_FRAME_ALPHA = 0.6;
+
+/** Standard dark-fill + tinted-frame panel background. Returns refs for dynamic resizing. */
+export function addPanelBackground(
+  scene: Phaser.Scene,
+  container: Phaser.GameObjects.Container,
+  width: number,
+  height: number,
+  options?: { fillColor?: number; frameTint?: number; frameAlpha?: number }
+): { fill: Phaser.GameObjects.Rectangle; frame: Phaser.GameObjects.NineSlice } {
+  const fill = scene.add.rectangle(0, 0, width, height, options?.fillColor ?? PANEL_FILL);
+  fill.setOrigin(0.5, 0.5);
+  container.add(fill);
+
+  const frame = scene.add.nineslice(0, 0, UI_ATLAS, 'frame_dark', width, height);
+  frame.setOrigin(0.5, 0.5);
+  frame.setAlpha(options?.frameAlpha ?? PANEL_FRAME_ALPHA);
+  frame.setTint(options?.frameTint ?? PANEL_FRAME_TINT);
+  container.add(frame);
+
+  return { fill, frame };
+}

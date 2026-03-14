@@ -3,7 +3,7 @@ import { THEME } from '../config';
 import { GameUIState } from '../types';
 import { getStage, ITEM_DISPLAY_NAMES, PRODUCTION_CHAINS } from '../data/stages';
 import { TUTORIALS } from '../data/tutorials';
-import { FONT_SM, UI_ATLAS, C } from '../ui-theme';
+import { FONT_SM, C, addPanelBackground } from '../ui-theme';
 import { getViewport } from '../utils';
 
 const PAD_X = 20;
@@ -22,6 +22,7 @@ export class ObjectivesPanel {
 
   // Objectives panel
   private objectivesContainer!: Phaser.GameObjects.Container;
+  private bgFill!: Phaser.GameObjects.Rectangle;
   private bg!: Phaser.GameObjects.NineSlice;
   private stageTitleText!: Phaser.GameObjects.BitmapText;
   private divider!: Phaser.GameObjects.Graphics;
@@ -51,10 +52,9 @@ export class ObjectivesPanel {
     this.objectivesContainer.setVisible(false);
 
     // Background (sized dynamically in updateObjectivesContent)
-    this.bg = this.scene.add.nineslice(0, 0, UI_ATLAS, 'frame_dark', 100, 100);
-    this.bg.setOrigin(0.5, 0.5);
-    this.bg.setAlpha(0.93);
-    this.objectivesContainer.add(this.bg);
+    const { fill, frame } = addPanelBackground(this.scene, this.objectivesContainer, 100, 100);
+    this.bgFill = fill;
+    this.bg = frame;
 
     // Title
     this.stageTitleText = this.scene.add.bitmapText(0, 0, FONT_SM, '');
@@ -107,10 +107,10 @@ export class ObjectivesPanel {
     const panelW = contentW + 2 * PAD_X;
     const panelH = contentH + 2 * PAD_Y;
 
-    const bg = this.scene.add.nineslice(0, 0, UI_ATLAS, 'frame_bright', panelW, panelH);
-    bg.setOrigin(0.5, 0.5);
-    bg.setTint(C.valid);
-    this.stageCompleteContainer.add(bg);
+    addPanelBackground(this.scene, this.stageCompleteContainer, panelW, panelH, {
+      frameTint: 0x66cc88,
+      frameAlpha: 0.8,
+    });
 
     const top = -panelH / 2 + PAD_Y;
     let y = top;
@@ -199,6 +199,7 @@ export class ObjectivesPanel {
 
     const panelW = contentW + 2 * PAD_X;
     const panelH = contentH + 2 * PAD_Y;
+    this.bgFill.setSize(panelW, panelH);
     this.bg.setSize(panelW, panelH);
 
     const left = -contentW / 2;

@@ -7,6 +7,7 @@
 
 ## NEXT
 
+Jeff note: make the fonts and UI as small as possible while still being readable on my macbook air.
 Let's make all of the game scene fonts one increment smaller.
 
 fade in the main game scene from black.

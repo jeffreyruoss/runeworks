@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { FONT_SM, UI_ATLAS, C } from '../ui-theme';
+import { FONT_SM, C, addPanelBackground } from '../ui-theme';
 import { getViewport } from '../utils';
 
 /**
@@ -30,10 +30,7 @@ export class InventoryPanel {
     const panelW = contentW + 2 * padX;
     const panelH = contentH + 2 * padY;
 
-    const bg = scene.add.nineslice(0, 0, UI_ATLAS, 'frame_dark', panelW, panelH);
-    bg.setOrigin(0.5, 0.5);
-    bg.setAlpha(0.93);
-    container.add(bg);
+    addPanelBackground(scene, container, panelW, panelH);
 
     const top = -panelH / 2 + padY;
 

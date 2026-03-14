@@ -6,7 +6,7 @@ import { RECIPES } from '../data/recipes';
 import { RESEARCH_RECIPES } from '../data/research';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
 import { BuildingType, ItemType } from '../types';
-import { FONT_SM, UI_ATLAS, C } from '../ui-theme';
+import { FONT_SM, C, addPanelBackground } from '../ui-theme';
 import { getViewport } from '../utils';
 
 /** Items that have 8x8 sprites in the atlas */
@@ -109,10 +109,7 @@ export class GuidePanel {
     const panelW = contentW + 2 * padX;
     const panelH = contentH + 2 * padY;
 
-    const bg = this.scene.add.nineslice(0, 0, UI_ATLAS, 'frame_dark', panelW, panelH);
-    bg.setOrigin(0.5, 0.5);
-    bg.setAlpha(0.93);
-    this.container.add(bg);
+    addPanelBackground(this.scene, this.container, panelW, panelH);
 
     const left = -panelW / 2 + padX;
     const top = -panelH / 2 + padY;
