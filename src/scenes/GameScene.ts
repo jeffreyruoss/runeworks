@@ -240,6 +240,11 @@ export class GameScene extends ResponsiveScene {
   // --- Input handlers ---
 
   private handleMoveCursor(dx: number, dy: number): void {
+    if (this.panelManager.isOpen('guide')) {
+      // Guide tabs are horizontal-only; vertical keys (E/D) are intentionally ignored
+      if (dx !== 0) this.events.emit('guideNavigate', dx);
+      return;
+    }
     if (this.panelManager.isOpen('research')) {
       this.events.emit('researchNavigate', dx, dy);
       return;

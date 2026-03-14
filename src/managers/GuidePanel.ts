@@ -36,13 +36,24 @@ const RESOURCE_ENTRIES: Array<{ item: ItemType; terrain: ResourceTerrainType }> 
   { item: 'sunite', terrain: 'sunite' },
 ];
 
+const TAB_NAMES = ['RESOURCES', 'ITEMS', 'BUILDINGS', 'RESEARCH'];
+const TAB_COLORS = [0x88aaff, 0xffaa44, 0x44ff88, 0xcc88ff];
+
+interface TabDisplay {
+  container: Phaser.GameObjects.Container;
+  header: Phaser.GameObjects.BitmapText;
+  underline: Phaser.GameObjects.Graphics;
+}
+
 /**
- * Full-page guide panel showing all resources, items, buildings, and recipes.
- * Toggled with the G key.
+ * Full-page guide panel with tabbed layout.
+ * Switch tabs with S/F keys, close with G or X.
  */
 export class GuidePanel {
   private scene: Phaser.Scene;
   private container!: Phaser.GameObjects.Container;
+  private tabs: TabDisplay[] = [];
+  private currentTab = 0;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
@@ -50,7 +61,39 @@ export class GuidePanel {
   }
 
   setVisible(visible: boolean): void {
+    const wasVisible = this.container.visible;
     this.container.setVisible(visible);
+    if (visible && !wasVisible) this.updateTabDisplay();
+  }
+
+  navigate(dx: number): void {
+    const newTab = Phaser.Math.Clamp(this.currentTab + dx, 0, TAB_NAMES.length - 1);
+    if (newTab !== this.currentTab) {
+      this.currentTab = newTab;
+      this.updateTabDisplay();
+    }
+  }
+
+  private updateTabDisplay(): void {
+    for (let i = 0; i < this.tabs.length; i++) {
+      const active = i === this.currentTab;
+      this.tabs[i].container.setVisible(active);
+      this.tabs[i].header.setTint(active ? TAB_COLORS[i] : C.muted);
+      this.tabs[i].underline.setVisible(active);
+    }
+  }
+
+  /** Add a small item sprite to a container if the item has a sprite in the atlas */
+  private addItemSprite(
+    ct: Phaser.GameObjects.Container,
+    item: ItemType,
+    x: number,
+    y: number
+  ): void {
+    if (!ITEM_SPRITES.has(item)) return;
+    const sprite = this.scene.add.sprite(x, y, 'sprites', item);
+    sprite.setDisplaySize(10, 10);
+    ct.add(sprite);
   }
 
   private createPanel(): void {
@@ -61,7 +104,7 @@ export class GuidePanel {
 
     const padX = 20;
     const padY = 16;
-    const contentW = 540;
+    const contentW = 500;
     const contentH = 340;
     const panelW = contentW + 2 * padX;
     const panelH = contentH + 2 * padY;
@@ -74,114 +117,117 @@ export class GuidePanel {
     const left = -panelW / 2 + padX;
     const top = -panelH / 2 + padY;
 
+    // Title
     const title = this.scene.add.bitmapText(0, top, FONT_SM, 'GUIDE');
     title.setOrigin(0.5, 0);
     title.setTint(C.light);
     this.container.add(title);
 
-    const colX = [left, left + 186, left + 366];
-    const topY = top + 20;
+    // Tab bar
+    const tabY = top + 18;
+    const tabSpacing = contentW / TAB_NAMES.length;
 
-    this.createResourcesSection(colX[0], topY);
-    this.createItemsSection(colX[1], topY);
-    this.createBuildingsSection(colX[2], topY);
-    this.createResearchRecipesSection(colX[1], topY + 185);
+    for (let i = 0; i < TAB_NAMES.length; i++) {
+      const tabX = left + tabSpacing * i + tabSpacing / 2;
 
-    const hint = this.scene.add.bitmapText(0, top + contentH, FONT_SM, 'Press G or X to close');
+      const header = this.scene.add.bitmapText(tabX, tabY, FONT_SM, TAB_NAMES[i]);
+      header.setOrigin(0.5, 0);
+      header.setTint(C.muted);
+      this.container.add(header);
+
+      const underline = this.scene.add.graphics();
+      const hw = header.width / 2;
+      underline.lineStyle(1, TAB_COLORS[i]);
+      underline.lineBetween(tabX - hw, tabY + 14, tabX + hw, tabY + 14);
+      underline.setVisible(false);
+      this.container.add(underline);
+
+      const tc = this.scene.add.container(0, 0);
+      tc.setVisible(false);
+      this.container.add(tc);
+
+      this.tabs.push({ container: tc, header, underline });
+    }
+
+    // Divider below tabs
+    const dividerY = tabY + 18;
+    const divider = this.scene.add.graphics();
+    divider.lineStyle(1, 0x444466);
+    divider.lineBetween(left, dividerY, left + contentW, dividerY);
+    this.container.add(divider);
+
+    // Content area below divider
+    const contentTop = dividerY + 6;
+
+    this.createResourcesTab(this.tabs[0].container, left, contentTop);
+    this.createItemsTab(this.tabs[1].container, left, contentTop);
+    this.createBuildingsTab(this.tabs[2].container, left, contentTop);
+    this.createResearchTab(this.tabs[3].container, left, contentTop);
+
+    // Hint text
+    const hint = this.scene.add.bitmapText(0, top + contentH, FONT_SM, 'S/F:Switch Tab  G/X:Close');
     hint.setOrigin(0.5, 1);
     hint.setTint(0x8078a0);
     this.container.add(hint);
   }
 
-  private createResourcesSection(x: number, y: number): void {
-    const header = this.scene.add.bitmapText(x, y, FONT_SM, 'RESOURCES');
-    header.setTint(0x88aaff);
-    this.container.add(header);
-
-    const divider = this.scene.add.graphics();
-    divider.lineStyle(1, 0x444466);
-    divider.lineBetween(x, y + 14, x + 170, y + 14);
-    this.container.add(divider);
-
-    let rowY = y + 18;
+  private createResourcesTab(ct: Phaser.GameObjects.Container, x: number, y: number): void {
+    let rowY = y;
     for (const entry of RESOURCE_ENTRIES) {
       const name = ITEM_DISPLAY_NAMES[entry.item] || entry.item;
       const source = TERRAIN_DISPLAY_NAMES[entry.terrain];
-
-      const thumb = this.scene.add.graphics();
       const colors = TERRAIN_COLORS[entry.terrain];
+
+      // Color swatch
+      const thumb = this.scene.add.graphics();
       thumb.fillStyle(colors.highlight, 1);
-      thumb.fillRect(x, rowY, 10, 10);
-      this.container.add(thumb);
+      thumb.fillRect(x, rowY + 1, 10, 10);
+      ct.add(thumb);
 
-      const nameText = this.scene.add.bitmapText(x + 14, rowY, FONT_SM, name);
-      nameText.setTint(0xc8c0d8);
-      this.container.add(nameText);
+      this.addItemSprite(ct, entry.item, x + 22, rowY + 6);
 
-      const sourceText = this.scene.add.bitmapText(x + 14, rowY + 12, FONT_SM, source);
+      const nameText = this.scene.add.bitmapText(x + 32, rowY, FONT_SM, name);
+      nameText.setTint(C.secondary);
+      ct.add(nameText);
+
+      const sourceText = this.scene.add.bitmapText(x + 140, rowY, FONT_SM, source);
       sourceText.setTint(C.muted);
-      this.container.add(sourceText);
+      ct.add(sourceText);
 
-      rowY += 22;
+      rowY += 18;
     }
   }
 
-  private createItemsSection(x: number, y: number): void {
-    const header = this.scene.add.bitmapText(x, y, FONT_SM, 'CRAFTED ITEMS');
-    header.setTint(0xffaa44);
-    this.container.add(header);
-
-    const divider = this.scene.add.graphics();
-    divider.lineStyle(1, 0x664422);
-    divider.lineBetween(x, y + 14, x + 170, y + 14);
-    this.container.add(divider);
-
-    let rowY = y + 18;
+  private createItemsTab(ct: Phaser.GameObjects.Container, x: number, y: number): void {
+    let rowY = y;
     for (const recipe of RECIPES) {
       const outputItem = [...recipe.outputs.keys()][0];
       const outputCount = recipe.outputs.get(outputItem)!;
       const name = ITEM_DISPLAY_NAMES[outputItem] || outputItem;
 
-      if (ITEM_SPRITES.has(outputItem)) {
-        const sprite = this.scene.add.sprite(x + 5, rowY + 5, 'sprites', outputItem);
-        sprite.setDisplaySize(10, 10);
-        this.container.add(sprite);
-      } else {
-        const thumb = this.scene.add.graphics();
-        thumb.fillStyle(0x888888, 1);
-        thumb.fillRect(x, rowY, 10, 10);
-        this.container.add(thumb);
-      }
+      this.addItemSprite(ct, outputItem, x + 5, rowY + 5);
 
       const nameText = this.scene.add.bitmapText(x + 14, rowY, FONT_SM, name);
-      nameText.setTint(0xc8c0d8);
-      this.container.add(nameText);
+      nameText.setTint(C.secondary);
+      ct.add(nameText);
 
+      // Recipe details on second line
       const inputStr = [...recipe.inputs.entries()]
         .map(([item, count]) => `${count} ${ITEM_DISPLAY_NAMES[item] || item}`)
         .join(' + ');
       const timeStr = `${recipe.craftTimeTicks / TICKS_PER_SECOND}s`;
       const buildingName = recipe.building.charAt(0).toUpperCase() + recipe.building.slice(1);
-      const recipeStr = `${inputStr} -> ${outputCount} (${timeStr}) [${buildingName}]`;
+      const detail = `${inputStr} -> ${outputCount} (${timeStr}, ${buildingName})`;
 
-      const recipeText = this.scene.add.bitmapText(x + 14, rowY + 12, FONT_SM, recipeStr);
-      recipeText.setTint(C.muted);
-      this.container.add(recipeText);
+      const detailText = this.scene.add.bitmapText(x + 14, rowY + 14, FONT_SM, detail);
+      detailText.setTint(C.muted);
+      ct.add(detailText);
 
-      rowY += 24;
+      rowY += 32;
     }
   }
 
-  private createBuildingsSection(x: number, y: number): void {
-    const header = this.scene.add.bitmapText(x, y, FONT_SM, 'BUILDINGS');
-    header.setTint(C.valid);
-    this.container.add(header);
-
-    const divider = this.scene.add.graphics();
-    divider.lineStyle(1, 0x226644);
-    divider.lineBetween(x, y + 14, x + 170, y + 14);
-    this.container.add(divider);
-
+  private createBuildingsTab(ct: Phaser.GameObjects.Container, x: number, y: number): void {
     const buildings: BuildingType[] = [
       'quarry',
       'forge',
@@ -193,7 +239,7 @@ export class GuidePanel {
       'mana_tower',
     ];
 
-    let rowY = y + 18;
+    let rowY = y;
     for (const bType of buildings) {
       const def = BUILDING_DEFINITIONS[bType];
       const cost = BUILDING_COSTS[bType];
@@ -202,76 +248,91 @@ export class GuidePanel {
         .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
         .join(' ');
 
+      // Building sprite
       const sprite = this.scene.add.sprite(x + 7, rowY + 7, 'sprites', bType);
       sprite.setDisplaySize(14, 14);
-      this.container.add(sprite);
+      ct.add(sprite);
 
-      const nameText = this.scene.add.bitmapText(x + 18, rowY, FONT_SM, name);
-      nameText.setTint(0xc8c0d8);
-      this.container.add(nameText);
+      // Name + size
+      const sizeStr = `${def.width}x${def.height}`;
+      const nameText = this.scene.add.bitmapText(x + 18, rowY, FONT_SM, `${name}  (${sizeStr})`);
+      nameText.setTint(C.secondary);
+      ct.add(nameText);
 
+      // Cost
       const costStr = Object.entries(cost)
         .filter(([, v]) => v && v > 0)
         .map(([k, v]) => `${v} ${RESOURCE_DISPLAY_NAMES[k] || k}`)
-        .join(' ');
-      const sizeStr = `${def.width}x${def.height}`;
+        .join(', ');
+      const costText = this.scene.add.bitmapText(x + 18, rowY + 13, FONT_SM, `Cost: ${costStr}`);
+      costText.setTint(C.muted);
+      ct.add(costText);
 
-      const detailText = this.scene.add.bitmapText(
-        x + 18,
-        rowY + 12,
-        FONT_SM,
-        `${sizeStr}  Cost: ${costStr}`
-      );
-      detailText.setTint(C.muted);
-      this.container.add(detailText);
-
-      let ioStr = '';
-      if (bType === 'quarry') {
-        ioStr = 'Extracts from veins -> output';
-      } else if (bType === 'chest') {
-        ioStr = 'Storage (all sides)';
-      } else if (bType === 'arcane_study') {
-        ioStr = 'Consumes items -> Research Points';
-      } else if (def.manaProduction > 0) {
-        ioStr = `Generates ${def.manaProduction} mana, range ${def.manaRadius}`;
-      } else if (bType === 'mana_tower') {
-        ioStr = `Extends mana network, range ${def.manaRadius}`;
-      } else {
-        const inSides = def.inputSides.join('/');
-        const outSides = def.outputSides.join('/');
-        ioStr = `In:${inSides} -> Out:${outSides}`;
-      }
-
-      const ioText = this.scene.add.bitmapText(x + 18, rowY + 22, FONT_SM, ioStr);
+      // I/O or special description
+      const ioStr = this.getBuildingDescription(bType, def);
+      const ioText = this.scene.add.bitmapText(x + 18, rowY + 25, FONT_SM, ioStr);
       ioText.setTint(C.muted);
-      this.container.add(ioText);
+      ct.add(ioText);
 
-      rowY += 34;
+      rowY += 36;
     }
   }
 
-  private createResearchRecipesSection(x: number, y: number): void {
-    const header = this.scene.add.bitmapText(x, y, FONT_SM, 'RESEARCH (Arcane Study)');
+  private getBuildingDescription(
+    bType: BuildingType,
+    def: (typeof BUILDING_DEFINITIONS)[BuildingType]
+  ): string {
+    if (bType === 'quarry') return 'Extracts from veins -> output right';
+    if (bType === 'chest') return 'Storage (all sides)';
+    if (bType === 'arcane_study') return 'Consumes items -> Research Points';
+    if (def.manaProduction > 0)
+      return `Generates ${def.manaProduction} mana, range ${def.manaRadius}`;
+    if (bType === 'mana_tower') return `Extends mana network, range ${def.manaRadius}`;
+    return `In: ${def.inputSides.join('/')} -> Out: ${def.outputSides.join('/')}`;
+  }
+
+  private createResearchTab(ct: Phaser.GameObjects.Container, x: number, y: number): void {
+    const header = this.scene.add.bitmapText(x, y, FONT_SM, 'STUDY RECIPES (Arcane Study)');
     header.setTint(0xcc88ff);
-    this.container.add(header);
+    ct.add(header);
 
     const divider = this.scene.add.graphics();
     divider.lineStyle(1, 0x442266);
-    divider.lineBetween(x, y + 14, x + 170, y + 14);
-    this.container.add(divider);
+    divider.lineBetween(x, y + 14, x + 220, y + 14);
+    ct.add(divider);
 
-    let rowY = y + 18;
+    let rowY = y + 20;
     for (const recipe of RESEARCH_RECIPES) {
       const timeStr = `${recipe.craftTimeTicks / TICKS_PER_SECOND}s`;
+      const inputName = ITEM_DISPLAY_NAMES[recipe.input] || recipe.input;
+
+      this.addItemSprite(ct, recipe.input, x + 5, rowY + 5);
+
       const text = this.scene.add.bitmapText(
-        x,
+        x + 14,
         rowY,
         FONT_SM,
-        `${recipe.inputCount} ${ITEM_DISPLAY_NAMES[recipe.input] || recipe.input} -> ${recipe.rpYield} RP (${timeStr})`
+        `${recipe.inputCount} ${inputName}  ->  ${recipe.rpYield} RP  (${timeStr})`
       );
-      text.setTint(C.muted);
-      this.container.add(text);
-      rowY += 14;
+      text.setTint(C.secondary);
+      ct.add(text);
+
+      rowY += 18;
     }
+
+    // Helpful tip
+    const tipY = rowY + 14;
+    const tip = this.scene.add.bitmapText(x, tipY, FONT_SM, 'Higher-tier items yield more RP.');
+    tip.setTint(C.muted);
+    ct.add(tip);
+
+    const tip2 = this.scene.add.bitmapText(
+      x,
+      tipY + 14,
+      FONT_SM,
+      'Build Arcane Studies near production chains.'
+    );
+    tip2.setTint(C.muted);
+    ct.add(tip2);
   }
 }

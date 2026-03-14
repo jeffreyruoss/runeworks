@@ -7,9 +7,18 @@
 
 ## NEXT
 
-Clean up quarry image versions
+Let's make all of the game scene fonts one increment smaller.
 
-Break up tutorial step 7 into builing transfer and rotation. For rotation, use the water tile to make a river near the arcstone so that the player has to rotate the quarry.
+fade in the main game scene from black.
+
+Build mode ideas:
+Right now when you place, it is ready to place another building of that type. instead, maybe we press something to toggle multi-place mode? (have it in the tutorial).
+Also, maybe instead of a modal, have the buildings in a bar about the main bar (use categories that you drill down into so they all fit)?
+
+Manual tile map editor? (tool that runs outside of the game code)
+But also have some procedural generations and AI mapping?
+Procedural randomizing could be in the UI?
+Could have more tools like that too
 
 Maybe we can use water as a resource in the game. Water gathering structure of some kind? Also, water wheel for power? Maybe water wheel power and windmill power can be for simple power and mana energy sources can be for more advanced power? Let's brainstorm some ideas.
 
@@ -26,5 +35,3 @@ Tests last updated mar 8
 How can we improve CLAUDE.md for this project
 
 Sandbox mode. Currently all buildings are unlocked? Let's still make it so that you have to unlock stuff.
-
-I think we are using a google font. Can will set this up so that it will work offline?

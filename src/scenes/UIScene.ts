@@ -184,6 +184,7 @@ export class UIScene extends UiScene {
   private listenToGameScene(): void {
     const gameScene = this.scene.get('GameScene');
     gameScene.events.on('gameStateChanged', this.onGameStateChanged, this);
+    gameScene.events.on('guideNavigate', this.onGuideNavigate, this);
     gameScene.events.on('researchNavigate', this.onResearchNavigate, this);
     gameScene.events.on('researchUnlock', this.onResearchUnlock, this);
     // Request initial state now that we're subscribed
@@ -297,6 +298,12 @@ export class UIScene extends UiScene {
 
   private getHelpSegments(state: GameUIState): Array<{ key: string; label: string }> {
     // Panel-specific hints
+    if (state.activePanel === 'guide') {
+      return [
+        { key: 'S/F', label: 'Tab' },
+        { key: 'G/X', label: 'Close' },
+      ];
+    }
     if (state.activePanel === 'research') {
       return [
         { key: 'ESDF', label: 'Navigate' },
@@ -347,6 +354,10 @@ export class UIScene extends UiScene {
       .join(' ');
   }
 
+  private onGuideNavigate(dx: number): void {
+    this.guidePanel.navigate(dx);
+  }
+
   private onResearchNavigate(dx: number, dy: number): void {
     this.researchPanel.navigate(dx, dy);
     this.researchPanel.update(this.researchManager);
@@ -360,6 +371,7 @@ export class UIScene extends UiScene {
   private cleanup(): void {
     const gameScene = this.scene.get('GameScene');
     gameScene.events.off('gameStateChanged', this.onGameStateChanged, this);
+    gameScene.events.off('guideNavigate', this.onGuideNavigate, this);
     gameScene.events.off('researchNavigate', this.onResearchNavigate, this);
     gameScene.events.off('researchUnlock', this.onResearchUnlock, this);
     this.scale.off('resize', this.boundRepositionBars);
