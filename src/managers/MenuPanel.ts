@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { THEME } from '../config';
-import { FONT_SM, C, addPanelBackground } from '../ui-theme';
+import { FONT_SM, getFontSize, C, addPanelBackground } from '../ui-theme';
 import { getViewport } from '../utils';
 
 const REGULAR_COMMANDS = [
@@ -69,7 +69,7 @@ export class MenuPanel {
     const top = -panelH / 2 + padY;
 
     // Title
-    const title = scene.add.bitmapText(0, top, FONT_SM, 'KEY COMMANDS');
+    const title = scene.add.bitmapText(0, top, FONT_SM, 'KEY COMMANDS', getFontSize());
     title.setOrigin(0.5, 0);
     title.setTint(C.light);
     container.add(title);
@@ -80,14 +80,14 @@ export class MenuPanel {
 
     const addColumn = (x: number, header: string, commands: string[]): void => {
       let y = startY;
-      const headerText = scene.add.bitmapText(x, y, FONT_SM, header);
+      const headerText = scene.add.bitmapText(x, y, FONT_SM, header, getFontSize());
       headerText.setOrigin(0.5, 0);
       headerText.setTint(C.secondary);
       container.add(headerText);
       y += headerH + 2;
 
       for (const cmd of commands) {
-        const cmdText = scene.add.bitmapText(x, y, FONT_SM, cmd);
+        const cmdText = scene.add.bitmapText(x, y, FONT_SM, cmd, getFontSize());
         cmdText.setOrigin(0.5, 0);
         cmdText.setTint(0x8078a0);
         container.add(cmdText);
@@ -107,7 +107,13 @@ export class MenuPanel {
     container.add(divider);
 
     // Close hint at bottom
-    const closeHint = scene.add.bitmapText(0, top + contentH, FONT_SM, 'Press K or X to close');
+    const closeHint = scene.add.bitmapText(
+      0,
+      top + contentH,
+      FONT_SM,
+      'Press K or X to close',
+      getFontSize()
+    );
     closeHint.setOrigin(0.5, 1);
     closeHint.setTint(C.muted);
     container.add(closeHint);

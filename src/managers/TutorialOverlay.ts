@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { THEME } from '../config';
-import { FONT_SM, C } from '../ui-theme';
+import { FONT_SM, getFontSize, C } from '../ui-theme';
 import { getViewport } from '../utils';
 
 const LINE_H = 14;
@@ -54,7 +54,7 @@ export class TutorialOverlay {
     // Create text objects and add to container immediately (avoids 1-frame flash at world origin)
     const texts: Phaser.GameObjects.BitmapText[] = [];
     for (let i = 0; i < lines.length; i++) {
-      const t = this.scene.add.bitmapText(0, 0, FONT_SM, lines[i]);
+      const t = this.scene.add.bitmapText(0, 0, FONT_SM, lines[i], getFontSize());
       this.container.add(t);
       t.setOrigin(0.5, 0.5);
       // First line cyan, objective lines ([x]/[ ]) green/grey, rest muted

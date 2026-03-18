@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import { ThemeConfig, TextAlign } from 'phaser-pixui';
-
 /**
  * PixUI theme for Runeworks. Uses CC0 Mana Soul assets
  * by Gabriel Lima (tiopalada.itch.io).
@@ -63,6 +62,7 @@ export const UI_ATLAS = 'mana_soul';
 export const FONT_SM = 'mana_roots'; // Smallest — good for HUD text
 export const FONT_MD = 'mana_trunk'; // Medium — good for panel headers
 export const FONT_LG = 'mana_branches'; // Largest — good for titles
+export { getFontSize, getHelpFontSize } from './data/settings';
 
 // Panel background constants
 const PANEL_FILL = 0x080818;

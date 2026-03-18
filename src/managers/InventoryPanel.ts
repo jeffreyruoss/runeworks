@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { FONT_SM, C, addPanelBackground } from '../ui-theme';
+import { FONT_SM, getFontSize, C, addPanelBackground } from '../ui-theme';
 import { getViewport } from '../utils';
 
 /**
@@ -34,17 +34,23 @@ export class InventoryPanel {
 
     const top = -panelH / 2 + padY;
 
-    const title = scene.add.bitmapText(0, top, FONT_SM, 'INVENTORY');
+    const title = scene.add.bitmapText(0, top, FONT_SM, 'INVENTORY', getFontSize());
     title.setOrigin(0.5, 0);
     title.setTint(C.light);
     container.add(title);
 
-    const placeholder = scene.add.bitmapText(0, top + 20, FONT_SM, 'Coming soon...');
+    const placeholder = scene.add.bitmapText(0, top + 20, FONT_SM, 'Coming soon...', getFontSize());
     placeholder.setOrigin(0.5, 0);
     placeholder.setTint(C.muted);
     container.add(placeholder);
 
-    const hint = scene.add.bitmapText(0, top + contentH, FONT_SM, 'Press I or X to close');
+    const hint = scene.add.bitmapText(
+      0,
+      top + contentH,
+      FONT_SM,
+      'Press I or X to close',
+      getFontSize()
+    );
     hint.setOrigin(0.5, 1);
     hint.setTint(0x8078a0);
     container.add(hint);

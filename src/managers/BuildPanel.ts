@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { BuildingType } from '../types';
-import { FONT_SM, C, addPanelBackground } from '../ui-theme';
+import { FONT_SM, getFontSize, C, addPanelBackground } from '../ui-theme';
 import { getViewport } from '../utils';
 
 interface BuildEntry {
@@ -70,7 +70,7 @@ export class BuildPanel {
     const left = -panelW / 2 + padX;
     const top = -panelH / 2 + padY;
 
-    const title = scene.add.bitmapText(0, top, FONT_SM, 'BUILD');
+    const title = scene.add.bitmapText(0, top, FONT_SM, 'BUILD', getFontSize());
     title.setOrigin(0.5, 0);
     title.setTint(C.active);
     container.add(title);
@@ -79,7 +79,13 @@ export class BuildPanel {
     this.createColumn(scene, container, left, startY, rowH, LEFT_ENTRIES);
     this.createColumn(scene, container, left + colW + colGap, startY, rowH, RIGHT_ENTRIES);
 
-    const hint = scene.add.bitmapText(0, top + contentH - 2, FONT_SM, 'B or X to close');
+    const hint = scene.add.bitmapText(
+      0,
+      top + contentH - 2,
+      FONT_SM,
+      'B or X to close',
+      getFontSize()
+    );
     hint.setOrigin(0.5, 1);
     hint.setTint(C.muted);
     container.add(hint);
@@ -103,11 +109,11 @@ export class BuildPanel {
       sprite.setDisplaySize(14, 14);
       parent.add(sprite);
 
-      const keyText = scene.add.bitmapText(x + 18, rowY, FONT_SM, entry.key);
+      const keyText = scene.add.bitmapText(x + 18, rowY, FONT_SM, entry.key, getFontSize());
       keyText.setTint(C.active);
       parent.add(keyText);
 
-      const nameText = scene.add.bitmapText(x + 30, rowY, FONT_SM, entry.name);
+      const nameText = scene.add.bitmapText(x + 30, rowY, FONT_SM, entry.name, getFontSize());
       nameText.setTint(C.light);
       parent.add(nameText);
 

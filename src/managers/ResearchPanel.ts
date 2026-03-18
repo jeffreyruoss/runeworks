@@ -3,7 +3,7 @@ import { TICKS_PER_SECOND } from '../config';
 import { RESEARCH_NODES, RESEARCH_RECIPES, ResearchBranch, ResearchNode } from '../data/research';
 import { ITEM_DISPLAY_NAMES } from '../data/stages';
 import { ResearchManager } from './ResearchManager';
-import { FONT_SM, C, addPanelBackground } from '../ui-theme';
+import { FONT_SM, getFontSize, C, addPanelBackground } from '../ui-theme';
 import { getViewport } from '../utils';
 
 interface NodeDisplay {
@@ -111,17 +111,23 @@ export class ResearchPanel {
     const left = -panelW / 2 + padX;
     const top = -panelH / 2 + padY;
 
-    const title = this.scene.add.bitmapText(0, top, FONT_SM, 'RESEARCH');
+    const title = this.scene.add.bitmapText(0, top, FONT_SM, 'RESEARCH', getFontSize());
     title.setOrigin(0.5, 0);
     title.setTint(0xcc88ff);
     this.container.add(title);
 
-    this.rpText = this.scene.add.bitmapText(0, top + 16, FONT_SM, 'Research Points: 0');
+    this.rpText = this.scene.add.bitmapText(
+      0,
+      top + 16,
+      FONT_SM,
+      'Research Points: 0',
+      getFontSize()
+    );
     this.rpText.setOrigin(0.5, 0);
     this.rpText.setTint(0xffaa00);
     this.container.add(this.rpText);
 
-    this.selectionIndicator = this.scene.add.bitmapText(0, 0, FONT_SM, '>');
+    this.selectionIndicator = this.scene.add.bitmapText(0, 0, FONT_SM, '>', getFontSize());
     this.selectionIndicator.setTint(C.paused);
     this.selectionIndicator.setVisible(false);
     this.container.add(this.selectionIndicator);
@@ -138,7 +144,8 @@ export class ResearchPanel {
       0,
       top + contentH,
       FONT_SM,
-      'ESDF:Navigate  Space:Unlock  R/X:Close'
+      'ESDF:Navigate  Space:Unlock  R/X:Close',
+      getFontSize()
     );
     hint.setOrigin(0.5, 1);
     hint.setTint(0x8078a0);
@@ -152,7 +159,7 @@ export class ResearchPanel {
     branch: ResearchBranch,
     color: number
   ): void {
-    const header = this.scene.add.bitmapText(x, y, FONT_SM, title);
+    const header = this.scene.add.bitmapText(x, y, FONT_SM, title, getFontSize());
     header.setTint(color);
     this.container.add(header);
 
@@ -165,7 +172,7 @@ export class ResearchPanel {
     let rowY = y + 18;
 
     for (const node of branchNodes) {
-      const statusText = this.scene.add.bitmapText(x, rowY, FONT_SM, '[-]');
+      const statusText = this.scene.add.bitmapText(x, rowY, FONT_SM, '[-]', getFontSize());
       statusText.setTint(C.muted);
       this.container.add(statusText);
 
@@ -173,13 +180,20 @@ export class ResearchPanel {
         x + 26,
         rowY,
         FONT_SM,
-        `${node.name} (${node.cost} RP)`
+        `${node.name} (${node.cost} RP)`,
+        getFontSize()
       );
       nameText.setTint(C.secondary);
       this.container.add(nameText);
 
       const effectStr = this.getEffectDescription(node);
-      const effectText = this.scene.add.bitmapText(x + 26, rowY + 14, FONT_SM, effectStr);
+      const effectText = this.scene.add.bitmapText(
+        x + 26,
+        rowY + 14,
+        FONT_SM,
+        effectStr,
+        getFontSize()
+      );
       effectText.setTint(C.muted);
       this.container.add(effectText);
 
@@ -189,7 +203,8 @@ export class ResearchPanel {
           x + 26,
           rowY + 24,
           FONT_SM,
-          `Requires: ${reqNode?.name || node.requires}`
+          `Requires: ${reqNode?.name || node.requires}`,
+          getFontSize()
         );
         reqText.setTint(0x553355);
         this.container.add(reqText);
@@ -205,7 +220,8 @@ export class ResearchPanel {
       x,
       y,
       FONT_SM,
-      'STUDY RECIPES (Arcane Study building)'
+      'STUDY RECIPES (Arcane Study building)',
+      getFontSize()
     );
     header.setTint(0xcc88ff);
     this.container.add(header);
@@ -222,7 +238,8 @@ export class ResearchPanel {
         x,
         rowY,
         FONT_SM,
-        `${recipe.inputCount} ${ITEM_DISPLAY_NAMES[recipe.input] || recipe.input} -> ${recipe.rpYield} RP (${timeStr})`
+        `${recipe.inputCount} ${ITEM_DISPLAY_NAMES[recipe.input] || recipe.input} -> ${recipe.rpYield} RP (${timeStr})`,
+        getFontSize()
       );
       text.setTint(C.muted);
       this.container.add(text);

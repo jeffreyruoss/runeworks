@@ -12,7 +12,7 @@ import { MenuPanel } from '../managers/MenuPanel';
 import { InventoryPanel } from '../managers/InventoryPanel';
 import { BuildPanel } from '../managers/BuildPanel';
 import { canAfford } from '../utils';
-import { uiTheme, FONT_SM, C } from '../ui-theme';
+import { uiTheme, FONT_SM, getFontSize, getHelpFontSize, C } from '../ui-theme';
 
 /** Set text on a pixui BitmapText without the maxWidth feedback loop.
  *  Clears maxWidth before so text renders unwrapped (correct width/height),
@@ -100,6 +100,7 @@ export class UIScene extends UiScene {
       x: pad,
       y: pad,
       font: FONT_SM,
+      size: getFontSize(),
       text: '',
       tint: C.light,
     });
@@ -108,6 +109,7 @@ export class UIScene extends UiScene {
       x: 0,
       y: pad,
       font: FONT_SM,
+      size: getFontSize(),
       tint: C.active,
     });
     setText(this.simStatusBmp, 'Game Speed  > 1x');
@@ -116,6 +118,7 @@ export class UIScene extends UiScene {
       x: pad,
       y: pad,
       font: FONT_SM,
+      size: getFontSize(),
       text: '',
       tint: C.secondary,
     });
@@ -124,6 +127,7 @@ export class UIScene extends UiScene {
       x: pad,
       y: pad + 14,
       font: FONT_SM,
+      size: getFontSize(),
       text: '',
       tint: C.paused,
     });
@@ -134,6 +138,7 @@ export class UIScene extends UiScene {
       x: pad,
       y: pad + 14,
       font: FONT_SM,
+      size: getFontSize(),
       text: '',
       tint: 0x8078a0,
     });
@@ -143,7 +148,7 @@ export class UIScene extends UiScene {
       x: pad,
       y: pad,
       font: FONT_SM,
-      size: 15,
+      size: getHelpFontSize(),
       text: '',
       tint: C.light,
     });

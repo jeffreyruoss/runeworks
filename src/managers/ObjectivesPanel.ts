@@ -3,7 +3,7 @@ import { THEME } from '../config';
 import { GameUIState } from '../types';
 import { getStage, ITEM_DISPLAY_NAMES, PRODUCTION_CHAINS } from '../data/stages';
 import { TUTORIALS } from '../data/tutorials';
-import { FONT_SM, C, addPanelBackground } from '../ui-theme';
+import { FONT_SM, getFontSize, C, addPanelBackground } from '../ui-theme';
 import { getViewport } from '../utils';
 
 const PAD_X = 20;
@@ -57,7 +57,7 @@ export class ObjectivesPanel {
     this.bg = frame;
 
     // Title
-    this.stageTitleText = this.scene.add.bitmapText(0, 0, FONT_SM, '');
+    this.stageTitleText = this.scene.add.bitmapText(0, 0, FONT_SM, '', getFontSize());
     this.stageTitleText.setOrigin(0.5, 0);
     this.stageTitleText.setTint(C.light);
     this.objectivesContainer.add(this.stageTitleText);
@@ -68,26 +68,38 @@ export class ObjectivesPanel {
 
     // Objective rows
     for (let i = 0; i < MAX_OBJ; i++) {
-      const objText = this.scene.add.bitmapText(0, 0, FONT_SM, '');
+      const objText = this.scene.add.bitmapText(0, 0, FONT_SM, '', getFontSize());
       objText.setTint(C.secondary);
       this.objectiveTexts.push(objText);
       this.objectivesContainer.add(objText);
 
-      const chainText = this.scene.add.bitmapText(0, 0, FONT_SM, '');
+      const chainText = this.scene.add.bitmapText(0, 0, FONT_SM, '', getFontSize());
       chainText.setTint(0x666688);
       this.objectiveChainTexts.push(chainText);
       this.objectivesContainer.add(chainText);
     }
 
     // Stage complete indicator
-    this.stageCompleteText = this.scene.add.bitmapText(0, 0, FONT_SM, 'STAGE COMPLETE!');
+    this.stageCompleteText = this.scene.add.bitmapText(
+      0,
+      0,
+      FONT_SM,
+      'STAGE COMPLETE!',
+      getFontSize()
+    );
     this.stageCompleteText.setOrigin(0.5, 0);
     this.stageCompleteText.setTint(C.valid);
     this.stageCompleteText.setVisible(false);
     this.objectivesContainer.add(this.stageCompleteText);
 
     // Close hint
-    this.closeHint = this.scene.add.bitmapText(0, 0, FONT_SM, 'Press O or X to close');
+    this.closeHint = this.scene.add.bitmapText(
+      0,
+      0,
+      FONT_SM,
+      'Press O or X to close',
+      getFontSize()
+    );
     this.closeHint.setOrigin(0.5, 1);
     this.closeHint.setTint(0x8078a0);
     this.objectivesContainer.add(this.closeHint);
@@ -115,24 +127,30 @@ export class ObjectivesPanel {
     const top = -panelH / 2 + PAD_Y;
     let y = top;
 
-    const title = this.scene.add.bitmapText(0, y, FONT_SM, 'STAGE COMPLETE!');
+    const title = this.scene.add.bitmapText(0, y, FONT_SM, 'STAGE COMPLETE!', getFontSize());
     title.setOrigin(0.5, 0);
     title.setTint(C.valid);
     this.stageCompleteContainer.add(title);
     y += 26;
 
-    this.stageCompleteNameText = this.scene.add.bitmapText(0, y, FONT_SM, '');
+    this.stageCompleteNameText = this.scene.add.bitmapText(0, y, FONT_SM, '', getFontSize());
     this.stageCompleteNameText.setOrigin(0.5, 0);
     this.stageCompleteNameText.setTint(C.light);
     this.stageCompleteContainer.add(this.stageCompleteNameText);
     y += 20;
 
-    this.stageCompleteNextText = this.scene.add.bitmapText(0, y, FONT_SM, '');
+    this.stageCompleteNextText = this.scene.add.bitmapText(0, y, FONT_SM, '', getFontSize());
     this.stageCompleteNextText.setOrigin(0.5, 0);
     this.stageCompleteNextText.setTint(C.secondary);
     this.stageCompleteContainer.add(this.stageCompleteNextText);
 
-    const hint = this.scene.add.bitmapText(0, top + contentH, FONT_SM, '[Enter] Continue');
+    const hint = this.scene.add.bitmapText(
+      0,
+      top + contentH,
+      FONT_SM,
+      '[Enter] Continue',
+      getFontSize()
+    );
     hint.setOrigin(0.5, 1);
     hint.setTint(C.active);
     this.stageCompleteContainer.add(hint);

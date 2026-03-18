@@ -6,7 +6,7 @@ import { RECIPES } from '../data/recipes';
 import { RESEARCH_RECIPES } from '../data/research';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
 import { BuildingType, ItemType } from '../types';
-import { FONT_SM, C, addPanelBackground } from '../ui-theme';
+import { FONT_SM, getFontSize, C, addPanelBackground } from '../ui-theme';
 import { getViewport } from '../utils';
 
 /** Items that have 8x8 sprites in the atlas */
@@ -115,7 +115,7 @@ export class GuidePanel {
     const top = -panelH / 2 + padY;
 
     // Title
-    const title = this.scene.add.bitmapText(0, top, FONT_SM, 'GUIDE');
+    const title = this.scene.add.bitmapText(0, top, FONT_SM, 'GUIDE', getFontSize());
     title.setOrigin(0.5, 0);
     title.setTint(C.light);
     this.container.add(title);
@@ -127,7 +127,7 @@ export class GuidePanel {
     for (let i = 0; i < TAB_NAMES.length; i++) {
       const tabX = left + tabSpacing * i + tabSpacing / 2;
 
-      const header = this.scene.add.bitmapText(tabX, tabY, FONT_SM, TAB_NAMES[i]);
+      const header = this.scene.add.bitmapText(tabX, tabY, FONT_SM, TAB_NAMES[i], getFontSize());
       header.setOrigin(0.5, 0);
       header.setTint(C.muted);
       this.container.add(header);
@@ -162,7 +162,13 @@ export class GuidePanel {
     this.createResearchTab(this.tabs[3].container, left, contentTop);
 
     // Hint text
-    const hint = this.scene.add.bitmapText(0, top + contentH, FONT_SM, 'S/F:Switch Tab  G/X:Close');
+    const hint = this.scene.add.bitmapText(
+      0,
+      top + contentH,
+      FONT_SM,
+      'S/F:Switch Tab  G/X:Close',
+      getFontSize()
+    );
     hint.setOrigin(0.5, 1);
     hint.setTint(0x8078a0);
     this.container.add(hint);
@@ -183,11 +189,11 @@ export class GuidePanel {
 
       this.addItemSprite(ct, entry.item, x + 22, rowY + 6);
 
-      const nameText = this.scene.add.bitmapText(x + 32, rowY, FONT_SM, name);
+      const nameText = this.scene.add.bitmapText(x + 32, rowY, FONT_SM, name, getFontSize());
       nameText.setTint(C.secondary);
       ct.add(nameText);
 
-      const sourceText = this.scene.add.bitmapText(x + 140, rowY, FONT_SM, source);
+      const sourceText = this.scene.add.bitmapText(x + 140, rowY, FONT_SM, source, getFontSize());
       sourceText.setTint(C.muted);
       ct.add(sourceText);
 
@@ -204,7 +210,7 @@ export class GuidePanel {
 
       this.addItemSprite(ct, outputItem, x + 5, rowY + 5);
 
-      const nameText = this.scene.add.bitmapText(x + 14, rowY, FONT_SM, name);
+      const nameText = this.scene.add.bitmapText(x + 14, rowY, FONT_SM, name, getFontSize());
       nameText.setTint(C.secondary);
       ct.add(nameText);
 
@@ -216,7 +222,13 @@ export class GuidePanel {
       const buildingName = recipe.building.charAt(0).toUpperCase() + recipe.building.slice(1);
       const detail = `${inputStr} -> ${outputCount} (${timeStr}, ${buildingName})`;
 
-      const detailText = this.scene.add.bitmapText(x + 14, rowY + 14, FONT_SM, detail);
+      const detailText = this.scene.add.bitmapText(
+        x + 14,
+        rowY + 14,
+        FONT_SM,
+        detail,
+        getFontSize()
+      );
       detailText.setTint(C.muted);
       ct.add(detailText);
 
@@ -252,7 +264,13 @@ export class GuidePanel {
 
       // Name + size
       const sizeStr = `${def.width}x${def.height}`;
-      const nameText = this.scene.add.bitmapText(x + 18, rowY, FONT_SM, `${name}  (${sizeStr})`);
+      const nameText = this.scene.add.bitmapText(
+        x + 18,
+        rowY,
+        FONT_SM,
+        `${name}  (${sizeStr})`,
+        getFontSize()
+      );
       nameText.setTint(C.secondary);
       ct.add(nameText);
 
@@ -261,13 +279,19 @@ export class GuidePanel {
         .filter(([, v]) => v && v > 0)
         .map(([k, v]) => `${v} ${RESOURCE_DISPLAY_NAMES[k] || k}`)
         .join(', ');
-      const costText = this.scene.add.bitmapText(x + 18, rowY + 13, FONT_SM, `Cost: ${costStr}`);
+      const costText = this.scene.add.bitmapText(
+        x + 18,
+        rowY + 13,
+        FONT_SM,
+        `Cost: ${costStr}`,
+        getFontSize()
+      );
       costText.setTint(C.muted);
       ct.add(costText);
 
       // I/O or special description
       const ioStr = this.getBuildingDescription(bType, def);
-      const ioText = this.scene.add.bitmapText(x + 18, rowY + 25, FONT_SM, ioStr);
+      const ioText = this.scene.add.bitmapText(x + 18, rowY + 25, FONT_SM, ioStr, getFontSize());
       ioText.setTint(C.muted);
       ct.add(ioText);
 
@@ -289,7 +313,13 @@ export class GuidePanel {
   }
 
   private createResearchTab(ct: Phaser.GameObjects.Container, x: number, y: number): void {
-    const header = this.scene.add.bitmapText(x, y, FONT_SM, 'STUDY RECIPES (Arcane Study)');
+    const header = this.scene.add.bitmapText(
+      x,
+      y,
+      FONT_SM,
+      'STUDY RECIPES (Arcane Study)',
+      getFontSize()
+    );
     header.setTint(0xcc88ff);
     ct.add(header);
 
@@ -309,7 +339,8 @@ export class GuidePanel {
         x + 14,
         rowY,
         FONT_SM,
-        `${recipe.inputCount} ${inputName}  ->  ${recipe.rpYield} RP  (${timeStr})`
+        `${recipe.inputCount} ${inputName}  ->  ${recipe.rpYield} RP  (${timeStr})`,
+        getFontSize()
       );
       text.setTint(C.secondary);
       ct.add(text);
@@ -319,7 +350,13 @@ export class GuidePanel {
 
     // Helpful tip
     const tipY = rowY + 14;
-    const tip = this.scene.add.bitmapText(x, tipY, FONT_SM, 'Higher-tier items yield more RP.');
+    const tip = this.scene.add.bitmapText(
+      x,
+      tipY,
+      FONT_SM,
+      'Higher-tier items yield more RP.',
+      getFontSize()
+    );
     tip.setTint(C.muted);
     ct.add(tip);
 
@@ -327,7 +364,8 @@ export class GuidePanel {
       x,
       tipY + 14,
       FONT_SM,
-      'Build Arcane Studies near production chains.'
+      'Build Arcane Studies near production chains.',
+      getFontSize()
     );
     tip2.setTint(C.muted);
     ct.add(tip2);
