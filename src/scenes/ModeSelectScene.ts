@@ -19,6 +19,7 @@ const TITLE_OFFSET_Y = -80;
 const MENU_START_OFFSET_Y = -25;
 const MENU_ITEM_SPACING = 50;
 const SETTINGS_ROW_SPACING = 36;
+const SETTINGS_TITLE_GAP = 24;
 const ICON_PADDING = 16;
 
 interface ModeOption {
@@ -171,14 +172,19 @@ export class ModeSelectScene extends UiScene {
     this.settingsContainer = this.add.container(0, 0);
     this.settingsStartY = cy + MENU_START_OFFSET_Y;
 
-    const settingsTitle = this.add.bitmapText(cx, this.settingsStartY - 30, FONT_MD, 'SETTINGS');
+    const settingsTitle = this.add.bitmapText(cx, this.settingsStartY - 10, FONT_MD, 'SETTINGS');
     settingsTitle.setOrigin(0.5, 0.5);
     settingsTitle.setTint(C.light);
     this.settingsContainer.add(settingsTitle);
 
+    const labelX = cx - 15; // right edge of labels
+    const arrowLX = cx - 2; // left arrow <
+    const valueX = cx + 28; // center of value text
+    const arrowRX = cx + 58; // right arrow >
+
     for (let i = 0; i < SETTINGS_ROWS.length; i++) {
       const row = SETTINGS_ROWS[i];
-      const y = this.settingsStartY + i * SETTINGS_ROW_SPACING;
+      const y = this.settingsStartY + SETTINGS_TITLE_GAP + i * SETTINGS_ROW_SPACING;
 
       if (row.key === 'back') {
         const backText = this.add.bitmapText(cx, y, FONT_MD, 'BACK');
@@ -189,34 +195,45 @@ export class ModeSelectScene extends UiScene {
 
         this.settingValues.push(null);
       } else {
-        const labelText = this.add.bitmapText(cx - 60, y, FONT_SM, row.label);
+        const labelText = this.add.bitmapText(labelX, y, FONT_SM, row.label);
         labelText.setOrigin(1, 0.5);
         labelText.setTint(C.secondary);
         this.settingLabels.push(labelText);
         this.settingsContainer.add(labelText);
 
-        const valueText = this.add.bitmapText(cx - 50, y, FONT_SM, '');
-        valueText.setOrigin(0, 0.5);
+        const valueText = this.add.bitmapText(valueX, y, FONT_SM, '');
+        valueText.setOrigin(0.5, 0.5);
         valueText.setTint(C.active);
         this.settingValues.push(valueText);
         this.settingsContainer.add(valueText);
+
+        this.createSettingsArrow(arrowLX, y, '<', i, -1);
+        this.createSettingsArrow(arrowRX, y, '>', i, 1);
       }
     }
 
     this.settingsArrowIcon = this.add.sprite(0, 0, 'sprites', 'menu_rune');
     this.settingsArrowIcon.setOrigin(0.5, 0.5);
     this.settingsContainer.add(this.settingsArrowIcon);
+  }
 
-    // Hint text
-    const hint = this.add.bitmapText(
-      cx,
-      this.settingsStartY + SETTINGS_ROWS.length * SETTINGS_ROW_SPACING + 10,
-      FONT_SM,
-      'E/D to navigate  |  S/F to adjust  |  X to go back'
-    );
-    hint.setOrigin(0.5, 0.5);
-    hint.setTint(C.muted);
-    this.settingsContainer.add(hint);
+  private createSettingsArrow(
+    x: number,
+    y: number,
+    label: string,
+    rowIndex: number,
+    direction: 1 | -1
+  ): void {
+    const arrow = this.add.bitmapText(x, y, FONT_SM, label);
+    arrow.setOrigin(0.5, 0.5);
+    arrow.setTint(C.muted);
+    arrow.setInteractive({ useHandCursor: true });
+    arrow.on('pointerdown', () => {
+      this.settingsSelectedIndex = rowIndex;
+      this.adjustSetting(direction);
+      this.updateSettingsSelection();
+    });
+    this.settingsContainer.add(arrow);
   }
 
   private showMainMenu(): void {
@@ -255,7 +272,8 @@ export class ModeSelectScene extends UiScene {
     }
 
     const labelObj = this.settingLabels[this.settingsSelectedIndex];
-    const y = this.settingsStartY + this.settingsSelectedIndex * SETTINGS_ROW_SPACING;
+    const y =
+      this.settingsStartY + SETTINGS_TITLE_GAP + this.settingsSelectedIndex * SETTINGS_ROW_SPACING;
     const leftEdge = labelObj.x - labelObj.width * labelObj.originX;
     this.settingsArrowIcon.setPosition(leftEdge - ICON_PADDING, y);
   }
@@ -266,11 +284,11 @@ export class ModeSelectScene extends UiScene {
       const val = this.settingValues[i];
       if (!val) continue;
       if (row.key === 'fontSize') {
-        val.setText(`< ${getFontSizeLabel().toUpperCase()} >`);
+        val.setText(getFontSizeLabel().toUpperCase());
       } else if (row.key === 'sound') {
-        val.setText(`< ${getSoundVolume()} >`);
+        val.setText(`${getSoundVolume()}`);
       } else if (row.key === 'music') {
-        val.setText(`< ${getMusicVolume()} >`);
+        val.setText(`${getMusicVolume()}`);
       }
     }
   }
