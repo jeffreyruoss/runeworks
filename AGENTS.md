@@ -221,7 +221,7 @@ npm run dev       # Verify new sprites appear at correct size and rotation
 
 ## Related Documentation
 
-- **Game Design Spec**: `docs/runeworks-spec.md` - Complete specification including stage system, simulation rules, milestone roadmap
+- **Game Design**: `docs/game-design-v2.md` - Active design vision with expanded mechanics, stage schema, and multiplayer concepts
 - **Claude Code Guide**: `CLAUDE.md` - Detailed guidance for Claude Code with specialized agents and skills (reference this for deeper technical details)
 - **Specialized Agents**: `.claude/agents/` - Domain-specific guides for simulation, scenes, sprites, content, types, debugging
 - **Prettier Config**: `.prettierrc` - Code formatting (semi: true, singleQuote: true, tabWidth: 2, printWidth: 100)

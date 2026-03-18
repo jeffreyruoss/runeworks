@@ -66,7 +66,7 @@ Pressure sources:
 - **Research buildings** — investing in upgrades costs grid space NOW
 - **Construction costs** — building more means spending more resources, which means more quarries, which means more grid space
 
-### 2. Resource Depletion
+### 3. Resource Depletion
 
 Ore patches have finite HP. A quarry depletes its patch over time.
 
@@ -361,6 +361,67 @@ Total stars gate access to later stages.
 - Global leaderboard: best time, fewest tiles, most efficient
 - Ghost replay: see how top players solved the same stage
 - "Beat your friend's score" social hooks
+
+---
+
+## Stage Definition Schema
+
+Each stage is a data-driven TS object:
+
+```typescript
+interface StageDefinition {
+  id: number;
+  name: string;
+  description: string;
+  terrain: TerrainLayout; // resource patch positions, obstacles, etc.
+  objectives: Objective[]; // primary production targets
+  quests?: Quest[]; // optional NPC requests that pay gold
+  availableTrades?: Trade[]; // trades offered at Trade Posts / Trade Routes
+  constraints?: {
+    maxBuildings?: number; // total buildings allowed
+    maxBuildingsOfType?: Record<BuildingType, number>;
+    bannedBuildings?: BuildingType[];
+    timeLimit?: number; // seconds (0 = no limit)
+    startingGold?: number;
+    startingResources?: Record<ItemType, number>;
+  };
+  unlockedBuildings?: BuildingType[];
+  unlockedRecipes?: RecipeId[];
+  starThresholds: {
+    tiles: number; // star 2: complete using fewer than N tiles
+    time: number; // star 3: complete in under N seconds
+  };
+}
+```
+
+## Results Screen
+
+After stage completion or time-out:
+
+- **Pass/Fail** banner
+- **Items produced** — table showing each item type and quantity
+- **Time elapsed** and **tiles used**
+- **Stars earned** (1-3) with thresholds shown
+- **Bottleneck hints** — the simulation tracks starvation and blocking:
+  - "Forge #2 was starved (no input 45% of time)"
+  - "Workbench #1 was blocked (output full 30% of time)"
+  - "Quarry #3 depleted its patch at 1:42 — consider relocating"
+- **Actions:** Retry (R), Next Stage (Enter), Edit Layout (Esc)
+
+## Simulation Constraints
+
+- **Determinism** — simulation is deterministic given stage seed and building layout. Same inputs always produce same outputs. This is critical for multiplayer fairness and replay verification.
+- **Tick rate** — 20 ticks/second (50ms per tick), fixed.
+- **Items are discrete** — no fluids, no fractions. Items exist in machine buffers, not on the grid.
+- **Adjacent transfer** — no belts. Buildings push items to adjacent buildings that accept them.
+
+## Accessibility
+
+- All building types have distinct **shapes**, not just colors
+- Terrain patches have pattern overlays (arcstone: diagonal lines, sunite: dots, etc.)
+- High contrast mode (future): increases outline thickness
+- All key info shown with icons + text labels
+- Keyboard-only by design — no mouse required for any interaction
 
 ---
 
