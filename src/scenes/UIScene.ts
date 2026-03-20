@@ -1,6 +1,12 @@
 import Phaser from 'phaser';
 import { UiScene, ConstraintMode, BitmapText } from 'phaser-pixui';
-import { CANVAS_HEIGHT, BUILDING_COSTS, RESOURCE_DISPLAY_NAMES, THEME } from '../config';
+import {
+  CANVAS_HEIGHT,
+  BUILDING_COSTS,
+  RESOURCE_DISPLAY_NAMES,
+  THEME,
+  HUD_BAR_HEIGHT,
+} from '../config';
 import { GameUIState, PlayerResources } from '../types';
 
 import { ObjectivesPanel } from '../managers/ObjectivesPanel';
@@ -70,7 +76,7 @@ export class UIScene extends UiScene {
   /** Create top and bottom HUD bars with bitmap text */
   private createHudBars(): void {
     const vp = this.viewport;
-    const barH = 32;
+    const barH = HUD_BAR_HEIGHT;
     const pad = 4;
 
     // Top bar background
@@ -159,7 +165,7 @@ export class UIScene extends UiScene {
 
   private repositionBars(): void {
     const vp = this.viewport;
-    const barH = 32;
+    const barH = HUD_BAR_HEIGHT;
 
     this.topBarBg.setPosition(Math.floor(vp.width / 2), Math.floor(barH / 2));
     this.topBarBg.setSize(vp.width, barH);
@@ -219,11 +225,15 @@ export class UIScene extends UiScene {
       setText(this.selectedBmp, '');
     }
 
+    // Build bar replaces help/selected text when open
+    const buildOpen = state.activePanel === 'build';
+    this.helpBmp.internal.setVisible(!buildOpen);
+    this.selectedBmp.internal.setVisible(!buildOpen);
+
     // Dynamic help text with cyan hotkeys
     this.updateHelpText(state);
 
-    // Build panel modal — only show buildings the player can actually select
-    const buildOpen = state.activePanel === 'build';
+    // Build bar — only show buildings the player can actually select
     if (buildOpen) {
       this.buildPanel.updateAvailable(new Set(state.availableBuildings));
     }
@@ -275,16 +285,35 @@ export class UIScene extends UiScene {
 
   /** Build the bottom help bar text with per-character cyan tinting on hotkeys */
   private updateHelpText(state: GameUIState): void {
-    type Seg = { key: string; label: string };
+    type Seg = { key: string; label: string; id?: string; tintLabel?: number };
     const s: Seg[] = this.getHelpSegments(state);
 
-    // Build text and track cyan character ranges
+    // Tint active placement mode toggle green
+    if (state.selectedBuilding) {
+      const activeId =
+        state.placementMode === 'multi'
+          ? 'multi'
+          : state.placementMode === 'continue'
+            ? 'continue'
+            : null;
+      if (activeId) {
+        const seg = s.find((seg) => seg.id === activeId);
+        if (seg) seg.tintLabel = C.valid;
+      }
+    }
+
+    // Build text and track cyan character ranges + label tint overrides
     let text = '';
     const cyan: Array<[number, number]> = [];
+    const labelTints: Array<[number, number, number]> = []; // [start, len, color]
     for (let i = 0; i < s.length; i++) {
       if (i > 0) text += '  ';
       cyan.push([text.length, s[i].key.length]);
+      const labelStart = text.length + s[i].key.length + 1; // after ":"
       text += s[i].key + ':' + s[i].label;
+      if (s[i].tintLabel != null) {
+        labelTints.push([labelStart, s[i].label.length, s[i].tintLabel!]);
+      }
     }
 
     setText(this.helpBmp, text);
@@ -296,12 +325,15 @@ export class UIScene extends UiScene {
       for (const [start, len] of cyan) {
         phaser.setCharacterTint(start, len, false, C.active);
       }
+      for (const [start, len, color] of labelTints) {
+        phaser.setCharacterTint(start, len, false, color);
+      }
     } catch {
       this.helpBmp.tint = C.light;
     }
   }
 
-  private getHelpSegments(state: GameUIState): Array<{ key: string; label: string }> {
+  private getHelpSegments(state: GameUIState): Array<{ key: string; label: string; id?: string }> {
     // Panel-specific hints
     if (state.activePanel === 'guide') {
       return [
@@ -326,6 +358,8 @@ export class UIScene extends UiScene {
         { key: 'ESDF', label: 'Move' },
         { key: 'Space', label: 'Place' },
         { key: 'R', label: 'Rotate' },
+        { key: 'M', label: 'Multi-Place Toggle', id: 'multi' },
+        { key: 'C', label: 'Continue Building Toggle', id: 'continue' },
         { key: 'X', label: 'Cancel' },
       ];
     }

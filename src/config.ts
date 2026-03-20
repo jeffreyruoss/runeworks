@@ -16,6 +16,9 @@ export const MS_PER_TICK = 1000 / TICKS_PER_SECOND; // 50ms
 export const DEFAULT_SIM_DURATION = 90; // seconds
 export const QUARRY_TICKS_PER_ORE = 20; // 1 ore per second
 
+// HUD
+export const HUD_BAR_HEIGHT = 40; // px height for top and bottom HUD bars
+
 // Cursor
 export const CURSOR_JUMP_STEP = 5; // tiles to move when holding Shift
 

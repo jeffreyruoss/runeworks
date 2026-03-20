@@ -84,12 +84,13 @@ Procedural 8-bit sounds via jsfxr. Design at https://sfxr.me, store params in `a
 ## Keyboard Controls (GameScene)
 
 - **ESDF**: Move cursor (+ Shift for 5-tile jumps)
-- **B**: Toggle build menu
-- **Q/W/A** (build mode): Select Quarry/Workbench/Arcane Study
-- **M/T** (build mode): Select Mana Well/Mana Tower
+- **B**: Toggle build bar (inline bottom HUD)
+- **Q/W/A** (build bar): Select Quarry/Workbench/Arcane Study
+- **M/T** (build bar): Select Mana Well/Mana Tower
 - **Space/Enter**: Gather stone / Construct building
 - **Backspace**: Demolish building
 - **R**: Rotate building
+- **M** (placement mode): Toggle multi-place (default: single-place, re-opens build bar)
 - **P**: Pause/resume simulation
 - **I/O/G/K**: Toggle inventory/objectives/guide/menu panels
 - **H**: Toggle buffer stats display on all buildings

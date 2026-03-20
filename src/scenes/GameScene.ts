@@ -9,7 +9,7 @@ import {
   COLORS,
   CURSOR_JUMP_STEP,
 } from '../config';
-import { Building, BuildingType, GameMode, PlayerResources } from '../types';
+import { Building, BuildingType, GameMode, PlacementMode, PlayerResources } from '../types';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
 import { getRecipesForBuilding } from '../data/recipes';
 import { getBuildingAt, addPlayerResource, getCursorInfo } from '../utils';
@@ -50,6 +50,7 @@ export class GameScene extends ResponsiveScene {
 
   // UI state
   private showAllBuffers = false;
+  private placementMode: PlacementMode = 'single';
 
   // Mode state
   private gameMode: GameMode = 'stages';
@@ -223,12 +224,18 @@ export class GameScene extends ResponsiveScene {
     this.cursor = { x: Math.floor(GRID_WIDTH / 2), y: Math.floor(GRID_HEIGHT / 2) };
     this.selectedBuilding = null;
     this.showAllBuffers = false;
-    this.buildingPlacer.clearSelection();
+    this.clearPlacement();
     this.panelManager.close();
     this.simulation.setBuildings(this.buildingManager.getBuildings());
     this.simulation.start();
     this.updateCursor();
     this.emitUIUpdate();
+  }
+
+  private clearPlacement(): void {
+    this.selectedBuilding = null;
+    this.placementMode = 'single';
+    this.buildingPlacer.clearSelection();
   }
 
   private returnToModeSelect(): void {
@@ -301,6 +308,11 @@ export class GameScene extends ResponsiveScene {
       this.selectBuildingAndCloseBuildMode('chest');
       return;
     }
+    if (this.selectedBuilding) {
+      this.placementMode = this.placementMode === 'continue' ? 'single' : 'continue';
+      this.emitUIUpdate();
+      return;
+    }
     this.cycleRecipe();
   }
 
@@ -326,6 +338,7 @@ export class GameScene extends ResponsiveScene {
 
   private toggleBuildMode(): void {
     if (!this.panelManager.toggle('build')) return;
+    this.updateCursor();
     this.emitUIUpdate();
   }
 
@@ -353,8 +366,7 @@ export class GameScene extends ResponsiveScene {
       return;
     }
     if (this.selectedBuilding) {
-      this.selectedBuilding = null;
-      this.buildingPlacer.clearSelection();
+      this.clearPlacement();
       this.updateCursor();
       this.emitUIUpdate();
       return;
@@ -373,10 +385,13 @@ export class GameScene extends ResponsiveScene {
     this.emitUIUpdate();
   }
 
-  /** M key: mana_well in build mode, otherwise no-op */
+  /** M key: mana_well in build mode, toggle multi-place during placement */
   private handleMKey(): void {
     if (this.panelManager.isOpen('build')) {
       this.selectBuildingAndCloseBuildMode('mana_well');
+    } else if (this.selectedBuilding) {
+      this.placementMode = this.placementMode === 'multi' ? 'single' : 'multi';
+      this.emitUIUpdate();
     }
   }
 
@@ -544,6 +559,13 @@ export class GameScene extends ResponsiveScene {
     if (!result) return;
 
     this.buildingManager.addBuilding(result.building, result.sprite);
+
+    if (this.placementMode !== 'multi') {
+      this.selectedBuilding = null;
+      this.buildingPlacer.clearSelection();
+      if (this.placementMode === 'continue') this.panelManager.toggle('build');
+    }
+
     this.updateCursor();
     this.emitUIUpdate();
   }
@@ -559,6 +581,9 @@ export class GameScene extends ResponsiveScene {
 
   private updateCursor(): void {
     this.cursorGraphics.clear();
+
+    // Hide cursor when build bar is open
+    if (this.panelManager.isOpen('build')) return;
 
     const type = this.selectedBuilding;
     const def = type ? BUILDING_DEFINITIONS[type] : null;
@@ -669,6 +694,7 @@ export class GameScene extends ResponsiveScene {
       ),
       availableBuildings: this.getAvailableBuildings(),
       cursorOverBuilding: this.getBuildingAtCursor() !== null,
+      placementMode: this.placementMode,
       gameMode: this.gameMode,
       tutorialText: this.getTutorialText(),
     });

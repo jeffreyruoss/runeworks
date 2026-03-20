@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { THEME } from '../config';
+import { THEME, HUD_BAR_HEIGHT } from '../config';
 import { FONT_SM, getFontSize, C } from '../ui-theme';
 import { getViewport } from '../utils';
 
@@ -43,7 +43,7 @@ export class TutorialOverlay {
     // Always reposition container (viewport may have changed on resize)
     const vp = getViewport(this.scene);
     const boxH = lines.length * LINE_H + PAD_Y * 2;
-    this.container.setPosition(Math.floor(vp.width / 2), vp.height - 32 - boxH / 2);
+    this.container.setPosition(Math.floor(vp.width / 2), vp.height - HUD_BAR_HEIGHT - boxH / 2);
 
     if (key === this.currentKey) return;
     this.currentKey = key;

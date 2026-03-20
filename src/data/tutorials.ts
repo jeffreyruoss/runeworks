@@ -92,7 +92,7 @@ export const TUTORIALS: TutorialStage[] = [
     id: 6,
     name: 'First Building',
     instructionText: [
-      'Press B for build menu, then Q to select Quarry.',
+      'Press B for build bar, then Q to select Quarry.',
       'Place it on arcstone with Space. R rotates.',
       'X cancels selection. X on a building deconstructs it.',
       'Let the quarry produce 3 arcstone.',
@@ -166,6 +166,7 @@ export const TUTORIALS: TutorialStage[] = [
       'Workbenches craft advanced items from ingots.',
       'Build: Quarry -> Forge -> Workbench.',
       'Use C on a workbench to cycle recipes.',
+      'Press M during placement to toggle multi-place.',
       'Produce 1 cogwheel to complete the tutorial!',
     ],
     objectives: [{ item: 'cogwheel', count: 1 }],

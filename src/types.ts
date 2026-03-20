@@ -33,6 +33,9 @@ export type Direction = 'up' | 'down' | 'left' | 'right';
 
 export type GameMode = 'tutorial' | 'stages' | 'sandbox';
 
+/** After placing a building: exit, re-open build bar, or stay with same building */
+export type PlacementMode = 'single' | 'continue' | 'multi';
+
 export type TerrainType =
   | 'empty'
   | 'water'
@@ -142,5 +145,6 @@ export interface GameUIState {
   availableBuildings: BuildingType[];
   cursorOverBuilding: boolean;
   gameMode: GameMode;
+  placementMode: PlacementMode;
   tutorialText: string[] | null;
 }
