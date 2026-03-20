@@ -33,8 +33,6 @@ export class UIScene extends UiScene {
   // HUD text components (pixui BitmapText)
   private cursorInfoBmp!: BitmapText;
   private simStatusBmp!: BitmapText;
-  private resourcesBmp!: BitmapText;
-  private itemsBmp!: BitmapText;
   private helpBmp!: BitmapText;
   private selectedBmp!: BitmapText;
   // HUD bar backgrounds
@@ -120,24 +118,6 @@ export class UIScene extends UiScene {
     });
     setText(this.simStatusBmp, 'Game Speed  > 1x');
 
-    this.resourcesBmp = this.insert.topRight.bitmapText({
-      x: pad,
-      y: pad,
-      font: FONT_SM,
-      size: getFontSize(),
-      text: '',
-      tint: C.secondary,
-    });
-
-    this.itemsBmp = this.insert.topLeft.bitmapText({
-      x: pad,
-      y: pad + 14,
-      font: FONT_SM,
-      size: getFontSize(),
-      text: '',
-      tint: C.paused,
-    });
-
     // --- Bottom bar text ---
     // Selected building info (right, top row)
     this.selectedBmp = this.insert.bottomRight.bitmapText({
@@ -207,9 +187,6 @@ export class UIScene extends UiScene {
     setText(this.cursorInfoBmp, state.cursorInfo ?? '');
     this.cursorInfoBmp.tint = C.light;
 
-    // Resources
-    setText(this.resourcesBmp, this.formatResources(state.playerResources));
-
     // Selected building with cost info
     if (state.selectedBuilding) {
       const cost = BUILDING_COSTS[state.selectedBuilding];
@@ -255,19 +232,11 @@ export class UIScene extends UiScene {
       this.simStatusBmp.tint = C.active;
     }
 
-    // Items produced
-    const items = state.itemsProduced;
-    const itemStrings: string[] = [];
-    if (items.arcane_ingot) itemStrings.push(`ArcI:${items.arcane_ingot}`);
-    if (items.sun_ingot) itemStrings.push(`SunI:${items.sun_ingot}`);
-    if (items.cogwheel) itemStrings.push(`Cog:${items.cogwheel}`);
-    if (items.thread) itemStrings.push(`Thrd:${items.thread}`);
-    if (items.rune) itemStrings.push(`Rune:${items.rune}`);
-    setText(this.itemsBmp, itemStrings.join('  '));
-
     // Panel visibility
     this.menuPanel.setVisible(state.activePanel === 'menu');
-    this.inventoryPanel.setVisible(state.activePanel === 'inventory');
+    const invOpen = state.activePanel === 'inventory';
+    if (invOpen) this.inventoryPanel.update(state.playerResources, state.itemsProduced);
+    this.inventoryPanel.setVisible(invOpen);
     this.guidePanel.setVisible(state.activePanel === 'guide');
     this.researchPanel.setVisible(state.activePanel === 'research');
     if (state.activePanel === 'research') this.researchPanel.update(this.researchManager);
@@ -374,16 +343,6 @@ export class UIScene extends UiScene {
       { key: 'G', label: 'Guide' },
       { key: 'K', label: 'Keys' },
     ];
-  }
-
-  private formatResources(res: PlayerResources): string {
-    const parts: string[] = [];
-    if (res.stone) parts.push(`Stone:${res.stone}`);
-    if (res.wood) parts.push(`Wood:${res.wood}`);
-    if (res.iron) parts.push(`Iron:${res.iron}`);
-    if (res.clay) parts.push(`Clay:${res.clay}`);
-    if (res.crystal_shard) parts.push(`Crystal:${res.crystal_shard}`);
-    return parts.join(' ') || 'No resources';
   }
 
   private formatCost(cost: Partial<PlayerResources>): string {

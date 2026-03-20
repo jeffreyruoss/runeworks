@@ -1,15 +1,12 @@
 # TODO
 
-## Gemini API for images
+## Remember / review
 
-- [ ] Is the API key in a good, safe place (not in dist where it will be live)?
-- [ ] Code review on new image related stuff
+docs/game-design-v2.md
 
 ## CURRENT
 
 ## NEXT
-
-SEE docs/game-design-v2.md
 
 Don't have the top and bottom bars overlap the game world - have that be the bounds.
 
@@ -39,6 +36,11 @@ fade in the main game scene from black.
 Flush out the inventory modal. Use images for the items.
 
 Replace the generic loading bar that is before the title screen with the same loading bar that we have after the title screen.
+
+## Gemini API for images
+
+- [ ] Is the API key in a good, safe place (not in dist where it will be live)?
+- [ ] Code review on new image related stuff
 
 ## Code review, cleanup, tests
 
