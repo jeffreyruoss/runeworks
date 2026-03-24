@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { PlayerResources } from '../types';
 import { FONT_SM, getFontSize, C, addPanelBackground } from '../ui-theme';
 import { getViewport } from '../utils';
+import { getBarHeights } from '../layout';
 import { ITEM_DISPLAY_NAMES } from '../data/stages';
 import { RESOURCE_DISPLAY_NAMES } from '../config';
 
@@ -54,7 +55,9 @@ export class InventoryPanel {
 
   private createPanel(scene: Phaser.Scene): Phaser.GameObjects.Container {
     const vp = getViewport(scene);
-    const container = scene.add.container(Math.floor(vp.width / 2), Math.floor(vp.height / 2));
+    const bars = getBarHeights((scene as any).zoom);
+    const centerY = bars.top + (vp.height - bars.top - bars.bottom) / 2;
+    const container = scene.add.container(Math.floor(vp.width / 2), Math.floor(centerY));
     container.setDepth(1000);
     container.setVisible(false);
 

@@ -5,6 +5,7 @@ import { ITEM_DISPLAY_NAMES } from '../data/stages';
 import { ResearchManager } from './ResearchManager';
 import { FONT_SM, getFontSize, C, addPanelBackground } from '../ui-theme';
 import { getViewport } from '../utils';
+import { getBarHeights } from '../layout';
 
 interface NodeDisplay {
   node: ResearchNode;
@@ -95,7 +96,9 @@ export class ResearchPanel {
 
   private createPanel(): void {
     const vp = getViewport(this.scene);
-    this.container = this.scene.add.container(Math.floor(vp.width / 2), Math.floor(vp.height / 2));
+    const bars = getBarHeights((this.scene as any).zoom);
+    const centerY = bars.top + (vp.height - bars.top - bars.bottom) / 2;
+    this.container = this.scene.add.container(Math.floor(vp.width / 2), Math.floor(centerY));
     this.container.setDepth(1000);
     this.container.setVisible(false);
 

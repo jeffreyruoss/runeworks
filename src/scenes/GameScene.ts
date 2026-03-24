@@ -9,6 +9,7 @@ import {
   COLORS,
   CURSOR_JUMP_STEP,
 } from '../config';
+import { getLayout } from '../layout';
 import { Building, BuildingType, GameMode, PlacementMode, PlayerResources } from '../types';
 import { BUILDING_DEFINITIONS } from '../data/buildings';
 import { getRecipesForBuilding } from '../data/recipes';
@@ -69,12 +70,20 @@ export class GameScene extends ResponsiveScene {
     super({
       key: 'GameScene',
       viewportConstraints: {
-        mode: ConstraintMode.Maximum,
+        mode: ConstraintMode.Minimum,
         width: CANVAS_WIDTH,
-        height: CANVAS_HEIGHT,
       },
       getWorldSize: () => ({ width: CANVAS_WIDTH, height: CANVAS_HEIGHT }),
     });
+  }
+
+  /** Position the game camera viewport between the HUD bars.
+   *  Uses layout-computed screen-pixel rect + zoom. */
+  private applyBarViewport(): void {
+    const layout = getLayout();
+    const r = layout.gameRect;
+    this.cameras.main.setViewport(r.x, r.y, r.w, r.h);
+    this.cameras.main.setZoom(layout.zoom);
   }
 
   init(data?: { mode?: GameMode }): void {
@@ -88,6 +97,13 @@ export class GameScene extends ResponsiveScene {
 
   create(): void {
     super.create();
+
+    // Position game camera between HUD bars using layout module
+    // (updateLayout is called by main.ts before game creation and on resize)
+    this.applyBarViewport();
+    const onResize = () => this.applyBarViewport();
+    this.scale.on('resize', onResize);
+    this.events.once('shutdown', () => this.scale.off('resize', onResize));
 
     // Initialize simulation
     this.simulation = new Simulation();

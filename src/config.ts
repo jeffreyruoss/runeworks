@@ -10,14 +10,12 @@ export const GRID_WIDTH = 40;
 export const GRID_HEIGHT = 25;
 export const CANVAS_WIDTH = GRID_WIDTH * TILE_SIZE; // 640
 export const CANVAS_HEIGHT = GRID_HEIGHT * TILE_SIZE; // 400
+
 // Simulation
 export const TICKS_PER_SECOND = 20;
 export const MS_PER_TICK = 1000 / TICKS_PER_SECOND; // 50ms
 export const DEFAULT_SIM_DURATION = 90; // seconds
 export const QUARRY_TICKS_PER_ORE = 20; // 1 ore per second
-
-// HUD
-export const HUD_BAR_HEIGHT = 40; // px height for top and bottom HUD bars
 
 // Cursor
 export const CURSOR_JUMP_STEP = 5; // tiles to move when holding Shift

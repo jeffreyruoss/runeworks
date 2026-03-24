@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
-import { THEME, HUD_BAR_HEIGHT } from '../config';
+import { THEME } from '../config';
 import { FONT_SM, getFontSize, C } from '../ui-theme';
 import { getViewport } from '../utils';
+import { getBarHeights } from '../layout';
 
 const LINE_H = 14;
 const PAD_X = 16;
@@ -17,9 +18,11 @@ export class TutorialOverlay {
   private textObjects: Phaser.GameObjects.BitmapText[] = [];
   private scene: Phaser.Scene;
   private currentKey: string | null = null;
+  private cachedBottomH: number;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
+    this.cachedBottomH = getBarHeights((scene as any).zoom).bottom;
     const vp = getViewport(scene);
     this.container = scene.add.container(Math.floor(vp.width / 2), 0);
     this.container.setDepth(900);
@@ -27,6 +30,10 @@ export class TutorialOverlay {
 
     this.bg = scene.add.graphics();
     this.container.add(this.bg);
+
+    scene.scale.on('resize', () => {
+      this.cachedBottomH = getBarHeights((scene as any).zoom).bottom;
+    });
   }
 
   update(lines: string[] | null): void {
@@ -42,8 +49,9 @@ export class TutorialOverlay {
 
     // Always reposition container (viewport may have changed on resize)
     const vp = getViewport(this.scene);
+    const bottomH = this.cachedBottomH;
     const boxH = lines.length * LINE_H + PAD_Y * 2;
-    this.container.setPosition(Math.floor(vp.width / 2), vp.height - HUD_BAR_HEIGHT - boxH / 2);
+    this.container.setPosition(Math.floor(vp.width / 2), vp.height - bottomH - boxH / 2);
 
     if (key === this.currentKey) return;
     this.currentKey = key;

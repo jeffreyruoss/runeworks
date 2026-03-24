@@ -2,7 +2,8 @@ import Phaser from 'phaser';
 import { BuildingType } from '../types';
 import { FONT_SM, getFontSize, C } from '../ui-theme';
 import { getViewport } from '../utils';
-import { THEME, HUD_BAR_HEIGHT } from '../config';
+import { getBarHeights } from '../layout';
+import { THEME } from '../config';
 
 interface BuildEntry {
   type: BuildingType;
@@ -59,7 +60,7 @@ export class BuildPanel {
 
   private createBar(scene: Phaser.Scene): Phaser.GameObjects.Container {
     const vp = getViewport(scene);
-    const barH = HUD_BAR_HEIGHT;
+    const barH = getBarHeights((scene as any).zoom).bottom;
 
     const container = scene.add.container(0, vp.height - barH);
     container.setDepth(1000);
@@ -148,7 +149,7 @@ export class BuildPanel {
 
   private reposition(): void {
     const vp = getViewport(this.scene);
-    const barH = HUD_BAR_HEIGHT;
+    const barH = getBarHeights((this.scene as any).zoom).bottom;
     this.container.setPosition(0, vp.height - barH);
     this.bg.setPosition(Math.floor(vp.width / 2), Math.floor(barH / 2));
     this.bg.setSize(vp.width, barH);

@@ -1,12 +1,7 @@
 import Phaser from 'phaser';
 import { UiScene, ConstraintMode, BitmapText } from 'phaser-pixui';
-import {
-  CANVAS_HEIGHT,
-  BUILDING_COSTS,
-  RESOURCE_DISPLAY_NAMES,
-  THEME,
-  HUD_BAR_HEIGHT,
-} from '../config';
+import { CANVAS_WIDTH, BUILDING_COSTS, RESOURCE_DISPLAY_NAMES, THEME } from '../config';
+import { getBarHeights } from '../layout';
 import { GameUIState, PlayerResources } from '../types';
 
 import { ObjectivesPanel } from '../managers/ObjectivesPanel';
@@ -55,7 +50,10 @@ export class UIScene extends UiScene {
   constructor() {
     super({
       key: 'UIScene',
-      viewportConstraints: { mode: ConstraintMode.Minimum, height: CANVAS_HEIGHT },
+      viewportConstraints: {
+        mode: ConstraintMode.Minimum,
+        width: CANVAS_WIDTH,
+      },
       theme: uiTheme,
     });
   }
@@ -74,28 +72,30 @@ export class UIScene extends UiScene {
   /** Create top and bottom HUD bars with bitmap text */
   private createHudBars(): void {
     const vp = this.viewport;
-    const barH = HUD_BAR_HEIGHT;
     const pad = 4;
+    const bars = getBarHeights(this.zoom);
+    const topH = bars.top;
+    const bottomH = bars.bottom;
 
     // Top bar background
     this.topBarBg = this.add.rectangle(
       Math.floor(vp.width / 2),
-      Math.floor(barH / 2),
+      Math.floor(topH / 2),
       vp.width,
-      barH,
+      topH,
       THEME.hud.bg,
-      0.92
+      1
     );
     this.topBarBg.setOrigin(0.5, 0.5);
 
     // Bottom bar background
     this.bottomBarBg = this.add.rectangle(
       Math.floor(vp.width / 2),
-      vp.height - Math.floor(barH / 2),
+      vp.height - Math.floor(bottomH / 2),
       vp.width,
-      barH,
+      bottomH,
       THEME.hud.bg,
-      0.92
+      1
     );
     this.bottomBarBg.setOrigin(0.5, 0.5);
 
@@ -145,13 +145,15 @@ export class UIScene extends UiScene {
 
   private repositionBars(): void {
     const vp = this.viewport;
-    const barH = HUD_BAR_HEIGHT;
+    const bars = getBarHeights(this.zoom);
+    const topH = bars.top;
+    const bottomH = bars.bottom;
 
-    this.topBarBg.setPosition(Math.floor(vp.width / 2), Math.floor(barH / 2));
-    this.topBarBg.setSize(vp.width, barH);
+    this.topBarBg.setPosition(Math.floor(vp.width / 2), Math.floor(topH / 2));
+    this.topBarBg.setSize(vp.width, topH);
 
-    this.bottomBarBg.setPosition(Math.floor(vp.width / 2), vp.height - Math.floor(barH / 2));
-    this.bottomBarBg.setSize(vp.width, barH);
+    this.bottomBarBg.setPosition(Math.floor(vp.width / 2), vp.height - Math.floor(bottomH / 2));
+    this.bottomBarBg.setSize(vp.width, bottomH);
   }
 
   private createPanels(): void {

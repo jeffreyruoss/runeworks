@@ -5,6 +5,7 @@ import { getStage, ITEM_DISPLAY_NAMES, PRODUCTION_CHAINS } from '../data/stages'
 import { TUTORIALS } from '../data/tutorials';
 import { FONT_SM, getFontSize, C, addPanelBackground } from '../ui-theme';
 import { getViewport } from '../utils';
+import { getBarHeights } from '../layout';
 
 const PAD_X = 20;
 const PAD_Y = 16;
@@ -44,9 +45,11 @@ export class ObjectivesPanel {
 
   private createObjectivesPanel(): void {
     const vp = getViewport(this.scene);
+    const bars = getBarHeights((this.scene as any).zoom);
+    const centerY = bars.top + (vp.height - bars.top - bars.bottom) / 2;
     this.objectivesContainer = this.scene.add.container(
       Math.floor(vp.width / 2),
-      Math.floor(vp.height / 2)
+      Math.floor(centerY)
     );
     this.objectivesContainer.setDepth(1000);
     this.objectivesContainer.setVisible(false);
@@ -107,9 +110,11 @@ export class ObjectivesPanel {
 
   private createStageCompletePanel(): void {
     const vp = getViewport(this.scene);
+    const bars = getBarHeights((this.scene as any).zoom);
+    const centerY = bars.top + (vp.height - bars.top - bars.bottom) / 2;
     this.stageCompleteContainer = this.scene.add.container(
       Math.floor(vp.width / 2),
-      Math.floor(vp.height / 2)
+      Math.floor(centerY)
     );
     this.stageCompleteContainer.setDepth(1001);
     this.stageCompleteContainer.setVisible(false);

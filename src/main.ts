@@ -6,6 +6,7 @@ import { GameScene } from './scenes/GameScene';
 import { UIScene } from './scenes/UIScene';
 import { PixuiDemoScene } from './scenes/PixuiDemoScene';
 import { COLORS } from './config';
+import { updateLayout } from './layout';
 import { initDevTools } from './dev/devPanel';
 
 const dpr = window.devicePixelRatio || 1;
@@ -26,9 +27,14 @@ const config: Phaser.Types.Core.GameConfig = {
   scene: [BootScene, ModeSelectScene, LoadingScene, GameScene, UIScene, PixuiDemoScene],
 };
 
+updateLayout(window.innerWidth * dpr, window.innerHeight * dpr);
+
 const game = new Phaser.Game(config);
 initDevTools(game);
 
 window.addEventListener('resize', () => {
-  game.scale.resize(window.innerWidth * dpr, window.innerHeight * dpr);
+  const w = window.innerWidth * dpr;
+  const h = window.innerHeight * dpr;
+  updateLayout(w, h);
+  game.scale.resize(w, h);
 });

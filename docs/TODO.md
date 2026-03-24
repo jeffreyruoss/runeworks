@@ -6,9 +6,13 @@ docs/game-design-v2.md
 
 ## CURRENT
 
+Don't have the top and bottom bars overlap the game world - have that be the bounds.
+
 ## NEXT
 
-Don't have the top and bottom bars overlap the game world - have that be the bounds.
+Maybe the faster you build the more of a benefit you get? Multi-player competition or reward bonuses? Or it could just be a mode?
+
+Let's take a looks through the Phaser docs and see if there are any features we could use for our game to improve what is already there or add new features.
 
 Add shift + esdf: Move 4 paces to the default bottom menu and build bottom menu.
 
