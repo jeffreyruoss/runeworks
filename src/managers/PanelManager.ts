@@ -1,4 +1,11 @@
-export type PanelType = 'menu' | 'inventory' | 'guide' | 'objectives' | 'research' | 'build';
+export type PanelType =
+  | 'menu'
+  | 'inventory'
+  | 'guide'
+  | 'objectives'
+  | 'research'
+  | 'build'
+  | 'upgrades';
 
 /**
  * Manages modal panel state. Only one panel can be open at a time.

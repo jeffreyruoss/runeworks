@@ -12,6 +12,7 @@ export interface GameKeys {
   C: Phaser.Input.Keyboard.Key;
   T: Phaser.Input.Keyboard.Key;
   K: Phaser.Input.Keyboard.Key;
+  U: Phaser.Input.Keyboard.Key;
   SPACE: Phaser.Input.Keyboard.Key;
   BACKSPACE: Phaser.Input.Keyboard.Key;
   R: Phaser.Input.Keyboard.Key;
@@ -51,6 +52,7 @@ export interface InputCallbacks {
   toggleGuide: () => void;
   handleEnter: () => void;
   handleMKey: () => void;
+  toggleUpgrades: () => void;
 }
 
 /**
@@ -74,6 +76,7 @@ export class InputManager {
       C: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C),
       T: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.T),
       K: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.K),
+      U: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.U),
       SPACE: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
       BACKSPACE: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.BACKSPACE),
       R: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R),
@@ -128,6 +131,7 @@ export class InputManager {
     this.keys.I.on('down', () => cb.toggleInventory());
     this.keys.H.on('down', () => cb.toggleBufferDisplay());
     this.keys.C.on('down', () => cb.cycleRecipe());
+    this.keys.U.on('down', () => cb.toggleUpgrades());
 
     // Speed controls
     this.keys.COMMA.on('down', () => cb.changeSpeed(-1));

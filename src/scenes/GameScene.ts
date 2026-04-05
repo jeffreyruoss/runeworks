@@ -23,6 +23,8 @@ import { BuildingManager } from '../managers/BuildingManager';
 import { StageManager } from '../managers/StageManager';
 import { PanelManager } from '../managers/PanelManager';
 import { ResearchManager } from '../managers/ResearchManager';
+import { FlowSystem } from '../simulation/FlowSystem';
+import { UpgradeState } from '../data/upgrades';
 import { generateTerrain, PatchDef } from '../terrain/terrainSetup';
 import { QUARRIABLE_TERRAIN } from '../data/terrain';
 import { ITEM_DISPLAY_NAMES } from '../data/stages';
@@ -48,6 +50,8 @@ export class GameScene extends ResponsiveScene {
   private stageManager!: StageManager;
   private panelManager!: PanelManager;
   private researchManager!: ResearchManager;
+  private flowSystem!: FlowSystem;
+  private upgradeState!: UpgradeState;
 
   // UI state
   private showAllBuffers = false;
@@ -112,6 +116,10 @@ export class GameScene extends ResponsiveScene {
     this.panelManager = new PanelManager();
     this.researchManager = new ResearchManager();
     this.registry.set('researchManager', this.researchManager);
+    this.flowSystem = new FlowSystem();
+    this.upgradeState = new UpgradeState();
+    this.registry.set('flowSystem', this.flowSystem);
+    this.registry.set('upgradeState', this.upgradeState);
     this.setupSimulationCallbacks();
 
     // Initialize managers
@@ -162,6 +170,7 @@ export class GameScene extends ResponsiveScene {
       toggleObjectives: () => this.toggleObjectives(),
       toggleGuide: () => this.toggleGuide(),
       handleMKey: () => this.handleMKey(),
+      toggleUpgrades: () => this.toggleUpgrades(),
     });
 
     // Center cursor
@@ -202,6 +211,7 @@ export class GameScene extends ResponsiveScene {
 
   private setupSimulationCallbacks(): void {
     this.simulation.onStateChanged = (state) => {
+      this.flowSystem.tick();
       this.events.emit('simulationStateChanged', state);
       this.bufferIndicators.update(
         this.buildingManager.getBuildings(),
@@ -221,7 +231,14 @@ export class GameScene extends ResponsiveScene {
       this.emitUIUpdate();
     };
 
-    this.simulation.getUpgrades = () => this.researchManager.getActiveUpgrades();
+    this.simulation.getUpgrades = () => {
+      const research = this.researchManager.getActiveUpgrades();
+      return {
+        bufferBonus: research.bufferBonus + this.upgradeState.getBufferBonus(),
+        craftTimeMultiplier:
+          research.craftTimeMultiplier * this.upgradeState.getCraftTimeMultiplier(),
+      };
+    };
   }
 
   // --- World reset ---
@@ -237,6 +254,8 @@ export class GameScene extends ResponsiveScene {
     this.terrainRenderer.drawTerrain((x, y) => this.simulation.getTerrain(x, y));
     this.playerResources = { stone: 0, wood: 0, iron: 0, clay: 0, crystal_shard: 0 };
     if (startingResources) Object.assign(this.playerResources, startingResources);
+    this.flowSystem.reset();
+    this.upgradeState.reset();
     this.cursor = { x: Math.floor(GRID_WIDTH / 2), y: Math.floor(GRID_HEIGHT / 2) };
     this.selectedBuilding = null;
     this.showAllBuffers = false;
@@ -270,6 +289,10 @@ export class GameScene extends ResponsiveScene {
     }
     if (this.panelManager.isOpen('research')) {
       this.events.emit('researchNavigate', dx, dy);
+      return;
+    }
+    if (this.panelManager.isOpen('upgrades')) {
+      if (dy !== 0) this.events.emit('upgradesNavigate', dy);
       return;
     }
     if (this.panelManager.isOpen('build')) {
@@ -454,6 +477,11 @@ export class GameScene extends ResponsiveScene {
     this.emitUIUpdate();
   }
 
+  private toggleUpgrades(): void {
+    if (!this.panelManager.toggle('upgrades')) return;
+    this.emitUIUpdate();
+  }
+
   private toggleBufferDisplay(): void {
     this.showAllBuffers = !this.showAllBuffers;
     this.bufferIndicators.update(
@@ -510,6 +538,11 @@ export class GameScene extends ResponsiveScene {
   private handleAction(): void {
     if (this.panelManager.isOpen('research')) {
       this.events.emit('researchUnlock');
+      return;
+    }
+    if (this.panelManager.isOpen('upgrades')) {
+      this.events.emit('upgradesPurchase');
+      this.emitUIUpdate();
       return;
     }
     if (this.selectedBuilding) {
@@ -574,6 +607,7 @@ export class GameScene extends ResponsiveScene {
 
     if (!result) return;
 
+    this.flowSystem.onBuildingPlaced(performance.now());
     this.buildingManager.addBuilding(result.building, result.sprite);
 
     if (this.placementMode !== 'multi') {
@@ -713,6 +747,8 @@ export class GameScene extends ResponsiveScene {
       placementMode: this.placementMode,
       gameMode: this.gameMode,
       tutorialText: this.getTutorialText(),
+      flowLevel: this.flowSystem.getFlowLevel(),
+      flowPoints: this.flowSystem.getFlowPoints(),
     });
   }
 

@@ -147,4 +147,6 @@ export interface GameUIState {
   gameMode: GameMode;
   placementMode: PlacementMode;
   tutorialText: string[] | null;
+  flowLevel: number;
+  flowPoints: number;
 }

@@ -12,8 +12,20 @@ import { TutorialOverlay } from '../managers/TutorialOverlay';
 import { MenuPanel } from '../managers/MenuPanel';
 import { InventoryPanel } from '../managers/InventoryPanel';
 import { BuildPanel } from '../managers/BuildPanel';
+import { UpgradesPanel } from '../managers/UpgradesPanel';
+import { UpgradeState } from '../data/upgrades';
+import { FlowSystem } from '../simulation/FlowSystem';
 import { canAfford } from '../utils';
 import { uiTheme, FONT_SM, getFontSize, getHelpFontSize, C } from '../ui-theme';
+
+// Color stops for flow bar interpolation (hoisted to avoid per-frame allocation)
+const FLOW_COLOR_STOPS: ReadonlyArray<readonly [number, number, number, number]> = [
+  [0.0, 0x1a, 0x3a, 0x6a],
+  [0.25, 0x22, 0x66, 0xcc],
+  [0.5, 0x4a, 0xf0, 0xff],
+  [0.75, 0x44, 0xff, 0x88],
+  [1.0, 0xff, 0x88, 0x44],
+];
 
 /** Set text on a pixui BitmapText without the maxWidth feedback loop.
  *  Clears maxWidth before so text renders unwrapped (correct width/height),
@@ -33,6 +45,10 @@ export class UIScene extends UiScene {
   // HUD bar backgrounds
   private topBarBg!: Phaser.GameObjects.Rectangle;
   private bottomBarBg!: Phaser.GameObjects.Rectangle;
+  // Flow meter bar
+  private flowBarBg!: Phaser.GameObjects.Rectangle;
+  private flowBarFill!: Phaser.GameObjects.Rectangle;
+  private flowPointsBmp!: BitmapText;
 
   // Bound listener reference for cleanup
   private boundRepositionBars = this.repositionBars.bind(this);
@@ -46,6 +62,11 @@ export class UIScene extends UiScene {
   private researchManager!: ResearchManager;
   private tutorialOverlay!: TutorialOverlay;
   private buildPanel!: BuildPanel;
+  private upgradesPanel!: UpgradesPanel;
+  private upgradeState!: UpgradeState;
+  private flowSystem!: FlowSystem;
+  private prevFlowLevel = -1;
+  private prevFlowPoints = -1;
 
   constructor() {
     super({
@@ -98,6 +119,31 @@ export class UIScene extends UiScene {
       1
     );
     this.bottomBarBg.setOrigin(0.5, 0.5);
+
+    // --- Flow meter bar (thin bar at bottom edge of top HUD) ---
+    const flowBarH = 3;
+    const flowY = topH - Math.floor(flowBarH / 2);
+    this.flowBarBg = this.add.rectangle(
+      Math.floor(vp.width / 2),
+      flowY,
+      vp.width,
+      flowBarH,
+      0x1a1830,
+      1
+    );
+    this.flowBarBg.setOrigin(0.5, 0.5);
+    this.flowBarFill = this.add.rectangle(0, flowY, 0, flowBarH, 0x2266cc, 1);
+    this.flowBarFill.setOrigin(0, 0.5);
+
+    // Flow points counter (top-right)
+    this.flowPointsBmp = this.insert.topRight.bitmapText({
+      x: pad,
+      y: pad,
+      font: FONT_SM,
+      size: getFontSize(),
+      text: '',
+      tint: C.muted,
+    });
 
     // --- Top bar text ---
     this.cursorInfoBmp = this.insert.topLeft.bitmapText({
@@ -154,6 +200,13 @@ export class UIScene extends UiScene {
 
     this.bottomBarBg.setPosition(Math.floor(vp.width / 2), vp.height - Math.floor(bottomH / 2));
     this.bottomBarBg.setSize(vp.width, bottomH);
+
+    // Reposition flow bar
+    const flowBarH = 3;
+    const flowY = topH - Math.floor(flowBarH / 2);
+    this.flowBarBg.setPosition(Math.floor(vp.width / 2), flowY);
+    this.flowBarBg.setSize(vp.width, flowBarH);
+    this.flowBarFill.setY(flowY);
   }
 
   private createPanels(): void {
@@ -172,6 +225,9 @@ export class UIScene extends UiScene {
     this.researchPanel = new ResearchPanel(this);
     this.tutorialOverlay = new TutorialOverlay(this);
     this.buildPanel = new BuildPanel(this);
+    this.upgradesPanel = new UpgradesPanel(this);
+    this.upgradeState = this.registry.get('upgradeState') as UpgradeState;
+    this.flowSystem = this.registry.get('flowSystem') as FlowSystem;
   }
 
   private listenToGameScene(): void {
@@ -180,6 +236,8 @@ export class UIScene extends UiScene {
     gameScene.events.on('guideNavigate', this.onGuideNavigate, this);
     gameScene.events.on('researchNavigate', this.onResearchNavigate, this);
     gameScene.events.on('researchUnlock', this.onResearchUnlock, this);
+    gameScene.events.on('upgradesNavigate', this.onUpgradesNavigate, this);
+    gameScene.events.on('upgradesPurchase', this.onUpgradesPurchase, this);
     // Request initial state now that we're subscribed
     gameScene.events.emit('uiReady');
   }
@@ -250,8 +308,53 @@ export class UIScene extends UiScene {
       this.objectivesPanel.update(state);
     }
 
+    // Upgrades panel
+    const upgradesOpen = state.activePanel === 'upgrades';
+    if (upgradesOpen) this.upgradesPanel.update(this.upgradeState, state.flowPoints);
+    this.upgradesPanel.setVisible(upgradesOpen);
+
+    // Flow meter bar
+    this.updateFlowBar(state.flowLevel, state.flowPoints);
+
     // Tutorial overlay
     this.tutorialOverlay.update(state.tutorialText);
+  }
+
+  private updateFlowBar(level: number, points: number): void {
+    if (level === this.prevFlowLevel && points === this.prevFlowPoints) return;
+    this.prevFlowLevel = level;
+    this.prevFlowPoints = points;
+
+    const vp = this.viewport;
+    const fraction = level / 100;
+    this.flowBarFill.setSize(Math.floor(vp.width * fraction), 3);
+    this.flowBarFill.setFillStyle(this.getFlowColor(fraction));
+
+    if (points > 0) {
+      setText(this.flowPointsBmp, `Flow:${points}`);
+      this.flowPointsBmp.tint = C.active;
+    } else {
+      setText(this.flowPointsBmp, '');
+    }
+  }
+
+  private getFlowColor(fraction: number): number {
+    let lo = FLOW_COLOR_STOPS[0];
+    let hi = FLOW_COLOR_STOPS[FLOW_COLOR_STOPS.length - 1];
+    for (let i = 0; i < FLOW_COLOR_STOPS.length - 1; i++) {
+      if (fraction >= FLOW_COLOR_STOPS[i][0] && fraction <= FLOW_COLOR_STOPS[i + 1][0]) {
+        lo = FLOW_COLOR_STOPS[i];
+        hi = FLOW_COLOR_STOPS[i + 1];
+        break;
+      }
+    }
+
+    const range = hi[0] - lo[0];
+    const t = range > 0 ? (fraction - lo[0]) / range : 0;
+    const r = Math.round(lo[1] + (hi[1] - lo[1]) * t);
+    const g = Math.round(lo[2] + (hi[2] - lo[2]) * t);
+    const b = Math.round(lo[3] + (hi[3] - lo[3]) * t);
+    return (r << 16) | (g << 8) | b;
   }
 
   /** Build the bottom help bar text with per-character cyan tinting on hotkeys */
@@ -319,6 +422,13 @@ export class UIScene extends UiScene {
         { key: 'X', label: 'Close' },
       ];
     }
+    if (state.activePanel === 'upgrades') {
+      return [
+        { key: 'E/D', label: 'Select' },
+        { key: 'Space', label: 'Buy' },
+        { key: 'X', label: 'Close' },
+      ];
+    }
     if (state.activePanel !== null) {
       return [{ key: 'X', label: 'Close' }];
     }
@@ -342,6 +452,7 @@ export class UIScene extends UiScene {
       { key: 'R', label: 'Research' },
       { key: 'P', label: 'Pause' },
       { key: 'O', label: 'Goals' },
+      { key: 'U', label: 'Upgrades' },
       { key: 'G', label: 'Guide' },
       { key: 'K', label: 'Keys' },
     ];
@@ -368,12 +479,23 @@ export class UIScene extends UiScene {
     this.researchPanel.update(this.researchManager);
   }
 
+  private onUpgradesNavigate(dy: number): void {
+    this.upgradesPanel.navigate(dy);
+  }
+
+  private onUpgradesPurchase(): void {
+    this.upgradesPanel.tryPurchase(this.upgradeState, () => this.flowSystem.spendPoint());
+    this.upgradesPanel.update(this.upgradeState, this.flowSystem.getFlowPoints());
+  }
+
   private cleanup(): void {
     const gameScene = this.scene.get('GameScene');
     gameScene.events.off('gameStateChanged', this.onGameStateChanged, this);
     gameScene.events.off('guideNavigate', this.onGuideNavigate, this);
     gameScene.events.off('researchNavigate', this.onResearchNavigate, this);
     gameScene.events.off('researchUnlock', this.onResearchUnlock, this);
+    gameScene.events.off('upgradesNavigate', this.onUpgradesNavigate, this);
+    gameScene.events.off('upgradesPurchase', this.onUpgradesPurchase, this);
     this.scale.off('resize', this.boundRepositionBars);
   }
 }
