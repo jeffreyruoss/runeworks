@@ -424,7 +424,7 @@ export class UIScene extends UiScene {
     }
     if (state.activePanel === 'upgrades') {
       return [
-        { key: 'E/D', label: 'Select' },
+        { key: 'ESDF', label: 'Select' },
         { key: 'Space', label: 'Buy' },
         { key: 'X', label: 'Close' },
       ];
@@ -479,12 +479,12 @@ export class UIScene extends UiScene {
     this.researchPanel.update(this.researchManager);
   }
 
-  private onUpgradesNavigate(dy: number): void {
-    this.upgradesPanel.navigate(dy);
+  private onUpgradesNavigate(dx: number, dy: number): void {
+    this.upgradesPanel.navigate(dx, dy);
   }
 
   private onUpgradesPurchase(): void {
-    this.upgradesPanel.tryPurchase(this.upgradeState, () => this.flowSystem.spendPoint());
+    this.upgradesPanel.tryPurchase(this.upgradeState, (cost) => this.flowSystem.spendPoints(cost));
     this.upgradesPanel.update(this.upgradeState, this.flowSystem.getFlowPoints());
   }
 

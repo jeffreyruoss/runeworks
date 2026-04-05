@@ -62,9 +62,9 @@ export class FlowSystem {
     return this.flowPoints;
   }
 
-  spendPoint(): boolean {
-    if (this.flowPoints <= 0) return false;
-    this.flowPoints--;
+  spendPoints(cost: number): boolean {
+    if (this.flowPoints < cost) return false;
+    this.flowPoints -= cost;
     return true;
   }
 

@@ -292,7 +292,7 @@ export class GameScene extends ResponsiveScene {
       return;
     }
     if (this.panelManager.isOpen('upgrades')) {
-      if (dy !== 0) this.events.emit('upgradesNavigate', dy);
+      this.events.emit('upgradesNavigate', dx, dy);
       return;
     }
     if (this.panelManager.isOpen('build')) {

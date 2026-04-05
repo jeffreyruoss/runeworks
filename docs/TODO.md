@@ -8,6 +8,15 @@ docs/game-design-v2.md
 
 ## NEXT
 
+disable auto page reload/hot reload during development for now.
+
+tests
+
+add flow points to the development settings.
+add a button in the developments that adds 1000 of each resource.
+
+tutorial for the flow meter.
+
 Let's take a looks through the Phaser docs and see if there are any features we could use for our game to improve what is already there or add new features.
 
 Add shift + esdf: Move 4 paces to the default bottom menu and build bottom menu.
@@ -43,8 +52,6 @@ Replace the generic loading bar that is before the title screen with the same lo
 - [ ] Code review on new image related stuff
 
 ## Code review, cleanup, tests
-
-Tests last updated mar 8
 
 ## Tutorial
 
