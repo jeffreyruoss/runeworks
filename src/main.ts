@@ -50,7 +50,6 @@ const config: Phaser.Types.Core.GameConfig = {
   scale: {
     mode: Phaser.Scale.NONE,
     zoom: 1 / dpr,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   scene: [BootScene, ModeSelectScene, LoadingScene, GameScene, UIScene, PixuiDemoScene],
 };
