@@ -17,6 +17,7 @@ export default defineConfig(({ command }) => ({
   server: {
     port: 3000,
     open: true,
+    hmr: false,
   },
   plugins: [command === 'serve' ? processAssetsDev(pixuiAssets) : processAssetsProd(pixuiAssets)],
 }));

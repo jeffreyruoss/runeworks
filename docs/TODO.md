@@ -8,8 +8,6 @@ docs/game-design-v2.md
 
 ## NEXT
 
-disable auto page reload/hot reload during development for now.
-
 tests
 
 add flow points to the development settings.
