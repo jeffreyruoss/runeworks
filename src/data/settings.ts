@@ -26,7 +26,7 @@ interface PlayerSettings {
 }
 
 function defaultSettings(): PlayerSettings {
-  return { fontSize: 'medium', soundVolume: 100, musicVolume: 100 };
+  return { fontSize: 'small', soundVolume: 100, musicVolume: 100 };
 }
 
 function clampVolume(v: number): number {
@@ -47,7 +47,7 @@ export function loadSettings(): PlayerSettings {
     cached = {
       fontSize: FONT_SIZE_ORDER.includes(data.fontSize as FontSizeOption)
         ? (data.fontSize as FontSizeOption)
-        : 'medium',
+        : 'small',
       soundVolume: clampVolume(typeof data.soundVolume === 'number' ? data.soundVolume : 100),
       musicVolume: clampVolume(typeof data.musicVolume === 'number' ? data.musicVolume : 100),
     };

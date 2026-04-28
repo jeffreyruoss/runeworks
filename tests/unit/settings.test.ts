@@ -30,7 +30,7 @@ describe('loadSettings', () => {
   it('returns defaults when localStorage is empty', async () => {
     const { loadSettings } = await loadModule();
     const s = loadSettings();
-    expect(s.fontSize).toBe('medium');
+    expect(s.fontSize).toBe('small');
     expect(s.soundVolume).toBe(100);
     expect(s.musicVolume).toBe(100);
   });
@@ -47,14 +47,14 @@ describe('loadSettings', () => {
     expect(s.musicVolume).toBe(70);
   });
 
-  it('falls back to medium for invalid fontSize', async () => {
+  it('falls back to small for invalid fontSize', async () => {
     storage.set(
       STORAGE_KEY,
       JSON.stringify({ fontSize: 'huge', soundVolume: 80, musicVolume: 80 })
     );
     const { loadSettings } = await loadModule();
     const s = loadSettings();
-    expect(s.fontSize).toBe('medium');
+    expect(s.fontSize).toBe('small');
   });
 
   it('clamps volume to 0-100 range', async () => {
@@ -72,7 +72,7 @@ describe('loadSettings', () => {
     storage.set(STORAGE_KEY, '{broken}');
     const { loadSettings } = await loadModule();
     const s = loadSettings();
-    expect(s.fontSize).toBe('medium');
+    expect(s.fontSize).toBe('small');
     expect(s.soundVolume).toBe(100);
   });
 
@@ -89,19 +89,19 @@ describe('loadSettings', () => {
 });
 
 describe('getFontSize / getHelpFontSize', () => {
-  it('returns 14 for medium and 13 for help font (defaults)', async () => {
+  it('returns 12 for small and 11 for help font (defaults)', async () => {
     const { getFontSize, getHelpFontSize } = await loadModule();
-    expect(getFontSize()).toBe(14);
-    expect(getHelpFontSize()).toBe(13);
+    expect(getFontSize()).toBe(12);
+    expect(getHelpFontSize()).toBe(11);
   });
 
-  it('returns 12 for small', async () => {
+  it('returns 14 for medium', async () => {
     storage.set(
       STORAGE_KEY,
-      JSON.stringify({ fontSize: 'small', soundVolume: 100, musicVolume: 100 })
+      JSON.stringify({ fontSize: 'medium', soundVolume: 100, musicVolume: 100 })
     );
     const { getFontSize } = await loadModule();
-    expect(getFontSize()).toBe(12);
+    expect(getFontSize()).toBe(14);
   });
 
   it('returns 16 for large', async () => {
@@ -115,16 +115,26 @@ describe('getFontSize / getHelpFontSize', () => {
 });
 
 describe('cycleFontSize', () => {
-  it('cycles forward from medium to large', async () => {
+  it('cycles forward from default small to medium', async () => {
     const { cycleFontSize } = await loadModule();
     const result = cycleFontSize(1);
-    expect(result).toBe('large');
+    expect(result).toBe('medium');
   });
 
-  it('cycles backward from medium to small', async () => {
+  it('clamps at small when cycling backward from default', async () => {
     const { cycleFontSize } = await loadModule();
     const result = cycleFontSize(-1);
     expect(result).toBe('small');
+  });
+
+  it('cycles forward from medium to large', async () => {
+    storage.set(
+      STORAGE_KEY,
+      JSON.stringify({ fontSize: 'medium', soundVolume: 100, musicVolume: 100 })
+    );
+    const { cycleFontSize } = await loadModule();
+    const result = cycleFontSize(1);
+    expect(result).toBe('large');
   });
 
   it('clamps at large when cycling forward', async () => {
@@ -151,7 +161,7 @@ describe('cycleFontSize', () => {
     const { cycleFontSize } = await loadModule();
     cycleFontSize(1);
     const saved = JSON.parse(storage.get(STORAGE_KEY)!);
-    expect(saved.fontSize).toBe('large');
+    expect(saved.fontSize).toBe('medium');
   });
 });
 
@@ -209,6 +219,6 @@ describe('volume controls', () => {
 describe('getFontSizeLabel', () => {
   it('returns the current font size option', async () => {
     const { getFontSizeLabel } = await loadModule();
-    expect(getFontSizeLabel()).toBe('medium');
+    expect(getFontSizeLabel()).toBe('small');
   });
 });
