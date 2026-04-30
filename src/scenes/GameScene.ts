@@ -88,6 +88,11 @@ export class GameScene extends ResponsiveScene {
     const r = layout.gameRect;
     this.cameras.main.setViewport(r.x, r.y, r.w, r.h);
     this.cameras.main.setZoom(layout.zoom);
+    // Pixui sets bounds based on its own integer-zoom viewport, which can put
+    // bounds.x/y negative when its viewport exceeds the world. With our larger
+    // fractional-zoom viewport, that offsets the rendered world inside the
+    // camera. Reset bounds to the actual world so the world fills the viewport.
+    this.cameras.main.setBounds(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   }
 
   init(data?: { mode?: GameMode }): void {

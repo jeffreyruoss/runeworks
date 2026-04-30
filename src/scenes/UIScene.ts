@@ -27,6 +27,8 @@ const FLOW_COLOR_STOPS: ReadonlyArray<readonly [number, number, number, number]>
   [1.0, 0xff, 0x88, 0x44],
 ];
 
+const FLOW_BAR_H = 3;
+
 /** Set text on a pixui BitmapText without the maxWidth feedback loop.
  *  Clears maxWidth before so text renders unwrapped (correct width/height),
  *  uses pixui setter for layout positioning, then clears maxWidth again. */
@@ -45,8 +47,7 @@ export class UIScene extends UiScene {
   // HUD bar backgrounds
   private topBarBg!: Phaser.GameObjects.Rectangle;
   private bottomBarBg!: Phaser.GameObjects.Rectangle;
-  // Flow meter bar
-  private flowBarBg!: Phaser.GameObjects.Rectangle;
+  // Flow meter bar (top bar bg serves as the track; only the fill is drawn)
   private flowBarFill!: Phaser.GameObjects.Rectangle;
   private flowPointsBmp!: BitmapText;
 
@@ -120,20 +121,9 @@ export class UIScene extends UiScene {
     );
     this.bottomBarBg.setOrigin(0.5, 0.5);
 
-    // --- Flow meter bar (thin bar at bottom edge of top HUD) ---
-    const flowBarH = 3;
-    const flowY = topH - Math.floor(flowBarH / 2);
-    this.flowBarBg = this.add.rectangle(
-      Math.floor(vp.width / 2),
-      flowY,
-      vp.width,
-      flowBarH,
-      0x1a1830,
-      1
-    );
-    this.flowBarBg.setOrigin(0.5, 0.5);
-    this.flowBarFill = this.add.rectangle(0, flowY, 0, flowBarH, 0x2266cc, 1);
-    this.flowBarFill.setOrigin(0, 0.5);
+    // Flow meter fill — thin bar at bottom edge of top HUD, fully inside it
+    this.flowBarFill = this.add.rectangle(0, topH, 0, FLOW_BAR_H, THEME.hud.bg, 1);
+    this.flowBarFill.setOrigin(0, 1);
 
     // Flow points counter (top-right)
     this.flowPointsBmp = this.insert.topRight.bitmapText({
@@ -201,12 +191,7 @@ export class UIScene extends UiScene {
     this.bottomBarBg.setPosition(Math.floor(vp.width / 2), vp.height - Math.floor(bottomH / 2));
     this.bottomBarBg.setSize(vp.width, bottomH);
 
-    // Reposition flow bar
-    const flowBarH = 3;
-    const flowY = topH - Math.floor(flowBarH / 2);
-    this.flowBarBg.setPosition(Math.floor(vp.width / 2), flowY);
-    this.flowBarBg.setSize(vp.width, flowBarH);
-    this.flowBarFill.setY(flowY);
+    this.flowBarFill.setY(topH);
   }
 
   private createPanels(): void {
@@ -327,7 +312,7 @@ export class UIScene extends UiScene {
 
     const vp = this.viewport;
     const fraction = level / 100;
-    this.flowBarFill.setSize(Math.floor(vp.width * fraction), 3);
+    this.flowBarFill.setSize(Math.floor(vp.width * fraction), FLOW_BAR_H);
     this.flowBarFill.setFillStyle(this.getFlowColor(fraction));
 
     if (points > 0) {

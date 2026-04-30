@@ -13,9 +13,6 @@ import { CANVAS_WIDTH, CANVAS_HEIGHT } from './config';
 const TOP_BAR_VP = 20;
 const BOTTOM_BAR_VP = 40;
 
-// Minimum margin around game area in screen pixels
-const GAME_AREA_MARGIN = 4;
-
 // Pixui constraint width (must match UIScene's viewportConstraints.width)
 const PIXUI_MIN_WIDTH = CANVAS_WIDTH; // 640
 
@@ -45,9 +42,9 @@ export function updateLayout(canvasW: number, canvasH: number): void {
   const topBarH = TOP_BAR_VP * pixuiZoom;
   const bottomBarH = BOTTOM_BAR_VP * pixuiZoom;
 
-  // Available space for game area
-  const availW = canvasW - GAME_AREA_MARGIN * 2;
-  const availH = canvasH - topBarH - bottomBarH - GAME_AREA_MARGIN * 2;
+  // Available space between the bars
+  const availW = canvasW;
+  const availH = canvasH - topBarH - bottomBarH;
 
   // Fit game area maintaining world aspect ratio (fractional)
   let gameW: number;
@@ -62,13 +59,9 @@ export function updateLayout(canvasW: number, canvasH: number): void {
 
   const zoom = gameW / CANVAS_WIDTH;
 
-  // Center horizontally, center vertically between bars
-  const centerX = canvasW / 2;
-  const midSpace = canvasH - topBarH - bottomBarH;
-  const centerY = topBarH + midSpace / 2;
-
-  const gameX = centerX - gameW / 2;
-  const gameY = centerY - gameH / 2;
+  // Center horizontally; center vertically between the bars
+  const gameX = (canvasW - gameW) / 2;
+  const gameY = topBarH + (availH - gameH) / 2;
 
   current = {
     topBarH,
